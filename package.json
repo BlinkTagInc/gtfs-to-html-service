@@ -1,0 +1,37 @@
+{
+  "name": "gtfs-to-html-service",
+  "description": "A service for builds HTML timetables from GTFS using gtfs-to-html",
+  "version": "0.1.0",
+  "keywords": [
+    "transit",
+    "gtfs",
+    "transportation"
+  ],
+  "private": false,
+  "author": "Brendan Nee <me@bn.ee>",
+  "repository": "git://github.com/brendannee/gtfs-to-html-service",
+  "license": "MIT",
+  "scripts": {
+    "start": "node app",
+    "test": "xo"
+  },
+  "dependencies": {
+    "dotenv": "2.0.0",
+    "express": "4.14.0",
+    "gtfs-to-html": "0.6.7",
+    "mongoose": "4.7.5",
+    "sanitize-filename": "1.6.1",
+    "uuid": "^3.0.1",
+    "ws": "1.1.1"
+  },
+  "devDependencies": {
+    "xo": "0.17.1"
+  },
+  "engines": {
+    "node": ">=6.9.0"
+  },
+  "xo": {
+    "esnext": true,
+    "space": true
+  }
+}
