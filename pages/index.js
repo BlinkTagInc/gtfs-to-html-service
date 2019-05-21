@@ -30,20 +30,23 @@ function Home() {
 
     setProcessing(true);
 
-    const res = await fetch('/api/create', { 
-      method: 'POST',
-      body: JSON.stringify({
-        url
-      }),
-      headers:{
-        'Content-Type': 'application/json'
-      }
-    });
-    const data = await res.json()
-
+    try {
+      const res = await fetch('/api/create', { 
+        method: 'POST',
+        body: JSON.stringify({
+          url
+        }),
+        headers:{
+          'Content-Type': 'application/json'
+        }
+      });
+      const data = await res.json();
+      setResults(data);
+    } catch (error) {
+      setResults({ error: 'Unable to access GTFS-to-HTML service' });
+    }
+  
     setProcessing(false);
-    
-    setResults(data);
   }
 
   const renderUrlForm = () => {

@@ -13,7 +13,7 @@ const server = new Hapi.Server({
   port
 });
 
-mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true });
 
 const createTimetablesApi = require('./api/create');
 
