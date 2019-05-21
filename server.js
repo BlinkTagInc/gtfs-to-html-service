@@ -1,6 +1,5 @@
 const next = require('next');
 const Hapi = require('@hapi/hapi');
-const HapiRequireHttps = require('hapi-require-https');
 const mongoose = require('mongoose');
 const {nextHandlerWrapper} = require('./next-wrapper');
 
@@ -19,13 +18,6 @@ const createTimetablesApi = require('./api/create');
 
 app.prepare()
 .then(async () => {
-  if (process.env.NODE_ENV === 'production') {
-    await server.register({
-      plugin: HapiRequireHttps,
-      options: {}
-    });
-  }
-
   server.route({
     method: 'POST',
     path: '/api/create',
@@ -48,7 +40,7 @@ app.prepare()
     method: 'GET',
     path: '/{p*}', /* Catch all route */
     handler: nextHandlerWrapper(app)
-  })
+  });
 
   try {
     await server.start();
