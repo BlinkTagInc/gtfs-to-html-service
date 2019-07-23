@@ -1,10 +1,29 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
+const io = require('socket.io-client');
+const socket = io('http://localhost:3000');
+
+function uuidv4() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  )
+}
 
 function Home() {
   const [url, setUrl] = useState('');
   const [processing, setProcessing] = useState(false);
-  const [results, setResults] = useState(null);
+  const [statuses, setStatuses] = useState([]);
+
+  useEffect(() => {
+    socket.on('status', payload => {
+      if (statuses.length && payload.statusKey && payload.statusKey === statuses[statuses.length - 1].statusKey) {
+        statuses.splice(-1, 1, payload);
+      } else {
+        statuses.push(payload)
+      }
+      setStatuses([ ...statuses ]);
+    });
+  }, []);
 
   const useCaltrain = event => {
     if (event) {
@@ -21,30 +40,21 @@ function Home() {
       event.preventDefault();
     }
 
-    setResults(null);
+    setStatuses([]);
     
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
-      setResults({ error: 'Please enter a valid URL' });
+      setStatuses([{ error: 'Please enter a valid URL' }]);
       return;
     }
 
     setProcessing(true);
 
-    try {
-      const res = await fetch('/api/create', { 
-        method: 'POST',
-        body: JSON.stringify({
-          url
-        }),
-        headers:{
-          'Content-Type': 'application/json'
-        }
-      });
-      const data = await res.json();
-      setResults(data);
-    } catch (error) {
-      setResults({ error: 'Unable to access GTFS-to-HTML service' });
-    }
+    const buildId = uuidv4();
+    socket.emit('create', {
+      url,
+      buildId
+    });
+
   
     setProcessing(false);
   }
@@ -75,7 +85,7 @@ function Home() {
           <input type="submit" value="Go" className="btn btn-primary btn-lg" />
         </form>
 
-        {!results && <div className="row">
+        {!statuses.length && <div className="row">
           <div className="col-sm-6 offset-sm-3 mt-5">
             <div className="card">
               <div className="card-body">
@@ -216,80 +226,79 @@ function Home() {
     )
   }
 
-  const clearError = () => {
-    const { error, ...newResults } = results;
-    setResults(newResults);
-  }
-
-  const renderResults = () => {
-    if (!results) {
+  const renderStatus = () => {
+    if (!statuses.length) {
       return null;
     }
 
-    if (results.error) {
-      return (
-        <div className="alert alert-danger" role="alert">
-          <strong>Error:</strong> {results.error}
-          <button
-            type="button"
-            className="close"
-            data-dismiss="alert"
-            aria-label="Close"
-            onClick={clearError}
-          >
-            <span aria-hidden="true">&times;</span>
-          </button>
-          <style jsx>{`
-            .alert {
-              align-self: stretch;
-              flex-wrap: wrap;
-            }
-          `}</style>
-        </div>
-      );
-    }
+    const latestStatus = statuses[statuses.length - 1];
 
     return (
-      <div>
-        <div className="alert alert-success" role="alert">
-          <strong>HTML Timetable generation succeeded</strong>
-          <br />
-          from {url}
-        </div>
-        <div className="row">
-          <div className="col-md-6">
+      <div className="status-container">
+        <h4>Status:</h4>
+        {statuses.map((status, index) => {
+          if (status.error) {
+            return (
+              <div className="status text-danger" key={index}><strong>Error:</strong> {status.error}</div>
+            )
+          }
+          return (
+            <div className="status" key={index}>
+              {index === statuses.length - 1 && !status.html_preview_url
+                ? <div className="spinner"></div>
+                : null
+              }
+              {status.status}
+            </div>
+          )
+        })}
+        <div className="row mt-4">
+        {latestStatus.html_download_url && <div className="col-md-6">
             <a
-              href={results.html_download_url}
+              href={latestStatus.html_download_url}
               className="btn btn-lg btn-primary btn-block"
             >Download .zip</a>
-          </div>
-          <div className="col-md-6">
+          </div>}
+          {latestStatus.html_preview_url && <div className="col-md-6">
             <a
-              href={results.html_preview_url}
+              href={latestStatus.html_preview_url}
               className="btn btn-lg btn-primary btn-block"
               target="_blank"
             >Preview Timetables</a>
-          </div>
+          </div>}
         </div>
         <style jsx>{`
-          .alert {
-            align-self: stretch;
-            flex-wrap: wrap;
+          .status-container {
+            width: 650px;
+            text-align: left;
           }
 
-          .btn-block {
-            margin-bottom: 15px;
+          .status {
+            padding-left: 35px;
+            position: relative;
+            font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
           }
 
-          @media (min-width: 576px) {
-            .url-form {
-              align-self: stretch;
-            }
-            .form-inline .url-form-group {
-              flex: 1;
-            }
-            .form-inline .form-control-url {
-              width: 100%;
+          .spinner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1.5rem;
+            height: 1.5rem;
+            border: 0.25rem solid #ffc000;
+            border-bottom: 0.25rem solid rgba(0,0,0,0);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 9999;
+          }
+          
+          .spinner--hidden {
+            display: none;
+          }
+          
+          @keyframes spin {
+            to {
+              transform: rotate(360deg);
             }
           }
         `}</style>
@@ -307,7 +316,7 @@ function Home() {
           <div className="form-box">
             {renderUrlForm()}
             {renderLoading()}
-            {renderResults()}
+            {renderStatus()}
           </div>
         </div>
         <div className="footer">

@@ -19,17 +19,19 @@
   },
   "dependencies": {
     "@hapi/hapi": "^18.3.1",
-    "@hapi/inert": "^5.2.0",
-    "acorn": "^6.0.5",
+    "@hapi/inert": "^5.2.1",
+    "acorn": "^6.2.1",
     "dotenv": "8.0.0",
-    "express": "4.17.0",
-    "gtfs-to-html": "^0.17.2",
+    "express": "4.17.1",
+    "gtfs-to-html": "^0.17.5",
     "hapi-require-https": "^3.0.1",
-    "next": "^8.1.0",
+    "next": "^9.0.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
-    "uuid": "^3.3.2",
-    "ws": "7.0.0"
+    "s3": "^4.4.0",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0",
+    "uuid": "^3.3.2"
   },
   "devDependencies": {
     "xo": "0.24.0"

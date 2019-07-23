@@ -1,8 +1,8 @@
 const path = require('path');
 const fs = require('fs');
-const util = require('util')
-const uuidV4 = require('uuid/v4');
+const util = require('util');
 const url = require('url');
+var s3 = require('s3');
 const gtfsToHtml = require('gtfs-to-html');
 const readFile = util.promisify(fs.readFile);
 
@@ -15,10 +15,16 @@ async function getOutputStats(statsPath) {
   }, {});
 }
 
-module.exports = async (request, h) => {
-  const body = request.payload;
-  const buildId = uuidV4();
+var client = s3.createClient({
+  s3Options: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_ACCESS_KEY_SECRET,
+    region: process.env.AWS_REGION
+  },
+});
 
+module.exports = async (data, socket) => {
+  const { buildId, url: downloadUrl } = data;
   const config = {
     verbose: true,
     zipOutput: true,
@@ -26,26 +32,51 @@ module.exports = async (request, h) => {
     agencies: [
       {
         agency_key: buildId,
-        url: body.url
+        url: downloadUrl
       }
     ]
   }
 
-  const responseData = {
-    id: buildId,
-    original_gtfs_url: body.url,
-  };
+  socket.emit('status', { status: 'Started HTML timetable generation' });
 
   try {
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(path.join(__dirname, '..', 'html', buildId, 'log.txt'));
 
-    return {
-      ...responseData,
-      outputStats,
-      html_download_url: url.resolve(process.env.SERVER_URL, path.join('results', buildId, 'timetables.zip')),
-      html_preview_url: url.resolve(process.env.SERVER_URL, path.join('results', buildId))
-    };
+    socket.emit('status', { status: `Finished creating ${outputStats['Timetable Count']} timetables` });
+
+    // Set expires date to 30 days in the future
+    const uploader = client.uploadDir({
+      localDir: path.join(__dirname, '..', 'html', buildId),
+      deleteRemoved: true,
+      s3Params: {
+        Bucket: 'gtfs-to-html',
+        Prefix: buildId,
+        ACL: 'public-read',
+        Expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+      }
+    });
+
+    uploader.on('error', function(error) {
+      throw error;
+    });
+
+    uploader.on('progress', function() {
+      const progressPercent = uploader.progressAmount ? `[${Math.round(uploader.progressAmount / uploader.progressTotal * 1000) / 10}%]` : '';
+      socket.emit('status', {
+        status: `Uploading timetables ${progressPercent}`,
+        statusKey: 'uploading'
+      });
+    });
+    
+    uploader.on('end', function() {
+      socket.emit('status', {
+        status: 'Completed',
+        html_download_url: url.resolve(process.env.AWS_S3_URL, path.join(buildId, 'timetables.zip')),
+        html_preview_url: url.resolve(process.env.AWS_S3_URL, buildId, 'index.html')
+      });
+    });
+
   } catch (error) {
     console.log(error)
     let errorMessage;
@@ -58,9 +89,6 @@ module.exports = async (request, h) => {
       errorMessage = error.toString();
     }
 
-    return h.response({
-      ...responseData,
-      error: errorMessage
-    }).code(400);
+    socket.emit('status', { error: errorMessage });
   }
 }
