@@ -285,7 +285,7 @@ function Home() {
     )
   }
 
-  const formatStatusText = text => text.replace(`${buildId}: `, '');
+  const formatStatusText = text => text && typeof text === 'string' ? text.replace(`${buildId}: `, '') : '';
 
   const renderStatus = () => {
     if (!statuses.length) {
