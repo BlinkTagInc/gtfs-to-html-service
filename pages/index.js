@@ -13,6 +13,10 @@ function Home() {
   const [url, setUrl] = useState('');
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
+  const [buildId, setBuildId] = useState();
+  const [userHasScrolled, setUserHasScrolled] = useState(false);
+
+  const statusContainer = React.createRef();
 
   useEffect(() => {
     socket.on('status', payload => {
@@ -24,6 +28,20 @@ function Home() {
       setStatuses([ ...statuses ]);
     });
   }, []);
+
+  useEffect(() => {
+    window.addEventListener('scroll', setUserHasScrolled(true));
+  }, []);
+
+  useEffect(() => {
+    if(!userHasScrolled){
+      var element = statusContainer.current;
+      if (element) {
+        console.log('boom')
+        element.scrollTop = element.scrollHeight;
+      }
+    }
+  }, [statuses])
 
   const useCaltrain = event => {
     if (event) {
@@ -41,6 +59,7 @@ function Home() {
     }
 
     setStatuses([]);
+    setUserHasScrolled(false);
     
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
       setStatuses([{ error: 'Please enter a valid URL' }]);
@@ -55,7 +74,7 @@ function Home() {
       buildId
     });
 
-  
+    setBuildId(buildId);
     setProcessing(false);
   }
 
@@ -226,6 +245,8 @@ function Home() {
     )
   }
 
+  const formatStatusText = text => text.replace(`${buildId}: `, '');
+
   const renderStatus = () => {
     if (!statuses.length) {
       return null;
@@ -234,58 +255,56 @@ function Home() {
     const latestStatus = statuses[statuses.length - 1];
 
     return (
-      <div className="status-container">
+      <div>
         <h4>Status:</h4>
-        {statuses.map((status, index) => {
-          if (status.error) {
+        <div className="status-container" ref={statusContainer}>
+          {statuses.map((status, index) => {
+            if (status.error) {
+              return (
+                <div className="status text-danger" key={index}><strong>Error:</strong> {status.error}</div>
+              )
+            }
             return (
-              <div className="status text-danger" key={index}><strong>Error:</strong> {status.error}</div>
+              <div className="status" key={index}>
+                {formatStatusText(status.status)}
+              </div>
             )
-          }
-          return (
-            <div className="status" key={index}>
-              {index === statuses.length - 1 && !status.html_preview_url
-                ? <div className="spinner"></div>
-                : null
-              }
-              {status.status}
-            </div>
-          )
-        })}
-        <div className="row mt-4">
-        {latestStatus.html_download_url && <div className="col-md-6">
-            <a
-              href={latestStatus.html_download_url}
-              className="btn btn-lg btn-primary btn-block"
-            >Download .zip</a>
-          </div>}
-          {latestStatus.html_preview_url && <div className="col-md-6">
-            <a
-              href={latestStatus.html_preview_url}
-              className="btn btn-lg btn-primary btn-block"
-              target="_blank"
-            >Preview Timetables</a>
-          </div>}
+          })}
+          {!latestStatus.html_preview_url && !latestStatus.error && <div className="spinner"></div>}
+          <div className="row mt-4">
+            {latestStatus.html_download_url && <div className="col-md-6">
+              <a
+                href={latestStatus.html_download_url}
+                className="btn btn-lg btn-primary btn-block"
+              >Download .zip</a>
+            </div>}
+            {latestStatus.html_preview_url && <div className="col-md-6">
+              <a
+                href={latestStatus.html_preview_url}
+                className="btn btn-lg btn-primary btn-block"
+                target="_blank"
+              >Preview Timetables</a>
+            </div>}
+          </div>
         </div>
         <style jsx>{`
           .status-container {
-            width: 650px;
+            width: 800px;
             text-align: left;
-          }
-
-          .status {
-            padding-left: 35px;
-            position: relative;
+            background-color: #1e1e1e;
+            color: #4AF626;
             font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+            padding: 30px;
+            height: 400px;
+            overflow-y: scroll;
           }
 
           .spinner {
-            position: absolute;
-            top: 0;
-            left: 0;
+            margin-top: 5px;
+            margin-bottom: -15px;
             width: 1.5rem;
             height: 1.5rem;
-            border: 0.25rem solid #ffc000;
+            border: 0.25rem solid #4AF626;
             border-bottom: 0.25rem solid rgba(0,0,0,0);
             border-radius: 50%;
             animation: spin 1s linear infinite;

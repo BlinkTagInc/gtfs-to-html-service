@@ -20,7 +20,7 @@ Update the values as needed.
 
 ## Running Locally
 
-    npm start
+    npm run dev
 
 Connect to a websocket on `localhost:3000`. Use something like the  [Simple Websocket Client](https://chrome.google.com/webstore/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo) Chrome extension.
 

@@ -34,10 +34,11 @@ module.exports = async (data, socket) => {
         agency_key: buildId,
         url: downloadUrl
       }
-    ]
+    ],
+    logFunction: text => {
+      socket.emit('status', { status: text });
+    }
   }
-
-  socket.emit('status', { status: 'Started HTML timetable generation' });
 
   try {
     await gtfsToHtml(config);
