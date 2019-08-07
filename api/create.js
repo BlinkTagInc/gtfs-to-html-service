@@ -37,7 +37,8 @@ module.exports = async (data, socket) => {
     ],
     logFunction: text => {
       socket.emit('status', { status: text });
-    }
+    },
+    dataExpireAfterSeconds: 3600
   }
 
   try {
