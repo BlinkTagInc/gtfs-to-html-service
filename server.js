@@ -25,7 +25,6 @@ mongoose.connect(process.env.MONGODB_URI, {
 
 // socket.io server
 io.on('connection', socket => {
-  console.log('connection')
   socket.on('create', data => {
     if (!data.url) {
       return socket.emit('status', {

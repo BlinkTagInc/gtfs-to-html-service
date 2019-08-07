@@ -400,6 +400,9 @@ function Home() {
   return (
     <div>
       <Head>
+        <link rel="icon" type="image/png" href="/static/favicon-16x16.png" sizes="16x16" />
+        <link rel="icon" type="image/png" href="/static/favicon-32x32.png" sizes="32x32" />
+        <link rel="apple-touch-icon" href="/static/apple-touch-icon.png" sizes="180x180" />
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous" />
       </Head>
       <div className="wrapper">
