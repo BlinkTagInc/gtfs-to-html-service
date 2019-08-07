@@ -90,7 +90,7 @@ function Home() {
             <input
               type="text"
               placeholder="URL of zipped GTFS file"
-              className="form-control form-control-lg form-control-url"
+              className="form-control form-control-lg form-control-url mt-3 mt-md-0"
               value={url}
               onChange={handleUrlChange}
             />
@@ -104,14 +104,63 @@ function Home() {
         </form>
 
         {!statuses.length && <div className="row">
-          <div className="col-sm-6 offset-sm-3 mt-5">
+          <div className="col-sm-8 offset-sm-2 mt-lg-5 mt-2">
             <div className="card">
               <div className="card-body">
                 <h5 className="card-title">What is this tool?</h5>
-                <p className="card-text">GTFS-to-HTML creates human-readable, user-friendly transit timetables in HTML format directly from GTFS transit data.</p>
-                <p className="card-text">Most transit agencies have schedule data in GTFS format but need to show each route's schedule to users on a website. This tool automates the process of creating nicely formatted HTML timetables for inclusion on a transit agency website. Automating timetable creation means that timetables can be kept up to date and accurate when schedule changes happen and the likelihood of errors is reduced.</p>
-                <a href="https://github.com/BlinkTagInc/gtfs-to-html" className="card-link">Read more</a>
-                <a href="https://gtfs.org/" className="card-link">Read more about GTFS</a>
+                <div className="row mb-4">
+                  <div className="col-3 display-4 text-center">
+                    🚆
+                  </div>
+                  <div className="col-9">
+                    <p className="card-text">GTFS-to-HTML creates human-readable, user-friendly transit timetables in HTML format directly from GTFS transit data.</p>
+                  </div>
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-3 display-4 text-center">
+                    🕑
+                  </div>
+                  <div className="col-9">
+                    <p className="card-text">Most transit agencies have schedule data in GTFS format but need to show each route's schedule to users on a website.</p>
+                  </div>
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-3 display-4 text-center">
+                    🖥
+                  </div>
+                  <div className="col-9">
+                    <p className="card-text">GTFS allows transit data to be published to apps like Google Maps and Citymapper. HTML is a human-readable format (like this website).</p>
+                  </div>
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-3 display-4 text-center">
+                    🧰
+                  </div>
+                  <div className="col-9">
+                    <p className="card-text">This tool automates the process of creating nicely formatted HTML timetables for inclusion on a transit agency website.</p>
+                  </div>
+                </div>
+
+                <div className="row mb-4">
+                  <div className="col-3 display-4 text-center">
+                    ✅
+                  </div>
+                  <div className="col-9">
+                    <p className="card-text">Automating timetable creation means that timetables can be kept up to date and accurate when schedule changes happen and the likelihood of errors is reduced.</p>
+                  </div>
+                </div>
+              
+                <div className="row">
+                  <div className="col">
+                    <a href="https://github.com/BlinkTagInc/gtfs-to-html" className="btn btn-sm btn-primary btn-block">Read more</a>
+                  </div>
+                  <div className="col">
+                    <a href="https://gtfs.org/" className="btn btn-sm btn-secondary btn-block">Read more about GTFS</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -301,7 +350,6 @@ function Home() {
           }
 
           .status-container {
-            width: 800px;
             text-align: left;
             background-color: #1e1e1e;
             color: #4AF626;
@@ -309,6 +357,7 @@ function Home() {
             padding: 15px 30px;
             height: 400px;
             overflow-y: scroll;
+            overflow-x: hidden;
             border-bottom-right-radius: 7px;
             border-bottom-left-radius: 7px;
             box-shadow: 0 5px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
@@ -339,6 +388,18 @@ function Home() {
               transform: rotate(360deg);
             }
           }
+
+          @media only screen and (min-width: 800px) {
+            .status-container {
+              width: 700px;
+            }
+          }
+
+          @media only screen and (min-width: 968px) {
+            .status-container {
+              width: 800px;
+            }
+          }
         `}</style>
       </div>
     );
@@ -362,35 +423,6 @@ function Home() {
         </div>
       </div>
       <style jsx>{`
-        .wrapper {
-          display: flex;
-          align-items: center;
-          flex-direction: column;
-          flex: 1;
-          justify-content: center;
-        }
-        .home-content {
-          display: flex;
-          flex-direction: column;
-          min-height: calc(100vh - 75px);
-          padding: 0 20px;
-          max-width: 800px;
-        }
-        .form-box {
-          align-items: center;
-          display: flex;
-          flex-direction: column;
-          flex: 1;
-          justify-content: center;
-        }
-        .footer {
-          padding: 25px;
-        }
-        .footer a {
-          color: #000;
-        }
-      `}</style>
-      <style global jsx>{`
         body {
           position: relative;
           min-height: 100%;
@@ -410,6 +442,41 @@ function Home() {
           font-weight: 400;
           font-size: 28px;
           line-height: 36px;
+        }
+        .home-content {
+          padding: 15px 20px 0;
+        }
+        .form-box {
+          align-items: center;
+        }
+        .footer {
+          padding: 25px;
+        }
+        .footer a {
+          color: #000;
+        }
+
+        @media only screen and (min-width: 800px) {
+          .wrapper {
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+            flex: 1;
+            justify-content: center;
+          }
+          .home-content {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 75px);
+            max-width: 800px;
+          }
+          .form-box {
+            align-items: center;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: center;
+          }
         }
       `}</style>
     </div>
