@@ -24,19 +24,22 @@ var client = s3.createClient({
 });
 
 module.exports = async (data, socket) => {
-  const { buildId, url: downloadUrl } = data;
+  const {
+    buildId,
+    url: downloadUrl
+  } = data;
   const config = {
     verbose: true,
     zipOutput: true,
     mongoUrl: process.env.MONGODB_URI,
-    agencies: [
-      {
-        agency_key: buildId,
-        url: downloadUrl
-      }
-    ],
+    agencies: [{
+      agency_key: buildId,
+      url: downloadUrl
+    }],
     logFunction: text => {
-      socket.emit('status', { status: text });
+      socket.emit('status', {
+        status: text
+      });
     },
     dataExpireAfterSeconds: 3600
   }
@@ -45,7 +48,9 @@ module.exports = async (data, socket) => {
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(path.join(__dirname, '..', 'html', buildId, 'log.txt'));
 
-    socket.emit('status', { status: `Finished creating ${outputStats['Timetable Count']} timetables` });
+    socket.emit('status', {
+      status: `Finished creating ${outputStats['Timetable Count']} timetables`
+    });
 
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
@@ -59,19 +64,19 @@ module.exports = async (data, socket) => {
       }
     });
 
-    uploader.on('error', function(error) {
+    uploader.on('error', function (error) {
       throw error;
     });
 
-    uploader.on('progress', function() {
+    uploader.on('progress', function () {
       const progressPercent = uploader.progressAmount ? `[${Math.round(uploader.progressAmount / uploader.progressTotal * 1000) / 10}%]` : '';
       socket.emit('status', {
         status: `Uploading timetables ${progressPercent}`,
         statusKey: 'uploading'
       });
     });
-    
-    uploader.on('end', function() {
+
+    uploader.on('end', function () {
       socket.emit('status', {
         status: 'Timetable upload completed',
         html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'timetables.zip')),
@@ -91,6 +96,8 @@ module.exports = async (data, socket) => {
       errorMessage = error.toString();
     }
 
-    socket.emit('status', { error: errorMessage });
+    socket.emit('status', {
+      error: errorMessage
+    });
   }
 }
