@@ -255,12 +255,12 @@ function Home() {
 
     return (
       <div>
-        <h4>Status:</h4>
+        <div className="status-container-header">HTML Timetable Generation Status</div>
         <div className="status-container" ref={statusContainer}>
           {statuses.map((status, index) => {
             if (status.error) {
               return (
-                <div className="status text-danger" key={index}><strong>Error:</strong> {status.error}</div>
+                <div className="status status-error" key={index}><strong>Error:</strong> {status.error}</div>
               )
             }
             return (
@@ -287,6 +287,19 @@ function Home() {
           </div>
         </div>
         <style jsx>{`
+          .status-container-header {
+            background-color: #37373a;
+            border-top: 1px solid #4e4e51;
+            border-right: 1px solid #4e4e51;
+            border-left: 1px solid #4e4e51;
+            border-top-right-radius: 7px;
+            border-top-left-radius: 7px;
+            color: #b3b3b6;
+            font-size: 14px;
+            padding: 2px;
+            text-align: center;
+          }
+
           .status-container {
             width: 800px;
             text-align: left;
@@ -296,6 +309,13 @@ function Home() {
             padding: 15px 30px;
             height: 400px;
             overflow-y: scroll;
+            border-bottom-right-radius: 7px;
+            border-bottom-left-radius: 7px;
+            box-shadow: 0 5px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
+          }
+
+          .status-error {
+            color: #ff3b1e;
           }
 
           .spinner {
