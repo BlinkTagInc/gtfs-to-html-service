@@ -89,9 +89,9 @@ module.exports = async (data, socket) => {
     let errorMessage;
 
     if (error.toString().includes('FetchError')) {
-      errorMessage = `Unable to fetch GTFS from ${body.url}`;
+      errorMessage = `Unable to fetch GTFS from ${downloadUrl}`;
     } else if (error.toString().includes('Unable to unzip file')) {
-      errorMessage = `Invalid zip file at ${body.url}`;
+      errorMessage = `Invalid zip file at ${downloadUrl}`;
     } else {
       errorMessage = error.toString();
     }
