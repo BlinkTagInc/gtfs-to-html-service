@@ -13,8 +13,7 @@ function Home() {
   const [url, setUrl] = useState('');
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
-  const [buildId, setBuildId] = useState();
-  const [userHasScrolled, setUserHasScrolled] = useState(false);
+  const [buildId, setBuildId] = useState(); 
 
   const statusContainer = React.createRef();
 
@@ -30,15 +29,9 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener('scroll', setUserHasScrolled(true));
-  }, []);
-
-  useEffect(() => {
-    if(!userHasScrolled){
-      var element = statusContainer.current;
-      if (element) {
-        element.scrollTop = element.scrollHeight;
-      }
+    var element = statusContainer.current;
+    if (element) {
+      element.scrollTop = element.scrollHeight;
     }
   }, [statuses])
 
@@ -58,7 +51,6 @@ function Home() {
     }
 
     setStatuses([]);
-    setUserHasScrolled(false);
     
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
       setStatuses([{ error: 'Please enter a valid URL' }]);
