@@ -74,7 +74,7 @@ module.exports = async (data, socket) => {
       socket.emit('status', {
         status: 'Completed',
         html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'timetables.zip')),
-        html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, buildId, 'index.html')
+        html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'index.html'))
       });
     });
 
