@@ -1,26 +1,11 @@
 {
-  "version": 2,
+  "version": 1,
   "alias": "gtfstohtml.com",
-  "builds": [
-    { "src": "next.config.js", "use": "@now/next" },
-    {
-      "src": "api.js",
-      "use": "@now/node-server",
-      "config": {
-        "includeFiles": [
-          "node_modules/gtfs-to-html/public/**"
-        ]
-      }
-    }
-  ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "/api.js" }
-  ],
   "env": {
-    "SERVER_URL": "https://gtfstohtml.com",
     "MONGODB_URI": "@mongodb-uri",
-    "AWS_ACCESS_KEY_ID": "@aws-access-key-id",
-    "AWS_ACCESS_KEY_SECRET": "@aws-access-key-secret",
-    "AWS_REGION": "@aws-region"
+    "GTFS_AWS_ACCESS_KEY_ID": "@gtfs-aws-access-key-id",
+    "GTFS_AWS_ACCESS_KEY_SECRET": "@gtfs-aws-access-key-secret",
+    "GTFS_AWS_REGION": "@gtfs-aws-region",
+    "GTFS_AWS_S3_URL": "@gtfs-aws-s3-url"
   }
 }

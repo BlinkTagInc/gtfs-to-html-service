@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 const io = require('socket.io-client');
-const socket = io('http://localhost:3000');
+const socket = io('/');
 
 function uuidv4() {
   return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
@@ -37,7 +37,6 @@ function Home() {
     if(!userHasScrolled){
       var element = statusContainer.current;
       if (element) {
-        console.log('boom')
         element.scrollTop = element.scrollHeight;
       }
     }
@@ -294,7 +293,7 @@ function Home() {
             background-color: #1e1e1e;
             color: #4AF626;
             font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
-            padding: 30px;
+            padding: 15px 30px;
             height: 400px;
             overflow-y: scroll;
           }
