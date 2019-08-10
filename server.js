@@ -8,7 +8,10 @@ const {
 
 const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3000;
-const createTimetablesApi = require('./api/create');
+const createTimetables = require('./util/create');
+const getLocations = require('./api/getLocations');
+const getFeeds = require('./api/getFeeds');
+const getFeedVersions = require('./api/getFeedVersions');
 
 const app = next({
   dev
@@ -36,12 +39,30 @@ io.on('connection', socket => {
       });
     }
 
-    createTimetablesApi(data, socket);
+    createTimetables(data, socket);
   });
 });
 
 app.prepare()
   .then(async () => {
+    server.route({
+      method: 'GET',
+      path: '/api/locations',
+      handler: getLocations
+    });
+
+    server.route({
+      method: 'GET',
+      path: '/api/feeds',
+      handler: getFeeds
+    });
+
+    server.route({
+      method: 'GET',
+      path: '/api/feed-versions',
+      handler: getFeedVersions
+    });
+
     server.route({
       method: 'GET',
       path: '/{p*}',

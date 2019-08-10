@@ -13,7 +13,11 @@ function Home() {
   const [url, setUrl] = useState('');
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
-  const [buildId, setBuildId] = useState(); 
+  const [buildId, setBuildId] = useState();
+  const [locations, setLocations] = useState();
+  const [selectedLocation, setSelectedLocation] = useState('');
+  const [feeds, setFeeds] = useState();
+  const [selectedFeed, setSelectedFeed] = useState('');
 
   const statusContainer = React.createRef();
 
@@ -26,6 +30,14 @@ function Home() {
       }
       setStatuses([ ...statuses ]);
     });
+
+    fetch('/api/locations')
+      .then(res => res.json())
+      .then(response => {
+        if (response && response.results && response.results.locations) {
+          setLocations(response.results.locations);
+        }
+      });
   }, []);
 
   useEffect(() => {
@@ -33,17 +45,32 @@ function Home() {
     if (element) {
       element.scrollTop = element.scrollHeight;
     }
-  }, [statuses])
+  }, [statuses]);
 
-  const useCaltrain = event => {
-    if (event) {
-      event.preventDefault();
+  useEffect(() => {
+    if (selectedFeed) {
+      fetch(`/api/feed-versions?feed=${selectedFeed}`)
+      .then(res => res.json())
+      .then(response => {
+        if (response && response.results && response.results.versions && response.results.versions.length) {
+          setUrl(response.results.versions[0].url);
+        } else {
+          const locationName = locations.find(l => l.id.toString() === selectedLocation).t;
+          alert(`Unable to find any valid feed URLs for ${locationName}`);
+        }
+      });
     }
+  }, [selectedFeed]);
 
-    setUrl('https://transitfeeds.com/p/caltrain/122/latest/download');
-  }
-
-  const handleUrlChange = event => setUrl(event.target.value);
+  const handleUrlChange = event => {
+    setUrl(event.target.value);
+    if (feeds && selectedFeed && event.target.value !== feeds.find(f => f.id === selectedFeed).u.d) {
+      // Reset feed and location select
+      setSelectedFeed('');
+      setSelectedLocation('');
+      setFeeds();
+    }
+  };
 
   const handleUrlFormSubmit = async event => {
     if (event) {
@@ -69,6 +96,42 @@ function Home() {
     setProcessing(false);
   }
 
+  const handleLocationChange = e => {
+    const newLocationId = e.target.value;
+    setSelectedLocation(newLocationId);
+    setFeeds();
+    setUrl('');
+    fetch(`/api/feeds?location=${newLocationId}&limit=100`)
+      .then(res => res.json())
+      .then(response => {
+        if (response && response.results && response.results.feeds) {
+          const filteredFeeds = response.results.feeds.filter(f => f.ty === 'gtfs');
+          setFeeds(filteredFeeds);
+
+          if (filteredFeeds.length === 0) {
+            const locationName = locations.find(l => l.id.toString() === newLocationId).t;
+            alert(`No GTFS feeds found for ${locationName}`);
+          }
+
+          if (filteredFeeds.length === 1) {
+            setSelectedFeed(filteredFeeds[0].id)
+          }
+        }
+      });
+  }
+
+  const renderLocationOption = location => {
+    return (
+      <option key={location.id} value={location.id}>{location.t}</option>
+    );
+  }
+
+  const renderFeedOption = feed => {
+    return (
+      <option key={feed.id} value={feed.id}>{feed.t}</option>
+    );
+  }
+
   const renderUrlForm = () => {
     if (processing) {
       return null;
@@ -76,23 +139,43 @@ function Home() {
 
     return (
       <div>
-        <h1>Generate HTML timetables from your GTFS</h1>
-        <form className="form-inline url-form" onSubmit={handleUrlFormSubmit}>
+        <h1>Generate HTML timetables from GTFS</h1>
+        <form className="url-form" onSubmit={handleUrlFormSubmit}>
           <div className="form-group mx-sm-3 url-form-group">
+            <select
+              className="form-control form-control-lg"
+              onChange={handleLocationChange}
+              value={selectedLocation}
+            >
+              <option value="">Select a Region</option>
+              {locations && locations.map(renderLocationOption)}
+            </select>
+          </div>
+          {feeds && feeds.length > 1 && <div className="form-group mx-sm-3 url-form-group">
+            <select
+              className="form-control form-control-lg"
+              onChange={e => setSelectedFeed(e.target.value)}
+              value={selectedFeed}
+            >
+              <option value="">Select a GTFS Feed</option>
+              {feeds.map(renderFeedOption)}
+            </select>
+          </div>}
+          <div className="form-group mx-sm-3 url-form-group">
+            <small className="form-text text-muted ml-1">
+              or direcly enter the URL of a zipped GTFS file
+            </small>
             <input
               type="text"
               placeholder="URL of zipped GTFS file"
-              className="form-control form-control-lg form-control-url mt-3 mt-md-0"
+              className="form-control form-control-lg form-control-url"
               value={url}
               onChange={handleUrlChange}
             />
-            <small 
-              className="form-text text-muted"
-            >
-              Looking for a URL? Try <a href="https://transitfeeds.com/" target="_blank">transitfeeds.com</a> or <a href="#" onClick={useCaltrain}>try Caltrain's GTFS</a>.
-            </small>
           </div>
-          <input type="submit" value="Go" className="btn btn-primary btn-lg" />
+          <div className="form-group mx-sm-3 url-form-group">
+            <input type="submit" value="Create HTML Timetables" className="btn btn-primary btn-lg btn-block" />
+          </div>
         </form>
 
         {!statuses.length && <div className="row">
