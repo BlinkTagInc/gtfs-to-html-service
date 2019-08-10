@@ -1,10 +1,12 @@
 const path = require('path');
-const fs = require('fs');
+const fetch = require('node-fetch');
+const fs = require('fs-extra');
 const util = require('util');
 const url = require('url');
 var s3 = require('s3');
 const gtfsToHtml = require('gtfs-to-html');
 const readFile = util.promisify(fs.readFile);
+const tmp = require('tmp-promise');
 
 async function getOutputStats(statsPath) {
   const outputStatsText = await readFile(statsPath, 'utf8');
@@ -23,28 +25,56 @@ var client = s3.createClient({
   },
 });
 
+const maxGTFSSize = 3000000;
+
+const downloadAndUnzip = async (downloadUrl, buildId) => {
+  const { path, cleanup } = await tmp.dir({ unsafeCleanup: true });
+  const downloadPath = `${path}/${buildId}-gtfs.zip`;
+
+  const res = await fetch(downloadUrl, { method: 'GET' });
+
+  if (res.status !== 200) {
+    throw new Error('Couldn\'t download files');
+  }
+
+  const buffer = await res.buffer();
+
+  await fs.writeFile(downloadPath, buffer);
+
+  const stats = await fs.stat(downloadPath);
+
+  if (stats.size > maxGTFSSize) {
+    throw new Error('GTFS Zip file too large for gtfstohtml.com. Try running gtfs-to-html on your local machine for processing large GTFS files. Learn more at https://github.com/BlinkTagInc/gtfs-to-html');
+  }
+
+  return downloadPath;
+}
+
 module.exports = async (data, socket) => {
   const {
     buildId,
     url: downloadUrl
   } = data;
-  const config = {
-    verbose: true,
-    zipOutput: true,
-    mongoUrl: process.env.MONGODB_URI,
-    agencies: [{
-      agency_key: buildId,
-      url: downloadUrl
-    }],
-    logFunction: text => {
-      socket.emit('status', {
-        status: text
-      });
-    },
-    dataExpireAfterSeconds: 3600
-  }
 
   try {
+    const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
+  
+    const config = {
+      verbose: true,
+      zipOutput: true,
+      mongoUrl: process.env.MONGODB_URI,
+      agencies: [{
+        agency_key: buildId,
+        path: downloadPath
+      }],
+      logFunction: text => {
+        socket.emit('status', {
+          status: text
+        });
+      },
+      dataExpireAfterSeconds: 3600
+    }
+
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(path.join(__dirname, '..', 'html', buildId, 'log.txt'));
 
@@ -93,7 +123,7 @@ module.exports = async (data, socket) => {
     } else if (error.toString().includes('Unable to unzip file')) {
       errorMessage = `Invalid zip file at ${downloadUrl}`;
     } else {
-      errorMessage = error.toString();
+      errorMessage = error.toString().replace('Error: ', '');
     }
 
     socket.emit('status', {
