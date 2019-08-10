@@ -72,7 +72,7 @@ module.exports = async (data, socket) => {
           status: text
         });
       },
-      dataExpireAfterSeconds: 3600
+      dataExpireAfterSeconds: 600
     }
 
     await gtfsToHtml(config);
