@@ -72,7 +72,7 @@ function Home() {
     }
   };
 
-  const handleUrlFormSubmit = async event => {
+  const handleSubmit = async event => {
     if (event) {
       event.preventDefault();
     }
@@ -140,7 +140,7 @@ function Home() {
     return (
       <div>
         <h1>Generate HTML timetables from GTFS</h1>
-        <form className="url-form" onSubmit={handleUrlFormSubmit}>
+        <form className="url-form" onSubmit={handleSubmit}>
           <div className="form-group mx-sm-3 url-form-group">
             <select
               className="form-control form-control-lg"
@@ -168,7 +168,7 @@ function Home() {
             <input
               type="text"
               placeholder="URL of zipped GTFS file"
-              className="form-control form-control-lg form-control-url"
+              className="form-control form-control-lg form-control-url mt-3 mt-md-0"
               value={url}
               onChange={handleUrlChange}
             />
@@ -390,25 +390,25 @@ function Home() {
             return (
               <div className="status" key={index}>
                 {formatStatusText(status.status)}
+                {status.html_download_url && <div className="row mt-4 mb-4">
+                  <div className="col-md-6">
+                    <a
+                      href={status.html_download_url}
+                      className="btn btn-lg btn-primary btn-block"
+                    >Download .zip</a>
+                  </div>
+                  <div className="col-md-6">
+                    <a
+                      href={status.html_preview_url}
+                      className="btn btn-lg btn-primary btn-block"
+                      target="_blank"
+                    >Preview Timetables</a>
+                  </div>
+                </div>}
               </div>
             )
           })}
-          {!latestStatus.html_preview_url && !latestStatus.error && <div className="spinner"></div>}
-          <div className="row mt-4">
-            {latestStatus.html_download_url && <div className="col-md-6">
-              <a
-                href={latestStatus.html_download_url}
-                className="btn btn-lg btn-primary btn-block"
-              >Download .zip</a>
-            </div>}
-            {latestStatus.html_preview_url && <div className="col-md-6">
-              <a
-                href={latestStatus.html_preview_url}
-                className="btn btn-lg btn-primary btn-block"
-                target="_blank"
-              >Preview Timetables</a>
-            </div>}
-          </div>
+          {!latestStatus.html_preview_url && !latestStatus.error && <div className="spinner mb-4"></div>}
         </div>
         <style jsx>{`
           .status-container-header {
