@@ -9,8 +9,44 @@ function uuidv4() {
   )
 }
 
+const defaultOptions = {
+  beautify: false,
+  coordinatePrecision: 5,
+  dateFormat: 'MMM D, YYYY',
+  daysShortStrings: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  daysStrings: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+  defaultOrientation: 'vertical',
+  interpolatedStopSymbol: '•',
+  interpolatedStopText: 'Estimated time of arrival',
+  menuType: 'jump',
+  noDropoffSymbol: '‡',
+  noDropoffText: 'No drop off available',
+  noHead: false,
+  noPickupSymbol: '***',
+  noPickupText: 'No pickup available',
+  noServiceSymbol: '-',
+  noServiceText: 'No service at this stop',
+  outputFormat: 'html',
+  requestDropoffSymbol: '†',
+  requestDropoffText: 'Must request drop off',
+  requestPickupSymbol: '***',
+  requestPickupText: 'Request stop - call for pickup',
+  serviceNotProvidedOnText: 'Service not provided on',
+  serviceProvidedOnText: 'Service provided on',
+  showArrivalOnDifference: 0.2,
+  showMap: false,
+  showOnlyTimepoint: false,
+  showRouteTitle: true,
+  showStopCity: false,
+  showStopDescription: false,
+  sortingAlgorithm: 'common',
+  timeFormat: 'h:mma'
+};
+
 function Home() {
   const [url, setUrl] = useState('');
+  const [options, setOptions] = useState(JSON.stringify(defaultOptions, null, 2));
+  const [showOptions, setShowOptions] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
   const [buildId, setBuildId] = useState();
@@ -72,9 +108,21 @@ function Home() {
     }
   };
 
+  const handleOptionsChange = event => {
+    setOptions(event.target.value);
+  };
+
   const handleSubmit = async event => {
     if (event) {
       event.preventDefault();
+    }
+
+    let parsedOptions;
+    try {
+      parsedOptions = JSON.parse(options);
+    } catch (err) {
+      setStatuses([{ error: 'Invalid JSON supplied for GTFS-to-HTML options' }]);
+      return;
     }
 
     setStatuses([]);
@@ -89,7 +137,8 @@ function Home() {
     const buildId = uuidv4();
     socket.emit('create', {
       url,
-      buildId
+      buildId,
+      options: parsedOptions
     });
 
     setBuildId(buildId);
@@ -130,6 +179,31 @@ function Home() {
     return (
       <option key={feed.id} value={feed.id}>{feed.t}</option>
     );
+  }
+
+  const renderOptions = () => {
+
+    if (showOptions) {
+      return (
+        <div className="form-group mx-sm-3">
+          <small className="form-text text-muted ml-1">
+            GTFS-to-HTML options{" "}
+            <a href="https://github.com/BlinkTagInc/gtfs-to-html#configuration" target="_blank">read more</a>
+          </small>
+          <textarea
+            className="form-control form-control-sm form-control-options mt-3 mt-md-0"
+            value={options}
+            onChange={handleOptionsChange}
+          />
+        </div>
+      );
+    } else {
+      return (
+        <div className="form-group mx-sm-3">
+          <button className="btn btn-sm" onClick={() => setShowOptions(true)}>Customize options</button>
+        </div>
+      );
+    }
   }
 
   const renderUrlForm = () => {
@@ -173,6 +247,7 @@ function Home() {
               onChange={handleUrlChange}
             />
           </div>
+          {renderOptions()}
           <div className="form-group mx-sm-3 url-form-group">
             <input type="submit" value="Create HTML Timetables" className="btn btn-primary btn-lg btn-block" />
           </div>

@@ -53,13 +53,15 @@ const downloadAndUnzip = async (downloadUrl, buildId) => {
 module.exports = async (data, socket) => {
   const {
     buildId,
-    url: downloadUrl
+    url: downloadUrl,
+    options = {}
   } = data;
 
   try {
     const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
   
     const config = {
+      ...options,
       verbose: true,
       zipOutput: true,
       mongoUrl: process.env.MONGODB_URI,
