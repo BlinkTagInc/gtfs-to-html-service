@@ -45,7 +45,7 @@ The server will respond via websockets. If the timetable generation is successfu
       "buildId":"132da383-721f-4ba3-9ab0-c979ac9e17f4",
       "status": "completed",
       "message": "Completed creating timetables for bart",
-      "url": "http:/localhost:3000/bart/gtfs.zip"
+      "url": "http://localhost:3000/bart/gtfs.zip"
     }
 
 If instead there is an error while processing, the response will contain the error.

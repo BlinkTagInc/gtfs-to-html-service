@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
+import { initGA, logPageView, logEvent } from '../util/analytics';
 const io = require('socket.io-client');
 const socket = io('/');
 
@@ -56,6 +57,14 @@ function Home() {
   const [selectedFeed, setSelectedFeed] = useState('');
 
   const statusContainer = React.createRef();
+
+  useEffect(() => {
+    if (!window.GA_INITIALIZED) {
+      initGA();
+      window.GA_INITIALIZED = true
+    }
+    logPageView();
+  }, []);
 
   useEffect(() => {
     socket.on('status', payload => {
@@ -143,6 +152,8 @@ function Home() {
 
     setBuildId(buildId);
     setProcessing(false);
+
+    logEvent('GTFS', 'create', url);
   }
 
   const handleLocationChange = e => {
