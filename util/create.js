@@ -25,7 +25,7 @@ var client = s3.createClient({
   },
 });
 
-const maxGTFSSize = 3000000;
+const maxGTFSSize = 40000000;
 
 const downloadAndUnzip = async (downloadUrl, buildId) => {
   const { path, cleanup } = await tmp.dir({ unsafeCleanup: true });
