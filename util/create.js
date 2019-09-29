@@ -25,7 +25,7 @@ var client = s3.createClient({
   },
 });
 
-const maxGTFSSize = 40000000;
+const maxGTFSSize = 10000000;
 
 const downloadAndUnzip = async (downloadUrl, buildId) => {
   const { path, cleanup } = await tmp.dir({ unsafeCleanup: true });
@@ -74,7 +74,7 @@ module.exports = async (data, socket) => {
           status: text
         });
       },
-      dataExpireAfterSeconds: 600
+      dataExpireAfterSeconds: 1200
     }
 
     await gtfsToHtml(config);
