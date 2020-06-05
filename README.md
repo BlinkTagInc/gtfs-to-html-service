@@ -2,6 +2,8 @@
 
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
+This is the codebase for https://gtfstohtml.com/
+
 This project is a node.js app that runs on a server and uses the [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) to generate HTML schedules from transit data in GTFS format. It listens via websockets for the agency name, GTFS file location and timetable configuration and responds with a URL where the completed HTML timetabled can be downloaded.
 
 ## Setup
