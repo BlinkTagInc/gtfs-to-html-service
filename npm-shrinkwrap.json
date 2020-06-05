@@ -10611,7 +10611,7 @@
         "aws-sdk": "~2.0.31",
         "fd-slicer": "~1.0.0",
         "findit2": "~2.2.3",
-        "graceful-fs": "~3.0.5",
+        "graceful-fs": "~4.2.4",
         "mime": "~1.2.11",
         "mkdirp": "~0.5.0",
         "pend": "~1.2.0",
@@ -10625,14 +10625,6 @@
           "integrity": "sha1-i1vL2ewyfFBBv5qwI/1nUPEXfmU=",
           "requires": {
             "pend": "~1.2.0"
-          }
-        },
-        "graceful-fs": {
-          "version": "3.0.12",
-          "resolved": "https://registry.npmjs.org/graceful-fs/-/graceful-fs-3.0.12.tgz",
-          "integrity": "sha512-J55gaCS4iTTJfTXIxSVw3EMQckcqkpdRv3IR7gu6sq0+tbC363Zx6KH/SEwXASK9JRbhyZmVjJEVJIOxYsB3Qg==",
-          "requires": {
-            "natives": "^1.1.3"
           }
         },
         "mime": {
