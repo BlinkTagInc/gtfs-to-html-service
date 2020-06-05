@@ -58,6 +58,11 @@ If instead there is an error while processing, the response will contain the err
       "message": "Error: Number of columns on line 69 does not match header"
     }
 
+## Running in production
+
+pm2 start server
+pm2 stop server
+
 ### Tests
 
     npm test
