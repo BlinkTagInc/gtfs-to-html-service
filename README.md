@@ -2,7 +2,7 @@
 
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
-This is the codebase for https://gtfstohtml.com/
+This is the codebase for https://run.gtfstohtml.com/
 
 This project is a node.js app that runs on a server and uses the [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) to generate HTML schedules from transit data in GTFS format. It listens via websockets for the agency name, GTFS file location and timetable configuration and responds with a URL where the completed HTML timetabled can be downloaded.
 
@@ -58,10 +58,16 @@ If instead there is an error while processing, the response will contain the err
       "message": "Error: Number of columns on line 69 does not match header"
     }
 
+## Accessing production 
+
+    ssh root@167.71.150.59
+
 ## Running in production
 
-pm2 start server
-pm2 stop server
+    pm2 start server
+    pm2 stop server
+
+    pm2 logs
 
 ### Tests
 
