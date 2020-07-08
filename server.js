@@ -23,7 +23,8 @@ const io = require('socket.io')(server.listener);
 
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
-  useCreateIndex: true
+  useCreateIndex: true,
+  useUnifiedTopology: true
 });
 
 // socket.io server
