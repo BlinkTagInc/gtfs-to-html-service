@@ -2,9 +2,11 @@
 
 [![XO code style](https://img.shields.io/badge/code_style-XO-5ed9c7.svg)](https://github.com/sindresorhus/xo)
 
-This is the codebase for https://run.gtfstohtml.com/
+This project is a node.js app that runs on a server and uses [GTFS-to-HTML](https://github.com/brendannee/gtfs-to-html) to generate HTML or PDF schedules from transit data in GTFS format. It listens via websockets for the agency name, GTFS file location and timetable configuration and responds with a URL where the completed HTML or PDF timetables can be downloaded.
 
-This project is a node.js app that runs on a server and uses the [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) to generate HTML or PDF schedules from transit data in GTFS format. It listens via websockets for the agency name, GTFS file location and timetable configuration and responds with a URL where the completed HTML or PDF timetables can be downloaded.
+Try it out at https://run.gtfstohtml.com/.
+
+[![gtfs-to-html-screenshot3](https://user-images.githubusercontent.com/96217/98912896-8bcd5880-247b-11eb-8104-467266954bf1.jpg)](https://run.gtfstohtml.com)
 
 ## Setup
 
@@ -58,17 +60,24 @@ If instead there is an error while processing, the response will contain the err
       "message": "Error: Number of columns on line 69 does not match header"
     }
 
-## Accessing production 
+## Setting up in production
 
-    ssh root@167.71.150.59
+    git clone https://github.com/BlinkTagInc/gtfs-to-html-service.git
+    cd gtfs-to-html-service
+    npm install
+    npm run build
 
 ## Running in production
 
     pm2 start server
     pm2 stop server
-
     pm2 logs
 
 ### Tests
 
     npm test
+
+
+## Contributing
+
+Pull requests are welcome, as is feedback and [reporting issues](https://github.com/blinktaginc/gtfs-to-html-service/issues).
