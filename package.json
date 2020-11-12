@@ -1,7 +1,7 @@
 {
   "name": "gtfs-to-html-service",
   "description": "A service for builds HTML timetables from GTFS using gtfs-to-html",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "keywords": [
     "transit",
     "gtfs",

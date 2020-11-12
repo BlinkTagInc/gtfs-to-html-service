@@ -4,7 +4,7 @@
 
 This is the codebase for https://run.gtfstohtml.com/
 
-This project is a node.js app that runs on a server and uses the [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) to generate HTML schedules from transit data in GTFS format. It listens via websockets for the agency name, GTFS file location and timetable configuration and responds with a URL where the completed HTML timetabled can be downloaded.
+This project is a node.js app that runs on a server and uses the [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) to generate HTML or PDF schedules from transit data in GTFS format. It listens via websockets for the agency name, GTFS file location and timetable configuration and responds with a URL where the completed HTML or PDF timetables can be downloaded.
 
 ## Setup
 
@@ -24,7 +24,7 @@ Update the values as needed.
 
     npm run dev
 
-Connect to a websocket on `localhost:3000`. Use something like the  [Simple Websocket Client](https://chrome.google.com/webstore/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo) Chrome extension.
+Connect to a websocket on `localhost:3000`. Use something like the [Simple Websocket Client](https://chrome.google.com/webstore/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo) Chrome extension.
 
 Send a websocket message with a JSON payload to `localhost:3000`. This JSON can include any options from [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) except `verbose`, `zipOutput`.
 

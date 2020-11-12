@@ -203,12 +203,13 @@ function Home() {
         <div className="form-group mx-sm-3">
           <small className="form-text text-muted ml-1">
             GTFS-to-HTML options{" "}
-            <a href="https://github.com/BlinkTagInc/gtfs-to-html#configuration" target="_blank">read more</a>
+            <a href="https://gtfstohtml.com/docs/configuration" target="_blank">read more</a>
           </small>
           <textarea
             className="form-control form-control-sm form-control-options mt-3 mt-md-0"
             value={options}
             onChange={handleOptionsChange}
+            style={{ height: '400px' }}
           />
         </div>
       );
@@ -305,7 +306,7 @@ function Home() {
                     🧰
                   </div>
                   <div className="col-9">
-                    <p className="card-text">This tool automates the process of creating nicely formatted HTML timetables for inclusion on a transit agency website.</p>
+                    <p className="card-text">This tool automates the process of creating nicely formatted HTML or PDF timetables for inclusion on a transit agency website.</p>
                   </div>
                 </div>
 
@@ -320,7 +321,7 @@ function Home() {
               
                 <div className="row">
                   <div className="col">
-                    <a href="https://github.com/BlinkTagInc/gtfs-to-html" className="btn btn-sm btn-primary btn-block">Read more</a>
+                    <a href="https://gtfstohtml.com/" className="btn btn-sm btn-primary btn-block">Read more</a>
                   </div>
                   <div className="col">
                     <a href="https://gtfs.org/" className="btn btn-sm btn-secondary btn-block">Read more about GTFS</a>
