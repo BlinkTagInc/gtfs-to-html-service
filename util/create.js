@@ -3,7 +3,7 @@ const fetch = require('node-fetch');
 const fs = require('fs-extra');
 const util = require('util');
 const url = require('url');
-var s3 = require('s3');
+var s3 = require('@auth0/s3');
 const gtfsToHtml = require('gtfs-to-html');
 const readFile = util.promisify(fs.readFile);
 const tmp = require('tmp-promise');
@@ -64,7 +64,6 @@ module.exports = async (data, socket) => {
       ...options,
       verbose: true,
       zipOutput: true,
-      mongoUrl: process.env.MONGODB_URI,
       agencies: [{
         agency_key: buildId,
         path: downloadPath

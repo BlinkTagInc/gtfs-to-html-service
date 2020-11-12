@@ -26,7 +26,7 @@ Update the values as needed.
 
 Connect to a websocket on `localhost:3000`. Use something like the  [Simple Websocket Client](https://chrome.google.com/webstore/detail/simple-websocket-client/pfdhoblngboilpfeibdedpjgfnlcodoo) Chrome extension.
 
-Send a websocket message with a JSON payload to `localhost:3000`. This JSON can include any options from [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) except `verbose`, `zipOutput`, and `mongoUrl`.
+Send a websocket message with a JSON payload to `localhost:3000`. This JSON can include any options from [gtfs-to-html](https://github.com/brendannee/gtfs-to-html) except `verbose`, `zipOutput`.
 
     {
       "agencies": [

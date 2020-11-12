@@ -1,7 +1,6 @@
 require('dotenv').config();
 const next = require('next');
 const Hapi = require('@hapi/hapi');
-const mongoose = require('mongoose');
 const {
   nextHandlerWrapper
 } = require('./next-wrapper');
@@ -20,12 +19,6 @@ const server = new Hapi.Server({
   port
 });
 const io = require('socket.io')(server.listener);
-
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true
-});
 
 // socket.io server
 io.on('connection', socket => {

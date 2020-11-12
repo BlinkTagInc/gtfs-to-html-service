@@ -2,7 +2,6 @@
   "version": 1,
   "alias": "gtfstohtml.com",
   "env": {
-    "MONGODB_URI": "@mongodb-uri",
     "GTFS_AWS_ACCESS_KEY_ID": "@gtfs-aws-access-key-id",
     "GTFS_AWS_ACCESS_KEY_SECRET": "@gtfs-aws-access-key-secret",
     "GTFS_AWS_REGION": "@gtfs-aws-region",

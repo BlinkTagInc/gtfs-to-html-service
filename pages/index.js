@@ -1,3 +1,4 @@
+import React from 'react';
 import Head from 'next/head';
 import { useState, useEffect } from 'react';
 import { initGA, logPageView, logEvent } from '../util/analytics';
@@ -11,6 +12,7 @@ function uuidv4() {
 }
 
 const defaultOptions = {
+  allowEmptyTimetables: false,
   beautify: false,
   coordinatePrecision: 5,
   dateFormat: 'MMM D, YYYY',
@@ -19,11 +21,12 @@ const defaultOptions = {
   defaultOrientation: 'vertical',
   interpolatedStopSymbol: '•',
   interpolatedStopText: 'Estimated time of arrival',
+  linkStopUrls: true,
   menuType: 'jump',
   noDropoffSymbol: '‡',
   noDropoffText: 'No drop off available',
   noHead: false,
-  noPickupSymbol: '***',
+  noPickupSymbol: '**',
   noPickupText: 'No pickup available',
   noServiceSymbol: '-',
   noServiceText: 'No service at this stop',
@@ -41,7 +44,8 @@ const defaultOptions = {
   showStopCity: false,
   showStopDescription: false,
   sortingAlgorithm: 'common',
-  timeFormat: 'h:mma'
+  timeFormat: 'h:mma',
+  useParentStation: true
 };
 
 function Home() {
