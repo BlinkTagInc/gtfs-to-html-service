@@ -88,7 +88,7 @@ module.exports = async (data, socket) => {
       localDir: path.join(__dirname, '..', 'html', buildId),
       deleteRemoved: true,
       s3Params: {
-        Bucket: 'gtfs-to-html',
+        Bucket: 'gtfstohtml',
         Prefix: buildId,
         ACL: 'public-read',
         Expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
