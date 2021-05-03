@@ -1,6 +1,7 @@
 require('dotenv').config();
 const next = require('next');
 const Hapi = require('@hapi/hapi');
+const Inert = require('@hapi/inert');
 const {
   nextHandlerWrapper
 } = require('./next-wrapper');
@@ -11,6 +12,7 @@ const createTimetables = require('./util/create');
 const getLocations = require('./api/getLocations');
 const getFeeds = require('./api/getFeeds');
 const getFeedVersions = require('./api/getFeedVersions');
+const getConfigs = require('./api/getConfigs');
 
 const app = next({
   dev
@@ -39,6 +41,9 @@ io.on('connection', socket => {
 
 app.prepare()
   .then(async () => {
+    await server.register(Inert)
+  })
+  .then(async () => {
     server.route({
       method: 'GET',
       path: '/api/locations',
@@ -55,6 +60,23 @@ app.prepare()
       method: 'GET',
       path: '/api/feed-versions',
       handler: getFeedVersions
+    });
+
+    server.route({
+      method: 'GET',
+      path: '/api/configs',
+      handler: getConfigs
+    });
+
+    // TODO: setup symlink instead of using env
+    server.route({
+      method: 'GET',
+      path: '/api/configs/{param*}',
+      handler: {
+          directory: {
+              path: process.env.CONFIG_DIR,
+          }
+      }
     });
 
     server.route({

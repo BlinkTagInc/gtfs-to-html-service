@@ -45,18 +45,23 @@ const defaultOptions = {
   showStopDescription: false,
   sortingAlgorithm: 'common',
   timeFormat: 'h:mma',
-  useParentStation: true
+  useParentStation: true,
+  // templatePath
 };
+
+const stringifyOptions = options => JSON.stringify(options, null, 2)
 
 function Home() {
   const [url, setUrl] = useState('');
-  const [options, setOptions] = useState(JSON.stringify(defaultOptions, null, 2));
+  const [options, setOptions] = useState(stringifyOptions(defaultOptions));
   const [showOptions, setShowOptions] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
   const [buildId, setBuildId] = useState();
   const [locations, setLocations] = useState();
   const [selectedLocation, setSelectedLocation] = useState('');
+  const [configs, setConfigs] = useState('');
+  const [selectedConfig, setSelectedConfig] = useState('');
   const [feeds, setFeeds] = useState();
   const [selectedFeed, setSelectedFeed] = useState('');
 
@@ -90,6 +95,16 @@ function Home() {
   }, []);
 
   useEffect(() => {
+    fetch('/api/configs')
+      .then(res => res.json())
+      .then(response => {
+        if (response && response.configs) {
+          setConfigs(response.configs);
+        }
+      })
+  }, [])
+  
+  useEffect(() => {
     var element = statusContainer.current;
     if (element) {
       element.scrollTop = element.scrollHeight;
@@ -114,13 +129,26 @@ function Home() {
   const handleUrlChange = event => {
     setUrl(event.target.value);
     if (feeds && selectedFeed && event.target.value !== feeds.find(f => f.id === selectedFeed).u.d) {
-      // Reset feed and location select
+      // Reset feed and location and config select
       setSelectedFeed('');
       setSelectedLocation('');
+      setSelectedConfig('');
       setFeeds();
     }
   };
 
+  const handleConfigChange = event => {
+    const config = event.target.value
+    setSelectedConfig(config)
+    fetch(`/api/configs/${config}`)
+      .then(res => res.json())
+      .then(response => {
+        if (response) {
+          setOptions(stringifyOptions(response))
+        }
+      })
+  }
+  
   const handleOptionsChange = event => {
     setOptions(event.target.value);
   };
@@ -187,6 +215,14 @@ function Home() {
   const renderLocationOption = location => {
     return (
       <option key={location.id} value={location.id}>{location.t}</option>
+    );
+  }
+  
+  const renderConfigOption = filePath => {
+    const nameNoExt = filePath.replace(/^.*[\\\/]/, '').slice(0, -5)
+
+    return (
+      <option key={nameNoExt} value={filePath}>{nameNoExt}</option>
     );
   }
 
@@ -262,6 +298,16 @@ function Home() {
               value={url}
               onChange={handleUrlChange}
             />
+          </div>
+          <div className="form-group mx-sm-3 url-form-group">
+            <select
+              className="form-control form-control-lg"
+              onChange={handleConfigChange}
+              value={selectedConfig}
+            >
+              <option value="">Select a Configuration File</option>
+              {configs && configs.map(renderConfigOption)}
+            </select>
           </div>
           {renderOptions()}
           <div className="form-group mx-sm-3 url-form-group">
