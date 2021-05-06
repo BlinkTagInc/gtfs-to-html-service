@@ -13,6 +13,7 @@ const getLocations = require('./api/getLocations');
 const getFeeds = require('./api/getFeeds');
 const getFeedVersions = require('./api/getFeedVersions');
 const getConfigs = require('./api/getConfigs');
+const getTemplates = require('./api/getTemplates');
 
 const app = next({
   dev
@@ -77,6 +78,12 @@ app.prepare()
               path: process.env.CONFIG_DIR,
           }
       }
+    });
+    
+    server.route({
+      method: 'GET',
+      path: '/api/templates',
+      handler: getTemplates
     });
 
     server.route({

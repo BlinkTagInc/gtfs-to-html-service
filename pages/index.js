@@ -61,7 +61,9 @@ function Home() {
   const [locations, setLocations] = useState();
   const [selectedLocation, setSelectedLocation] = useState('');
   const [configs, setConfigs] = useState('');
+  const [templates, setTemplates] = useState('');
   const [selectedConfig, setSelectedConfig] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
   const [feeds, setFeeds] = useState();
   const [selectedFeed, setSelectedFeed] = useState('');
 
@@ -105,6 +107,18 @@ function Home() {
   }, [])
   
   useEffect(() => {
+    fetch('/api/templates')
+      .then(res => res.json())
+      .then(response => {
+        if (response && response.templates) {
+          console.log('Annie F 05-06-2021 response.templates: ', response.templates)
+          // const templateList = response.templates.map(template => template.name)
+          setTemplates(response.templates);
+        }
+      })
+  }, [])
+  
+  useEffect(() => {
     var element = statusContainer.current;
     if (element) {
       element.scrollTop = element.scrollHeight;
@@ -129,10 +143,11 @@ function Home() {
   const handleUrlChange = event => {
     setUrl(event.target.value);
     if (feeds && selectedFeed && event.target.value !== feeds.find(f => f.id === selectedFeed).u.d) {
-      // Reset feed and location and config select
+      // Reset fields
       setSelectedFeed('');
       setSelectedLocation('');
       setSelectedConfig('');
+      setSelectedTemplate('');
       setFeeds();
     }
   };
@@ -147,6 +162,15 @@ function Home() {
           setOptions(stringifyOptions(response))
         }
       })
+  }
+  
+  const handleTemplateChange = event => {
+    const template = event.target.value
+    setSelectedTemplate(template)
+    const optionsJSON = JSON.parse(options)
+    optionsJSON.templatePath = template
+    setOptions(stringifyOptions(optionsJSON))
+    console.log('Annie F 05-06-2021 optionsJSON: ', optionsJSON)
   }
   
   const handleOptionsChange = event => {
@@ -165,6 +189,8 @@ function Home() {
       setStatuses([{ error: 'Invalid JSON supplied for GTFS-to-HTML options' }]);
       return;
     }
+
+    console.log('Annie F 05-06-2021 parsedOptions: ', parsedOptions)
 
     setStatuses([]);
     
@@ -218,11 +244,20 @@ function Home() {
     );
   }
   
-  const renderConfigOption = filePath => {
+  const renderFileOption = filePath => {
     const nameNoExt = filePath.replace(/^.*[\\\/]/, '').slice(0, -5)
 
     return (
       <option key={nameNoExt} value={filePath}>{nameNoExt}</option>
+    );
+  }
+  
+  const renderTemplateOption = template => {
+
+    const dirName = template.name.replace(/^.*[\\\/]/, '')
+
+    return (
+      <option key={dirName} value={template.fullPath}>{dirName}</option>
     );
   }
 
@@ -306,7 +341,17 @@ function Home() {
               value={selectedConfig}
             >
               <option value="">Select a Configuration File</option>
-              {configs && configs.map(renderConfigOption)}
+              {configs && configs.map(renderFileOption)}
+            </select>
+          </div>
+          <div className="form-group mx-sm-3 url-form-group">
+            <select
+              className="form-control form-control-lg"
+              onChange={handleTemplateChange}
+              value={selectedTemplate}
+            >
+              <option value="">Select a Template File</option>
+              {templates && templates.map(renderTemplateOption)}
             </select>
           </div>
           {renderOptions()}
