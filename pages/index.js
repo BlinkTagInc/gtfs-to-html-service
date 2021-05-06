@@ -46,7 +46,6 @@ const defaultOptions = {
   sortingAlgorithm: 'common',
   timeFormat: 'h:mma',
   useParentStation: true,
-  // templatePath
 };
 
 const stringifyOptions = options => JSON.stringify(options, null, 2)
@@ -111,8 +110,6 @@ function Home() {
       .then(res => res.json())
       .then(response => {
         if (response && response.templates) {
-          console.log('Annie F 05-06-2021 response.templates: ', response.templates)
-          // const templateList = response.templates.map(template => template.name)
           setTemplates(response.templates);
         }
       })
@@ -170,7 +167,6 @@ function Home() {
     const optionsJSON = JSON.parse(options)
     optionsJSON.templatePath = template
     setOptions(stringifyOptions(optionsJSON))
-    console.log('Annie F 05-06-2021 optionsJSON: ', optionsJSON)
   }
   
   const handleOptionsChange = event => {
@@ -190,7 +186,6 @@ function Home() {
       return;
     }
 
-    console.log('Annie F 05-06-2021 parsedOptions: ', parsedOptions)
 
     setStatuses([]);
     
@@ -214,36 +209,6 @@ function Home() {
     logEvent('GTFS', 'create', url);
   }
 
-  const handleLocationChange = e => {
-    const newLocationId = e.target.value;
-    setSelectedLocation(newLocationId);
-    setFeeds();
-    setUrl('');
-    fetch(`/api/feeds?location=${newLocationId}&limit=100`)
-      .then(res => res.json())
-      .then(response => {
-        if (response && response.results && response.results.feeds) {
-          const filteredFeeds = response.results.feeds.filter(f => f.ty === 'gtfs');
-          setFeeds(filteredFeeds);
-
-          if (filteredFeeds.length === 0) {
-            const locationName = locations.find(l => l.id.toString() === newLocationId).t;
-            alert(`No GTFS feeds found for ${locationName}`);
-          }
-
-          if (filteredFeeds.length === 1) {
-            setSelectedFeed(filteredFeeds[0].id)
-          }
-        }
-      });
-  }
-
-  const renderLocationOption = location => {
-    return (
-      <option key={location.id} value={location.id}>{location.t}</option>
-    );
-  }
-  
   const renderFileOption = filePath => {
     const nameNoExt = filePath.replace(/^.*[\\\/]/, '').slice(0, -5)
 
@@ -258,12 +223,6 @@ function Home() {
 
     return (
       <option key={dirName} value={template.fullPath}>{dirName}</option>
-    );
-  }
-
-  const renderFeedOption = feed => {
-    return (
-      <option key={feed.id} value={feed.id}>{feed.t}</option>
     );
   }
 
@@ -303,28 +262,8 @@ function Home() {
         <h1>Generate HTML timetables from GTFS</h1>
         <form className="url-form" onSubmit={handleSubmit}>
           <div className="form-group mx-sm-3 url-form-group">
-            <select
-              className="form-control form-control-lg"
-              onChange={handleLocationChange}
-              value={selectedLocation}
-            >
-              <option value="">Select a Region</option>
-              {locations && locations.map(renderLocationOption)}
-            </select>
-          </div>
-          {feeds && feeds.length > 1 && <div className="form-group mx-sm-3 url-form-group">
-            <select
-              className="form-control form-control-lg"
-              onChange={e => setSelectedFeed(e.target.value)}
-              value={selectedFeed}
-            >
-              <option value="">Select a GTFS Feed</option>
-              {feeds.map(renderFeedOption)}
-            </select>
-          </div>}
-          <div className="form-group mx-sm-3 url-form-group">
             <small className="form-text text-muted ml-1">
-              or direcly enter the URL of a zipped GTFS file
+              Enter the URL of a zipped GTFS file
             </small>
             <input
               type="text"
