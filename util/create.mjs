@@ -1,37 +1,36 @@
-const path = require('path');
-const fetch = require('node-fetch');
-const fs = require('fs-extra');
-const util = require('util');
-const url = require('url');
-var s3 = require('@auth0/s3');
-const gtfsToHtml = require('gtfs-to-html');
-const readFile = util.promisify(fs.readFile);
-const tmp = require('tmp-promise');
+import {join} from 'node:path';
+import {fileURLToPath, resolve} from 'node:url';
+import {readFile, stat, writeFile} from 'node:fs/promises';
+import fetch from 'node-fetch';
+
+import {createClient} from '@auth0/s3';
+import gtfsToHtml from 'gtfs-to-html';
+import {dir} from 'tmp-promise';
 
 async function getOutputStats(statsPath) {
   const outputStatsText = await readFile(statsPath, 'utf8');
-  return outputStatsText.split('\n').reduce((memo, stat) => {
-    const parts = stat.split(':');
+  return outputStatsText.split('\n').reduce((memo, statistic) => {
+    const parts = statistic.split(':');
     memo[parts.shift()] = parts.join(':').trim();
     return memo;
   }, {});
 }
 
-var client = s3.createClient({
+const client = createClient({
   s3Options: {
     accessKeyId: process.env.GTFS_AWS_ACCESS_KEY_ID,
     secretAccessKey: process.env.GTFS_AWS_ACCESS_KEY_SECRET,
     region: process.env.GTFS_AWS_REGION
-  },
+  }
 });
 
-const maxGTFSSize = 10000000;
+const maxGTFSSize = 10_000_000;
 
 const downloadAndUnzip = async (downloadUrl, buildId) => {
-  const { path, cleanup } = await tmp.dir({ unsafeCleanup: true });
+  const {path, cleanup} = await dir({unsafeCleanup: true});
   const downloadPath = `${path}/${buildId}-gtfs.zip`;
 
-  const res = await fetch(downloadUrl, { method: 'GET' });
+  const res = await fetch(downloadUrl, {method: 'GET'});
 
   if (res.status !== 200) {
     throw new Error('Couldn\'t download files');
@@ -39,18 +38,18 @@ const downloadAndUnzip = async (downloadUrl, buildId) => {
 
   const buffer = await res.buffer();
 
-  await fs.writeFile(downloadPath, buffer);
+  await writeFile(downloadPath, buffer);
 
-  const stats = await fs.stat(downloadPath);
+  const stats = await stat(downloadPath);
 
   if (stats.size > maxGTFSSize) {
     throw new Error('GTFS Zip file too large for gtfstohtml.com. Try running gtfs-to-html on your local machine for processing large GTFS files. Learn more at https://github.com/BlinkTagInc/gtfs-to-html');
   }
 
   return downloadPath;
-}
+};
 
-module.exports = async (data, socket) => {
+export default async (data, socket) => {
   const {
     buildId,
     url: downloadUrl,
@@ -59,7 +58,7 @@ module.exports = async (data, socket) => {
 
   try {
     const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
-  
+
     const config = {
       ...options,
       verbose: true,
@@ -72,12 +71,11 @@ module.exports = async (data, socket) => {
         socket.emit('status', {
           status: text
         });
-      },
-      dataExpireAfterSeconds: 1200
-    }
+      }
+    };
 
     await gtfsToHtml(config);
-    const outputStats = await getOutputStats(path.join(__dirname, '..', 'html', buildId, 'log.txt'));
+    const outputStats = await getOutputStats(join(fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
     socket.emit('status', {
       status: `Finished creating ${outputStats['Timetable Count']} timetables`
@@ -85,21 +83,21 @@ module.exports = async (data, socket) => {
 
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
-      localDir: path.join(__dirname, '..', 'html', buildId),
+      localDir: join(fileURLToPath(import.meta.url), '../../html', buildId),
       deleteRemoved: true,
       s3Params: {
         Bucket: 'gtfs-to-html',
         Prefix: buildId,
         ACL: 'public-read',
-        Expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000)
+        Expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
       }
     });
 
-    uploader.on('error', function (error) {
+    uploader.on('error', error => {
       throw error;
     });
 
-    uploader.on('progress', function () {
+    uploader.on('progress', () => {
       const progressPercent = uploader.progressAmount ? `[${Math.round(uploader.progressAmount / uploader.progressTotal * 1000) / 10}%]` : '';
       socket.emit('status', {
         status: `Uploading timetables ${progressPercent}`,
@@ -107,16 +105,15 @@ module.exports = async (data, socket) => {
       });
     });
 
-    uploader.on('end', function () {
+    uploader.on('end', () => {
       socket.emit('status', {
         status: 'Timetable upload completed',
-        html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'timetables.zip')),
-        html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'index.html'))
+        html_download_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
+        html_preview_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
       });
     });
-
   } catch (error) {
-    console.log(error)
+    console.log(error);
     let errorMessage;
 
     if (error.toString().includes('FetchError')) {
@@ -131,4 +128,4 @@ module.exports = async (data, socket) => {
       error: errorMessage
     });
   }
-}
+};
