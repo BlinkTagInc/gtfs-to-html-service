@@ -74,6 +74,11 @@ export default async (data, socket) => {
       }
     };
 
+    // Use test mapbox access token if none provided
+    if (config.showMap && (!config.mapboxAccessToken || config.mapboxAccessToken === 'PUT YOUR MAPBOX ACCESS TOKEN HERE')) {
+      config.mapboxAccessToken = 'pk.eyJ1IjoiYnJlbmRhbm5lZSIsImEiOiJjaXRkMWIzbzEwMDV5MnRvMzJwbjRiaWc3In0.smzRW-NB_BCAGAQiEOvJdg';
+    }
+
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(join(fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
