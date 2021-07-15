@@ -1,6 +1,6 @@
 {
   "name": "gtfs-to-html-service",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "A service for building HTML timetables from GTFS using gtfs-to-html.",
   "keywords": [
@@ -23,25 +23,25 @@
   },
   "dependencies": {
     "@auth0/s3": "^1.0.0",
-    "@hapi/hapi": "^20.1.4",
+    "@hapi/hapi": "^20.1.5",
     "@hapi/inert": "^6.0.3",
-    "acorn": "^8.4.0",
+    "acorn": "^8.4.1",
     "dotenv": "10.0.0",
     "express": "4.17.1",
-    "gtfs-to-html": "^2.0.3",
+    "gtfs-to-html": "^2.1.3",
     "hapi-require-https": "^5.0.0",
-    "next": "^11.0.0",
+    "next": "^11.0.1",
     "node-fetch": "^2.6.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-ga": "^3.3.0",
-    "socket.io": "^4.1.2",
-    "socket.io-client": "^4.1.2",
+    "socket.io": "^4.1.3",
+    "socket.io-client": "^4.1.3",
     "tmp-promise": "^3.0.2",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
-    "xo": "0.40.2"
+    "xo": "0.41.0"
   },
   "engines": {
     "node": "14.x"
