@@ -69,8 +69,8 @@ If instead there is an error while processing, the response will contain the err
 
 ## Running in production
 
-    pm2 start server.mjs --node-args="-r dotenv/config"
-    pm2 stop server.mjs
+    pm2 start pm2.config.js
+    pm2 stop pm2.config.js
     pm2 logs
 
 ### Tests
