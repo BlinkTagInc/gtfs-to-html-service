@@ -54,7 +54,8 @@ const createTimetables = async (data, socket) => {
   const {
     buildId,
     url: downloadUrl,
-    options = {}
+    options = {},
+    template
   } = data;
 
   try {
@@ -73,7 +74,8 @@ const createTimetables = async (data, socket) => {
           status: text
         });
       },
-      dataExpireAfterSeconds: 1200
+      dataExpireAfterSeconds: 1200,
+      templatePath: path.join(process.env.TEMPLATE_DIR, template)
     }
 
     await gtfsToHtml(config);
@@ -137,7 +139,8 @@ const createTimetablesSocketless = async (data) => {
   const {
     buildId,
     url: downloadUrl,
-    options = {}
+    options = {},
+    template
   } = data;
 
   try {
@@ -152,7 +155,8 @@ const createTimetablesSocketless = async (data) => {
         agency_key: buildId,
         path: downloadPath
       }],
-      dataExpireAfterSeconds: 1200
+      dataExpireAfterSeconds: 1200,
+      templatePath: path.join(process.env.TEMPLATE_DIR, template)
     }
 
     await gtfsToHtml(config);

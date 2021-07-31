@@ -48,25 +48,15 @@ module.exports = async (request, h) => {
   if (!/^(f|ht)tps?:\/\//i.test(url)) {
     throw Boom.badRequest('Invalid URL')
   }
-  
-  const templatePath = path.join(process.env.TEMPLATE_DIR, template)
-
-  if (!fs.realpathSync(templatePath).startsWith(process.env.TEMPLATE_DIR)) {
-    throw Boom.badRequest('Invalid template')
-  }
-  
-  if (!fs.existsSync(templatePath)) {
-    throw Boom.notFound('Template not found')
-  }
 
   const data = {
     url,
     buildId: uuidv4(),
     options: {
       ...defaultOptions,
-      ...options,
-      templatePath,
-    }
+      ...options
+    },
+    template
   }
 
   try {
