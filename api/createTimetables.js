@@ -49,7 +49,7 @@ module.exports = async (request, h) => {
     throw Boom.badRequest('Invalid URL')
   }
   
-  const templatePath = path.join(process.env.TEMPLATE_DIR, template + '.json')
+  const templatePath = path.join(process.env.TEMPLATE_DIR, template)
 
   if (!fs.realpathSync(templatePath).startsWith(process.env.TEMPLATE_DIR)) {
     throw Boom.badRequest('Invalid template')
@@ -69,5 +69,10 @@ module.exports = async (request, h) => {
     }
   }
 
-  return await createTimetablesSocketless(data)
+  try {
+    return await createTimetablesSocketless(data)
+  } catch (error) {
+    request.log('error', error)
+    throw Boom.boomify(error)
+  }
 }
