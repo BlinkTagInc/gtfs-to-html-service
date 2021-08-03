@@ -121,11 +121,13 @@ export default async (data, socket) => {
     });
 
     uploader.on('end', () => {
-      socket.emit('status', {
-        status: 'Timetable upload completed',
-        html_download_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
-        html_preview_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
-      });
+      setTimeout(() => {
+        socket.emit('status', {
+          status: 'Timetable upload completed',
+          html_download_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
+          html_preview_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
+        });
+      }, 1000);
     });
   } catch (error) {
     console.log(error);
