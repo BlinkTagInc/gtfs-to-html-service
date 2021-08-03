@@ -74,7 +74,7 @@ function Home() {
 
   useEffect(() => {
     socket.on('status', payload => {
-      if (statuses.length > 0 && payload.statusKey && payload.statusKey === statuses[statuses.length - 1].statusKey) {
+      if (statuses.length > 0 && payload.overwrite === true) {
         statuses.splice(-1, 1, payload);
       } else {
         statuses.push(payload);

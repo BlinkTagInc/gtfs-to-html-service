@@ -30,6 +30,7 @@
     "express": "4.17.1",
     "gtfs-to-html": "^2.1.5",
     "hapi-require-https": "^5.0.0",
+    "lodash-es": "^4.17.21",
     "next": "^11.0.1",
     "node-fetch": "^2.6.1",
     "react": "^17.0.2",

@@ -2,6 +2,7 @@ import {join} from 'node:path';
 import {fileURLToPath, resolve} from 'node:url';
 import {readFile, stat, writeFile} from 'node:fs/promises';
 import fetch from 'node-fetch';
+import { throttle } from 'lodash-es';
 
 import {createClient} from '@auth0/s3';
 import gtfsToHtml from 'gtfs-to-html';
@@ -59,6 +60,24 @@ export default async (data, socket) => {
   try {
     const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
 
+    const throttledLog = throttle((text, overwrite) => {
+      socket.emit('status', {
+        status: text,
+        overwrite
+      });
+    }, 500);
+
+    const logFunction = (text, overwrite) => {
+      if (overwrite === true) {
+        throttledLog(text, overwrite)
+      } else {
+        socket.emit('status', {
+          status: text,
+          overwrite
+        });
+      }
+    };
+
     const config = {
       ...options,
       verbose: true,
@@ -67,11 +86,7 @@ export default async (data, socket) => {
         agency_key: buildId,
         path: downloadPath
       }],
-      logFunction: text => {
-        socket.emit('status', {
-          status: text
-        });
-      }
+      logFunction
     };
 
     // Use test mapbox access token if none provided
@@ -82,10 +97,8 @@ export default async (data, socket) => {
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(join(fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
-    socket.emit('status', {
-      status: `Finished creating ${outputStats['Timetable Count']} timetables`
-    });
-
+    logFunction(`Finished creating ${outputStats['Timetable Count']} timetables`)
+  
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
       localDir: join(fileURLToPath(import.meta.url), '../../html', buildId),
@@ -104,10 +117,7 @@ export default async (data, socket) => {
 
     uploader.on('progress', () => {
       const progressPercent = uploader.progressAmount ? `[${Math.round(uploader.progressAmount / uploader.progressTotal * 1000) / 10}%]` : '';
-      socket.emit('status', {
-        status: `Uploading timetables ${progressPercent}`,
-        statusKey: 'uploading'
-      });
+      logFunction(`Uploading timetables ${progressPercent}`, true);
     });
 
     uploader.on('end', () => {
