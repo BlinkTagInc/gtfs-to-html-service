@@ -49,6 +49,10 @@ module.exports = async (request, h) => {
     throw Boom.badRequest('Invalid URL')
   }
 
+  if (!/\.(zip)/g.test(url)) {
+    throw Boom.badRequest('Invalid extension, url should end with .zip')
+  }
+
   const data = {
     url,
     buildId: uuidv4(),
