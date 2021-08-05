@@ -8,12 +8,13 @@ const {
 
 const dev = process.env.NODE_ENV !== 'production';
 const port = process.env.PORT || 3000;
-const createTimetables = require('./util/create');
+const { createTimetables } = require('./util/create');
 const getLocations = require('./api/getLocations');
 const getFeeds = require('./api/getFeeds');
 const getFeedVersions = require('./api/getFeedVersions');
 const getConfigs = require('./api/getConfigs');
 const getTemplates = require('./api/getTemplates');
+const createTimetablesHandler = require('./api/createTimetables');
 
 const app = next({
   dev
@@ -84,6 +85,12 @@ app.prepare()
       method: 'GET',
       path: '/api/templates',
       handler: getTemplates
+    });
+    
+    server.route({
+      method: 'POST',
+      path: '/api/create-timetables',
+      handler: createTimetablesHandler
     });
 
     server.route({

@@ -164,9 +164,6 @@ function Home() {
   const handleTemplateChange = event => {
     const template = event.target.value
     setSelectedTemplate(template)
-    const optionsJSON = JSON.parse(options)
-    optionsJSON.templatePath = template
-    setOptions(stringifyOptions(optionsJSON))
   }
   
   const handleOptionsChange = event => {
@@ -200,7 +197,8 @@ function Home() {
     socket.emit('create', {
       url,
       buildId,
-      options: parsedOptions
+      options: parsedOptions,
+      template: selectedTemplate,
     });
 
     setBuildId(buildId);
@@ -222,7 +220,7 @@ function Home() {
     const dirName = template.name.replace(/^.*[\\\/]/, '')
 
     return (
-      <option key={dirName} value={template.fullPath}>{dirName}</option>
+      <option key={dirName} value={dirName}>{dirName}</option>
     );
   }
 
