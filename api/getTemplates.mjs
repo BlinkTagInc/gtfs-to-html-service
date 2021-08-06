@@ -1,13 +1,9 @@
 import {readdir} from 'node:fs/promises';
 
-module.exports = request => {
-    const templates = readdir(process.env.TEMPLATE_DIR).map((file) => {
-        return {
-            name: file
-        }
-    });
+export default async request => {
+    const templates = await readdir(process.env.TEMPLATE_DIR)
     const response = {
-        templates
+        templates: templates.map(t => ({ name: t }))
     }
     return JSON.stringify(response)
 }

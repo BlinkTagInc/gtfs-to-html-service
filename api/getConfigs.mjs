@@ -1,7 +1,7 @@
 import {readdir} from 'node:fs/promises';
 
-module.exports = request => {
-    const configs = readdir(process.env.CONFIG_DIR)
+export default async request => {
+    const configs = await readdir(process.env.CONFIG_DIR)
     const response = {
         configs
     }

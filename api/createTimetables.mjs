@@ -40,7 +40,7 @@ const defaultOptions = {
   useParentStation: true,
 };
 
-module.exports = async (request, h) => {
+export default async (request, h) => {
   const { options, url, template = defaultTemplate } = request.payload
 
   if (!/^(f|ht)tps?:\/\//i.test(url)) {

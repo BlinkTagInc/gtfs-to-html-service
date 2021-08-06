@@ -1,4 +1,5 @@
 import Hapi from '@hapi/hapi';
+import Inert from '@hapi/inert';
 import next from 'next';
 import * as io from 'socket.io';
 
@@ -39,71 +40,73 @@ socketIo.on('connection', socket => {
   });
 });
 
-app.prepare().then(async () => {
-  server.route({
-    method: 'GET',
-    path: '/api/locations',
-    handler: getLocations
-  });
+app.prepare()
+  .then(async () => await server.register(Inert))
+  .then(async () => {
+    server.route({
+      method: 'GET',
+      path: '/api/locations',
+      handler: getLocations
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/api/feeds',
-    handler: getFeeds
-  });
+    server.route({
+      method: 'GET',
+      path: '/api/feeds',
+      handler: getFeeds
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/api/feed-versions',
-    handler: getFeedVersions
-  });
+    server.route({
+      method: 'GET',
+      path: '/api/feed-versions',
+      handler: getFeedVersions
+    });
 
-  server.route({
-    method: 'GET',
-    path: '/api/configs',
-    handler: getConfigs
-  });
+    server.route({
+      method: 'GET',
+      path: '/api/configs',
+      handler: getConfigs
+    });
 
-  // TODO: setup symlink instead of using env
-  server.route({
-    method: 'GET',
-    path: '/api/configs/{param*}',
-    handler: {
-        directory: {
-            path: process.env.CONFIG_DIR,
-        }
+    // TODO: setup symlink instead of using env
+    server.route({
+      method: 'GET',
+      path: '/api/configs/{param*}',
+      handler: {
+          directory: {
+              path: process.env.CONFIG_DIR,
+          }
+      }
+    });
+    
+    server.route({
+      method: 'GET',
+      path: '/api/templates',
+      handler: getTemplates
+    });
+    
+    server.route({
+      method: 'POST',
+      path: '/api/create-timetables',
+      handler: createTimetablesHandler
+    });
+
+    server.route({
+      method: 'GET',
+      path: '/_next/{p*}' /* next specific routes */,
+      handler: nextHandlerWrapper(app)
+    });
+
+    server.route({
+      method: '*',
+      path: '/{p*}' /* catch all route */,
+      handler: nextHandlerWrapper(app)
+    });
+
+    try {
+      await server.start();
+      console.log(`> Ready on http://localhost:${port}`);
+    } catch (error) {
+      console.log('Error starting server');
+      console.log(error);
     }
   });
-  
-  server.route({
-    method: 'GET',
-    path: '/api/templates',
-    handler: getTemplates
-  });
-  
-  server.route({
-    method: 'POST',
-    path: '/api/create-timetables',
-    handler: createTimetablesHandler
-  });
-
-  server.route({
-    method: 'GET',
-    path: '/_next/{p*}' /* next specific routes */,
-    handler: nextHandlerWrapper(app)
-  });
-
-  server.route({
-    method: '*',
-    path: '/{p*}' /* catch all route */,
-    handler: nextHandlerWrapper(app)
-  });
-
-  try {
-    await server.start();
-    console.log(`> Ready on http://localhost:${port}`);
-  } catch (error) {
-    console.log('Error starting server');
-    console.log(error);
-  }
-});

@@ -1,5 +1,5 @@
 import {join} from 'node:path';
-import {fileURLToPath, resolve} from 'node:url';
+import url from 'node:url';
 import {readFile, stat, writeFile} from 'node:fs/promises';
 import fetch from 'node-fetch';
 import { throttle } from 'lodash-es';
@@ -50,7 +50,7 @@ const downloadAndUnzip = async (downloadUrl, buildId) => {
   return downloadPath;
 };
 
-const createTimetables = async (data, socket) => {
+export const createTimetables = async (data, socket) => {
   const {
     buildId,
     url: downloadUrl,
@@ -87,9 +87,12 @@ const createTimetables = async (data, socket) => {
         agency_key: buildId,
         path: downloadPath
       }],
-      logFunction,
-      templatePath: join(process.env.TEMPLATE_DIR, template)
+      logFunction
     };
+    
+    if (template) {
+      config.templatePath = join(process.env.TEMPLATE_DIR, template)
+    }
 
     // Use test mapbox access token if none provided
     if (config.showMap && (!config.mapboxAccessToken || config.mapboxAccessToken === 'PUT YOUR MAPBOX ACCESS TOKEN HERE')) {
@@ -97,16 +100,16 @@ const createTimetables = async (data, socket) => {
     }
 
     await gtfsToHtml(config);
-    const outputStats = await getOutputStats(join(fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
+    const outputStats = await getOutputStats(join(url.fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
     logFunction(`Finished creating ${outputStats['Timetable Count']} timetables`)
   
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
-      localDir: join(fileURLToPath(import.meta.url), '../../html', buildId),
+      localDir: join(url.fileURLToPath(import.meta.url), '../../html', buildId),
       deleteRemoved: true,
       s3Params: {
-        Bucket: 'gtfs-to-html',
+        Bucket: 'gtfstohtml',
         Prefix: buildId,
         ACL: 'public-read',
         Expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
@@ -126,8 +129,8 @@ const createTimetables = async (data, socket) => {
       setTimeout(() => {
         socket.emit('status', {
           status: 'Timetable upload completed',
-          html_download_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
-          html_preview_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
+          html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
+          html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
         });
       }, 1000);
     });
@@ -150,7 +153,7 @@ const createTimetables = async (data, socket) => {
 };
 
 
-const createTimetablesSocketless = async (data) => {
+export const createTimetablesSocketless = async (data) => {
   const {
     buildId,
     url: downloadUrl,
@@ -171,17 +174,20 @@ const createTimetablesSocketless = async (data) => {
         path: downloadPath
       }],
       dataExpireAfterSeconds: 1200,
-      templatePath: path.join(process.env.TEMPLATE_DIR, template)
+    }
+
+    if (template) {
+      config.templatePath = join(process.env.TEMPLATE_DIR, template)
     }
 
     await gtfsToHtml(config);
-    const outputStats = await getOutputStats(path.join(__dirname, '..', 'html', buildId, 'log.txt'));
+    const outputStats = await getOutputStats(join(url.fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
     console.log(`Finished creating ${outputStats['Timetable Count']} timetables`)
 
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
-      localDir: path.join(__dirname, '..', 'html', buildId),
+      localDir: join(url.fileURLToPath(import.meta.url), '../../html', buildId),
       deleteRemoved: true,
       s3Params: {
         Bucket: 'gtfstohtml',
@@ -204,8 +210,8 @@ const createTimetablesSocketless = async (data) => {
       uploader.on('end', function () {
         resolve({
           status: 'Timetable upload completed',
-          html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'timetables.zip')),
-          html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, path.join(buildId, 'index.html'))
+          html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
+          html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
         });
       });
     })
@@ -225,9 +231,4 @@ const createTimetablesSocketless = async (data) => {
       error: errorMessage
     };
   }
-}
-
-module.exports = {
-  createTimetables,
-  createTimetablesSocketless
 }
