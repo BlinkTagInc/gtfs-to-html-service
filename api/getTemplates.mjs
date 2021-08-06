@@ -1,8 +1,7 @@
-const fs = require('fs-extra')
-const path = require('path')
+import {readdir} from 'node:fs/promises';
 
 module.exports = request => {
-    const templates = fs.readdirSync(process.env.TEMPLATE_DIR).map((file) => {
+    const templates = readdir(process.env.TEMPLATE_DIR).map((file) => {
         return {
             name: file
         }

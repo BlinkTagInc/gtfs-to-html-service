@@ -1,8 +1,6 @@
-const Boom = require('@hapi/boom')
-const { v4: uuidv4 } = require('uuid')
-const fs = require('fs-extra')
-const path = require('path')
-const { createTimetablesSocketless } = require('../util/create');
+import Boom from '@hapi/boom'
+import { v4 as uuidv4 } from 'uuid'
+import { createTimetablesSocketless } from '../util/create.mjs'
 
 const defaultTemplate = 'default'
 const defaultOptions = {

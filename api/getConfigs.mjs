@@ -1,7 +1,7 @@
-const fs = require('fs-extra')
+import {readdir} from 'node:fs/promises';
 
 module.exports = request => {
-    const configs = fs.readdirSync(process.env.CONFIG_DIR)
+    const configs = readdir(process.env.CONFIG_DIR)
     const response = {
         configs
     }

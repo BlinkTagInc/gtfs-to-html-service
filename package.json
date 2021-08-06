@@ -29,7 +29,6 @@
     "acorn": "^8.4.1",
     "dotenv": "10.0.0",
     "express": "4.17.1",
-    "fs-extra": "^9.0.1",
     "gtfs-to-html": "^2.1.5",
     "hapi-require-https": "^5.0.0",
     "lodash-es": "^4.17.21",

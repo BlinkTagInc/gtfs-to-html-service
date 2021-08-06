@@ -3,8 +3,6 @@ import {fileURLToPath, resolve} from 'node:url';
 import {readFile, stat, writeFile} from 'node:fs/promises';
 import fetch from 'node-fetch';
 import { throttle } from 'lodash-es';
-import path from 'path'
-
 
 import {createClient} from '@auth0/s3';
 import gtfsToHtml from 'gtfs-to-html';
@@ -90,7 +88,7 @@ const createTimetables = async (data, socket) => {
         path: downloadPath
       }],
       logFunction,
-      templatePath: path.join(process.env.TEMPLATE_DIR, template)
+      templatePath: join(process.env.TEMPLATE_DIR, template)
     };
 
     // Use test mapbox access token if none provided

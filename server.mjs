@@ -7,9 +7,9 @@ import {createTimetables} from './util/create.mjs';
 import getLocations from './api/getLocations.mjs';
 import getFeeds from './api/getFeeds.mjs';
 import getFeedVersions from './api/getFeedVersions.mjs';
-const getConfigs = require('./api/getConfigs');
-const getTemplates = require('./api/getTemplates');
-const createTimetablesHandler = require('./api/createTimetables');
+import getConfigs from './api/getConfigs.mjs';
+import getTemplates from './api/getTemplates.mjs';
+import createTimetablesHandler from './api/createTimetables.mjs';
 
 const port = Number.parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
