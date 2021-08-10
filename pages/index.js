@@ -1,14 +1,14 @@
-import React from 'react';
-import Head from 'next/head';
-import { useState, useEffect } from 'react';
-import { initGA, logPageView, logEvent } from '../util/analytics';
-const io = require('socket.io-client');
+import React, {useState, useEffect} from 'react';
+import Head from 'next/head.js';
+
+import io from 'socket.io-client';
+import {initGA, logPageView, logEvent} from '../util/analytics.js';
 const socket = io('/');
 
 function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
-  )
+  );
 }
 
 const defaultOptions = {
@@ -22,6 +22,7 @@ const defaultOptions = {
   interpolatedStopSymbol: '•',
   interpolatedStopText: 'Estimated time of arrival',
   linkStopUrls: true,
+  mapboxAccessToken: 'PUT YOUR MAPBOX ACCESS TOKEN HERE',
   menuType: 'jump',
   noDropoffSymbol: '‡',
   noDropoffText: 'No drop off available',
@@ -38,7 +39,7 @@ const defaultOptions = {
   serviceNotProvidedOnText: 'Service not provided on',
   serviceProvidedOnText: 'Service provided on',
   showArrivalOnDifference: 0.2,
-  showMap: false,
+  showMap: true,
   showOnlyTimepoint: false,
   showRouteTitle: true,
   showStopCity: false,
@@ -71,19 +72,21 @@ function Home() {
   useEffect(() => {
     if (!window.GA_INITIALIZED) {
       initGA();
-      window.GA_INITIALIZED = true
+      window.GA_INITIALIZED = true;
     }
+
     logPageView();
   }, []);
 
   useEffect(() => {
     socket.on('status', payload => {
-      if (statuses.length && payload.statusKey && payload.statusKey === statuses[statuses.length - 1].statusKey) {
+      if (statuses.length > 0 && payload.overwrite === true) {
         statuses.splice(-1, 1, payload);
       } else {
-        statuses.push(payload)
+        statuses.push(payload);
       }
-      setStatuses([ ...statuses ]);
+
+      setStatuses([...statuses]);
     });
 
     fetch('/api/locations')
@@ -116,7 +119,7 @@ function Home() {
   }, [])
   
   useEffect(() => {
-    var element = statusContainer.current;
+    const element = statusContainer.current;
     if (element) {
       element.scrollTop = element.scrollHeight;
     }
@@ -125,15 +128,15 @@ function Home() {
   useEffect(() => {
     if (selectedFeed) {
       fetch(`/api/feed-versions?feed=${selectedFeed}`)
-      .then(res => res.json())
-      .then(response => {
-        if (response && response.results && response.results.versions && response.results.versions.length) {
-          setUrl(response.results.versions[0].url);
-        } else {
-          const locationName = locations.find(l => l.id.toString() === selectedLocation).t;
-          alert(`Unable to find any valid feed URLs for ${locationName}`);
-        }
-      });
+        .then(res => res.json())
+        .then(response => {
+          if (response && response.results && response.results.versions && response.results.versions.length > 0) {
+            setUrl(response.results.versions[0].url);
+          } else {
+            const locationName = locations.find(l => l.id.toString() === selectedLocation).t;
+            alert(`Unable to find any valid feed URLs for ${locationName}`);
+          }
+        });
     }
   }, [selectedFeed]);
 
@@ -178,16 +181,16 @@ function Home() {
     let parsedOptions;
     try {
       parsedOptions = JSON.parse(options);
-    } catch (err) {
-      setStatuses([{ error: 'Invalid JSON supplied for GTFS-to-HTML options' }]);
+    } catch {
+      setStatuses([{error: 'Invalid JSON supplied for GTFS-to-HTML options'}]);
       return;
     }
 
 
     setStatuses([]);
-    
+
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
-      setStatuses([{ error: 'Please enter a valid URL' }]);
+      setStatuses([{error: 'Please enter a valid URL'}]);
       return;
     }
 
@@ -205,50 +208,47 @@ function Home() {
     setProcessing(false);
 
     logEvent('GTFS', 'create', url);
-  }
+  };
 
   const renderFileOption = filePath => {
     const nameNoExt = filePath.replace(/^.*[\\\/]/, '').slice(0, -5)
-
     return (
       <option key={nameNoExt} value={filePath}>{nameNoExt}</option>
     );
   }
-  
+    
   const renderTemplateOption = template => {
-
     const dirName = template.name.replace(/^.*[\\\/]/, '')
 
     return (
       <option key={dirName} value={dirName}>{dirName}</option>
     );
-  }
+  };
 
   const renderOptions = () => {
-
     if (showOptions) {
       return (
         <div className="form-group mx-sm-3">
           <small className="form-text text-muted ml-1">
-            GTFS-to-HTML options{" "}
+            GTFS-to-HTML options{' '}
             <a href="https://gtfstohtml.com/docs/configuration" target="_blank">read more</a>
           </small>
           <textarea
             className="form-control form-control-sm form-control-options mt-3 mt-md-0"
             value={options}
             onChange={handleOptionsChange}
-            style={{ height: '400px' }}
+            style={{height: '400px'}}
           />
         </div>
       );
-    } else {
-      return (
-        <div className="form-group mx-sm-3">
-          <button className="btn btn-sm" onClick={() => setShowOptions(true)}>Customize options</button>
-        </div>
-      );
     }
-  }
+
+    return (
+      <div className="form-group mx-sm-3">
+        <button className="btn btn-sm" onClick={() => setShowOptions(true)}>Customize options</button>
+      </div>
+    );
+  };
 
   const renderUrlForm = () => {
     if (processing) {
@@ -297,7 +297,7 @@ function Home() {
           </div>
         </form>
 
-        {!statuses.length && <div className="row">
+        {statuses.length === 0 && <div className="row">
           <div className="col-sm-8 offset-sm-2 mt-lg-5 mt-2">
             <div className="card">
               <div className="card-body">
@@ -346,7 +346,7 @@ function Home() {
                     <p className="card-text">Automating timetable creation means that timetables can be kept up to date and accurate when schedule changes happen and the likelihood of errors is reduced.</p>
                   </div>
                 </div>
-              
+
                 <div className="row">
                   <div className="col">
                     <a href="https://gtfstohtml.com/" className="btn btn-sm btn-primary btn-block">Read more</a>
@@ -359,7 +359,7 @@ function Home() {
             </div>
           </div>
         </div>}
-        
+
         <style jsx>{`
           .url-form {
             margin-bottom: 25px;
@@ -380,7 +380,7 @@ function Home() {
         `}</style>
       </div>
     );
-  }
+  };
 
   const renderLoading = () => {
     if (!processing) {
@@ -484,13 +484,13 @@ function Home() {
           }          
         `}</style>
       </div>
-    )
-  }
+    );
+  };
 
   const formatStatusText = text => text && typeof text === 'string' ? text.replace(`${buildId}: `, '') : '';
 
   const renderStatus = () => {
-    if (!statuses.length) {
+    if (statuses.length === 0) {
       return null;
     }
 
@@ -504,8 +504,9 @@ function Home() {
             if (status.error) {
               return (
                 <div className="status status-error" key={index}><strong>Error:</strong> {status.error}</div>
-              )
+              );
             }
+
             return (
               <div className="status" key={index}>
                 {formatStatusText(status.status)}
@@ -525,7 +526,7 @@ function Home() {
                   </div>
                 </div>}
               </div>
-            )
+            );
           })}
           {!latestStatus.html_preview_url && !latestStatus.error && <div className="spinner mb-4"></div>}
         </div>
@@ -597,7 +598,7 @@ function Home() {
         `}</style>
       </div>
     );
-  }
+  };
 
   return (
     <div>
@@ -678,7 +679,7 @@ function Home() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 export default Home;

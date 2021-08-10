@@ -1,37 +1,36 @@
-require('dotenv').config();
-const next = require('next');
-const Hapi = require('@hapi/hapi');
-const Inert = require('@hapi/inert');
-const {
-  nextHandlerWrapper
-} = require('./next-wrapper');
+import Hapi from '@hapi/hapi';
+import Inert from '@hapi/inert';
+import next from 'next';
+import * as io from 'socket.io';
 
+import {nextHandlerWrapper} from './next-wrapper.js';
+import {createTimetables} from './util/create.mjs';
+import getLocations from './api/getLocations.mjs';
+import getFeeds from './api/getFeeds.mjs';
+import getFeedVersions from './api/getFeedVersions.mjs';
+import getConfigs from './api/getConfigs.mjs';
+import getTemplates from './api/getTemplates.mjs';
+import createTimetablesHandler from './api/createTimetables.mjs';
+
+const port = Number.parseInt(process.env.PORT, 10) || 3000;
 const dev = process.env.NODE_ENV !== 'production';
-const port = process.env.PORT || 3000;
-const { createTimetables } = require('./util/create');
-const getLocations = require('./api/getLocations');
-const getFeeds = require('./api/getFeeds');
-const getFeedVersions = require('./api/getFeedVersions');
-const getConfigs = require('./api/getConfigs');
-const getTemplates = require('./api/getTemplates');
-const createTimetablesHandler = require('./api/createTimetables');
-
-const app = next({
-  dev
-});
+const app = next({dev});
 const server = new Hapi.Server({
   port
 });
-const io = require('socket.io')(server.listener);
 
-// socket.io server
-io.on('connection', socket => {
+const socketIo = new io.Server(server.listener);
+
+// Socket.io server
+socketIo.on('connection', socket => {
   socket.on('create', data => {
     if (!data.url) {
       return socket.emit('status', {
         error: 'No URL provided'
       });
-    } else if (!data.buildId) {
+    }
+
+    if (!data.buildId) {
       return socket.emit('status', {
         error: 'No Build ID provided'
       });
@@ -42,9 +41,7 @@ io.on('connection', socket => {
 });
 
 app.prepare()
-  .then(async () => {
-    await server.register(Inert)
-  })
+  .then(async () => await server.register(Inert))
   .then(async () => {
     server.route({
       method: 'GET',
@@ -95,8 +92,13 @@ app.prepare()
 
     server.route({
       method: 'GET',
-      path: '/{p*}',
-      /* Catch all route */
+      path: '/_next/{p*}' /* next specific routes */,
+      handler: nextHandlerWrapper(app)
+    });
+
+    server.route({
+      method: '*',
+      path: '/{p*}' /* catch all route */,
       handler: nextHandlerWrapper(app)
     });
 

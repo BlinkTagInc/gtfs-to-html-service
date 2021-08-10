@@ -69,14 +69,13 @@ If instead there is an error while processing, the response will contain the err
 
 ## Running in production
 
-    pm2 start server
-    pm2 stop server
+    pm2 start pm2.config.js
+    pm2 stop pm2.config.js
     pm2 logs
 
 ### Tests
 
     npm test
-
 
 ## Contributing
 
