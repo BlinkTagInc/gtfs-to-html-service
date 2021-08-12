@@ -164,6 +164,8 @@ export const createTimetablesSocketless = async (data) => {
   try {
 
     const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
+
+    const logFunction = text => console.log(text)
     
     const config = {
       ...options,
@@ -174,6 +176,7 @@ export const createTimetablesSocketless = async (data) => {
         path: downloadPath
       }],
       dataExpireAfterSeconds: 1200,
+      logFunction
     }
 
     if (template) {
@@ -183,7 +186,7 @@ export const createTimetablesSocketless = async (data) => {
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(join(url.fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
-    console.log(`Finished creating ${outputStats['Timetable Count']} timetables`)
+    logFunction(`Finished creating ${outputStats['Timetable Count']} timetables`)
 
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
@@ -203,7 +206,7 @@ export const createTimetablesSocketless = async (data) => {
 
     uploader.on('progress', function () {
       const progressPercent = uploader.progressAmount ? `[${Math.round(uploader.progressAmount / uploader.progressTotal * 1000) / 10}%]` : '';
-      console.log(`Uploading timetables ${progressPercent}`)
+      logFunction(`Uploading timetables ${progressPercent}`)
     });
 
     return new Promise((resolve) => {
@@ -216,7 +219,7 @@ export const createTimetablesSocketless = async (data) => {
       });
     })
   } catch (error) {
-    console.log(error)
+    logFunction(error)
     let errorMessage;
 
     if (error.toString().includes('FetchError')) {
