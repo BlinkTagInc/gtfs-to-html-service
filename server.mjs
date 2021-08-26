@@ -97,7 +97,7 @@ app.prepare()
         const clientIP = forwardedIPs ? forwardedIPs.split(',')[0] : request.info.remoteAddress
 
         if (!whitelist.includes(clientIP)) {
-          console.log('Create timetables request from IP not in whitelist: ', clientIP)
+          console.log('Declining POST request from IP not in whitelist: ', clientIP)
           throw Boom.badRequest('Client not in whitelist')
         }
 
