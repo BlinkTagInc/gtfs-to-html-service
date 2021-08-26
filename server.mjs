@@ -1,5 +1,6 @@
 import Hapi from '@hapi/hapi';
 import Inert from '@hapi/inert';
+import Boom from '@hapi/boom'
 import next from 'next';
 import * as io from 'socket.io';
 
@@ -87,7 +88,21 @@ app.prepare()
     server.route({
       method: 'POST',
       path: '/api/create-timetables',
-      handler: createTimetablesHandler
+      handler: async (request, h) => {
+
+        // This endpoint can only be used by GTFSM hosts
+        const whitelist = process.env.HTTP_POST_WHITELIST.split(',')
+
+        const forwardedIPs = request.headers['x-forwarded-for']
+        const clientIP = forwardedIPs ? forwardedIPs.split(',')[0] : request.info.remoteAddress
+
+        if (!whitelist.includes(clientIP)) {
+          console.log('Create timetables request from IP not in whitelist: ', clientIP)
+          throw Boom.badRequest('Client not in whitelist')
+        }
+
+        createTimetablesHandler(request, h)
+      }
     });
 
     server.route({
