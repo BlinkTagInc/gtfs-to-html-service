@@ -101,7 +101,7 @@ app.prepare()
           throw Boom.badRequest('Client not in whitelist')
         }
 
-        createTimetablesHandler(request, h)
+        return await  createTimetablesHandler(request, h)
       }
     });
 
