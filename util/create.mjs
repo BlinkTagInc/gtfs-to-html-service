@@ -69,7 +69,7 @@ export default async (data, socket) => {
 
     const logFunction = (text, overwrite) => {
       if (overwrite === true) {
-        throttledLog(text, overwrite)
+        throttledLog(text, overwrite);
       } else {
         socket.emit('status', {
           status: text,
@@ -97,7 +97,7 @@ export default async (data, socket) => {
     await gtfsToHtml(config);
     const outputStats = await getOutputStats(join(fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
-    logFunction(`Finished creating ${outputStats['Timetable Count']} timetables`)
+    config.logFunction(`Finished creating ${outputStats['Timetable Count']} timetables`);
   
     // Set expires date to 30 days in the future
     const uploader = client.uploadDir({
