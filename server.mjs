@@ -102,6 +102,7 @@ app.prepare()
         }
 
         return await  createTimetablesHandler(request, h)
+          .catch(err => console.log(err))
       }
     });
 
