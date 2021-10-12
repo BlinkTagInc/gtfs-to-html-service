@@ -178,11 +178,14 @@ function Home() {
       event.preventDefault();
     }
 
+    setProcessing(true);
+
     let parsedOptions;
     try {
       parsedOptions = JSON.parse(options);
     } catch {
       setStatuses([{error: 'Invalid JSON supplied for GTFS-to-HTML options'}]);
+      setProcessing(false);
       return;
     }
 
@@ -191,10 +194,9 @@ function Home() {
 
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
       setStatuses([{error: 'Please enter a valid URL'}]);
+      setProcessing(false);
       return;
     }
-
-    setProcessing(true);
 
     const buildId = uuidv4();
     socket.emit('create', {
