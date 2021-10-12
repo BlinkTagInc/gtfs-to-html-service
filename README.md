@@ -73,6 +73,11 @@ If instead there is an error while processing, the response will contain the err
     pm2 stop pm2.config.js
     pm2 logs
 
+## Upgrading node.js
+
+    npm install pm2 -g
+    pm2 upgrade
+
 ### Tests
 
     npm test
