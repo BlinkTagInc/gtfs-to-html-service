@@ -161,8 +161,7 @@ export const createTimetablesSocketless = async (data) => {
     template
   } = data;
 
-  try {
-
+  return new Promise(async (resolve, reject) => {
     const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
 
     const logFunction = text => console.log(text)
@@ -201,7 +200,7 @@ export const createTimetablesSocketless = async (data) => {
     });
 
     uploader.on('error', function (error) {
-      throw error;
+      reject(error);
     });
 
     uploader.on('progress', function () {
@@ -209,16 +208,15 @@ export const createTimetablesSocketless = async (data) => {
       logFunction(`Uploading timetables ${progressPercent}`)
     });
 
-    return new Promise((resolve) => {
-      uploader.on('end', function () {
-        resolve({
-          status: 'Timetable upload completed',
-          html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
-          html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
-        });
+    uploader.on('end', function () {
+      resolve({
+        status: 'Timetable upload completed',
+        html_download_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
+        html_preview_url: url.resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
       });
+
     })
-  } catch (error) {
+  }).catch(error => {
     logFunction(error)
     let errorMessage;
 
@@ -230,8 +228,8 @@ export const createTimetablesSocketless = async (data) => {
       errorMessage = error.toString().replace('Error: ', '');
     }
 
-    return {
+    reject({
       error: errorMessage
-    };
-  }
+    });
+  })
 }
