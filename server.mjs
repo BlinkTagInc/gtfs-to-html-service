@@ -101,8 +101,15 @@ app.prepare()
           throw Boom.badRequest('Client not in whitelist')
         }
 
-        return await  createTimetablesHandler(request, h)
-          .catch(err => console.log(err))
+        let response
+        try {
+          response = await createTimetablesHandler(request, h)
+        } catch (e) {
+          console.log('error: ', errorString)
+          throw new Boom.Boom(e.toString())
+        }
+        
+        return response
       }
     });
 

@@ -162,7 +162,14 @@ export const createTimetablesSocketless = async (data) => {
   } = data;
 
   return new Promise(async (resolve, reject) => {
-    const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
+    let downloadPath
+    try {
+      downloadPath = await downloadAndUnzip(downloadUrl, buildId);
+    } catch (error) {
+      console.log('in catch')
+      return reject(error)
+    }
+    console.log('after catch')
 
     const logFunction = text => console.log(`[${Date.now()}] ${downloadUrl} : ${text}`)
     
@@ -182,7 +189,11 @@ export const createTimetablesSocketless = async (data) => {
       config.templatePath = join(process.env.TEMPLATE_DIR, template)
     }
 
-    await gtfsToHtml(config);
+    try {
+      await gtfsToHtml(config);
+    } catch (error) {
+      return reject(error)
+    }
     const outputStats = await getOutputStats(join(url.fileURLToPath(import.meta.url), '../../html', buildId, 'log.txt'));
 
     logFunction(`Finished creating ${outputStats['Timetable Count']} timetables`)
@@ -200,7 +211,7 @@ export const createTimetablesSocketless = async (data) => {
     });
 
     uploader.on('error', function (error) {
-      reject(error);
+      return reject(error);
     });
 
     uploader.on('fileUploadStart', function (localFilePath) {
@@ -220,19 +231,17 @@ export const createTimetablesSocketless = async (data) => {
 
     })
   }).catch(error => {
-    logFunction(error)
-    let errorMessage;
+    console.log('error in createTimetablesSocketless: ', error)
+    const errorString = error.toString()
 
-    if (error.toString().includes('FetchError')) {
-      errorMessage = `Unable to fetch GTFS from ${downloadUrl}`;
-    } else if (error.toString().includes('Unable to unzip file')) {
-      errorMessage = `Invalid zip file at ${downloadUrl}`;
+    if (
+      errorString.includes('FetchError')
+      || errorString.includes('Unable to unzip file')
+      || errorString.includes('Couldn\'t download files')
+    ) {
+      throw new Error(errorString);
     } else {
-      errorMessage = error.toString().replace('Error: ', '');
+      throw new Error('Error occurred during timetable creation');
     }
-
-    reject({
-      error: errorMessage
-    });
   })
 }
