@@ -164,7 +164,7 @@ export const createTimetablesSocketless = async (data) => {
   return new Promise(async (resolve, reject) => {
     const downloadPath = await downloadAndUnzip(downloadUrl, buildId);
 
-    const logFunction = text => console.log(text)
+    const logFunction = text => console.log(`[${Date.now()}] ${downloadUrl} : ${text}`)
     
     const config = {
       ...options,
@@ -203,9 +203,12 @@ export const createTimetablesSocketless = async (data) => {
       reject(error);
     });
 
-    uploader.on('progress', function () {
-      const progressPercent = uploader.progressAmount ? `[${Math.round(uploader.progressAmount / uploader.progressTotal * 1000) / 10}%]` : '';
-      logFunction(`Uploading timetables ${progressPercent}`)
+    uploader.on('fileUploadStart', function (localFilePath) {
+      logFunction(`Uploading started for ${localFilePath}`)
+    });
+    
+    uploader.on('fileUploadEnd', function (localFilePath) {
+      logFunction(`Uploading ended for ${localFilePath}`)
     });
 
     uploader.on('end', function () {
