@@ -14,7 +14,7 @@
   "scripts": {
     "build": "next build",
     "dev": "node -r dotenv/config server.mjs",
-    "start": "NODE_ENV=production node -r dotenv/config server.mjs",
+    "start": "NODE_ENV=production NODE_OPTIONS=--max_old_space_size=4096 node -r dotenv/config server.mjs",
     "test": "xo"
   },
   "xo": {
