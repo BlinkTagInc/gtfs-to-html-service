@@ -76,7 +76,9 @@ If instead there is an error while processing, the response will contain the err
 ## Upgrading node.js
 
     npm install pm2 -g
-    pm2 upgrade
+    pm2 update
+    pm2 unstartup
+    pm2 startup
 
 ### Tests
 
