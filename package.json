@@ -1,6 +1,6 @@
 {
   "name": "gtfs-to-html-service",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "A service for building HTML timetables from GTFS using gtfs-to-html.",
   "keywords": [
