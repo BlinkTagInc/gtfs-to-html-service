@@ -46,5 +46,15 @@
   },
   "engines": {
     "node": "16.x"
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/keep-a-changelog": {
+        "filename": "CHANGELOG.md"
+      }
+    }
   }
 }
