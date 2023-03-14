@@ -79,6 +79,7 @@ If instead there is an error while processing, the response will contain the err
     pm2 update
     pm2 unstartup
     pm2 startup
+    pm2 start pm2.config.js
 
 ### Tests
 
