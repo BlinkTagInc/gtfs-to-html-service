@@ -1,13 +1,16 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import Head from 'next/head.js';
 
 import io from 'socket.io-client';
-import {initGA, logPageView, logEvent} from '../util/analytics.js';
+import { initGA, logPageView, logEvent } from '../util/analytics.js';
 const socket = io('/');
 
 function uuidv4() {
-  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
-    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+    (
+      c ^
+      (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+    ).toString(16),
   );
 }
 
@@ -17,7 +20,15 @@ const defaultOptions = {
   coordinatePrecision: 5,
   dateFormat: 'MMM D, YYYY',
   daysShortStrings: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  daysStrings: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+  daysStrings: [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ],
   defaultOrientation: 'vertical',
   interpolatedStopSymbol: '•',
   interpolatedStopText: 'Estimated time of arrival',
@@ -44,14 +55,17 @@ const defaultOptions = {
   showRouteTitle: true,
   showStopCity: false,
   showStopDescription: false,
+  showStoptimesForRequestStops: true,
   sortingAlgorithm: 'common',
   timeFormat: 'h:mma',
-  useParentStation: true
+  useParentStation: true,
 };
 
 function Home() {
   const [url, setUrl] = useState('');
-  const [options, setOptions] = useState(JSON.stringify(defaultOptions, null, 2));
+  const [options, setOptions] = useState(
+    JSON.stringify(defaultOptions, null, 2),
+  );
   const [showOptions, setShowOptions] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
@@ -73,7 +87,7 @@ function Home() {
   }, []);
 
   useEffect(() => {
-    socket.on('status', payload => {
+    socket.on('status', (payload) => {
       if (statuses.length > 0 && payload.overwrite === true) {
         statuses.splice(-1, 1, payload);
       } else {
@@ -84,8 +98,8 @@ function Home() {
     });
 
     fetch('/api/locations')
-      .then(res => res.json())
-      .then(response => {
+      .then((res) => res.json())
+      .then((response) => {
         if (response && response.results && response.results.locations) {
           setLocations(response.results.locations);
         }
@@ -102,21 +116,32 @@ function Home() {
   useEffect(() => {
     if (selectedFeed) {
       fetch(`/api/feed-versions?feed=${selectedFeed}`)
-        .then(res => res.json())
-        .then(response => {
-          if (response && response.results && response.results.versions && response.results.versions.length > 0) {
+        .then((res) => res.json())
+        .then((response) => {
+          if (
+            response &&
+            response.results &&
+            response.results.versions &&
+            response.results.versions.length > 0
+          ) {
             setUrl(response.results.versions[0].url);
           } else {
-            const locationName = locations.find(l => l.id.toString() === selectedLocation).t;
+            const locationName = locations.find(
+              (l) => l.id.toString() === selectedLocation,
+            ).t;
             alert(`Unable to find any valid feed URLs for ${locationName}`);
           }
         });
     }
   }, [selectedFeed]);
 
-  const handleUrlChange = event => {
+  const handleUrlChange = (event) => {
     setUrl(event.target.value);
-    if (feeds && selectedFeed && event.target.value !== feeds.find(f => f.id === selectedFeed).u.d) {
+    if (
+      feeds &&
+      selectedFeed &&
+      event.target.value !== feeds.find((f) => f.id === selectedFeed).u.d
+    ) {
       // Reset feed and location select
       setSelectedFeed('');
       setSelectedLocation('');
@@ -124,11 +149,11 @@ function Home() {
     }
   };
 
-  const handleOptionsChange = event => {
+  const handleOptionsChange = (event) => {
     setOptions(event.target.value);
   };
 
-  const handleSubmit = async event => {
+  const handleSubmit = async (event) => {
     if (event) {
       event.preventDefault();
     }
@@ -139,7 +164,9 @@ function Home() {
     try {
       parsedOptions = JSON.parse(options);
     } catch {
-      setStatuses([{error: 'Invalid JSON supplied for GTFS-to-HTML options'}]);
+      setStatuses([
+        { error: 'Invalid JSON supplied for GTFS-to-HTML options' },
+      ]);
       setProcessing(false);
       return;
     }
@@ -147,7 +174,7 @@ function Home() {
     setStatuses([]);
 
     if (!/^(f|ht)tps?:\/\//i.test(url)) {
-      setStatuses([{error: 'Please enter a valid URL'}]);
+      setStatuses([{ error: 'Please enter a valid URL' }]);
       setProcessing(false);
       return;
     }
@@ -156,7 +183,7 @@ function Home() {
     socket.emit('create', {
       url,
       buildId,
-      options: parsedOptions
+      options: parsedOptions,
     });
 
     setBuildId(buildId);
@@ -165,20 +192,24 @@ function Home() {
     logEvent('GTFS', 'create', url);
   };
 
-  const handleLocationChange = e => {
+  const handleLocationChange = (e) => {
     const newLocationId = e.target.value;
     setSelectedLocation(newLocationId);
     setFeeds();
     setUrl('');
     fetch(`/api/feeds?location=${newLocationId}&limit=100`)
-      .then(res => res.json())
-      .then(response => {
+      .then((res) => res.json())
+      .then((response) => {
         if (response && response.results && response.results.feeds) {
-          const filteredFeeds = response.results.feeds.filter(f => f.ty === 'gtfs');
+          const filteredFeeds = response.results.feeds.filter(
+            (f) => f.ty === 'gtfs',
+          );
           setFeeds(filteredFeeds);
 
           if (filteredFeeds.length === 0) {
-            const locationName = locations.find(l => l.id.toString() === newLocationId).t;
+            const locationName = locations.find(
+              (l) => l.id.toString() === newLocationId,
+            ).t;
             alert(`No GTFS feeds found for ${locationName}`);
           }
 
@@ -189,15 +220,19 @@ function Home() {
       });
   };
 
-  const renderLocationOption = location => {
+  const renderLocationOption = (location) => {
     return (
-      <option key={location.id} value={location.id}>{location.t}</option>
+      <option key={location.id} value={location.id}>
+        {location.t}
+      </option>
     );
   };
 
-  const renderFeedOption = feed => {
+  const renderFeedOption = (feed) => {
     return (
-      <option key={feed.id} value={feed.id}>{feed.t}</option>
+      <option key={feed.id} value={feed.id}>
+        {feed.t}
+      </option>
     );
   };
 
@@ -207,13 +242,15 @@ function Home() {
         <div className="form-group mx-sm-3">
           <small className="form-text text-muted ml-1">
             GTFS-to-HTML options{' '}
-            <a href="https://gtfstohtml.com/docs/configuration" target="_blank">read more</a>
+            <a href="https://gtfstohtml.com/docs/configuration" target="_blank">
+              read more
+            </a>
           </small>
           <textarea
             className="form-control form-control-sm form-control-options mt-3 mt-md-0"
             value={options}
             onChange={handleOptionsChange}
-            style={{height: '400px'}}
+            style={{ height: '400px' }}
           />
         </div>
       );
@@ -221,7 +258,9 @@ function Home() {
 
     return (
       <div className="form-group mx-sm-3">
-        <button className="btn btn-sm" onClick={() => setShowOptions(true)}>Customize options</button>
+        <button className="btn btn-sm" onClick={() => setShowOptions(true)}>
+          Customize options
+        </button>
       </div>
     );
   };
@@ -245,16 +284,18 @@ function Home() {
               {locations && locations.map(renderLocationOption)}
             </select>
           </div>
-          {feeds && feeds.length > 1 && <div className="form-group mx-sm-3 url-form-group">
-            <select
-              className="form-control form-control-lg"
-              onChange={e => setSelectedFeed(e.target.value)}
-              value={selectedFeed}
-            >
-              <option value="">Select a GTFS Feed</option>
-              {feeds.map(renderFeedOption)}
-            </select>
-          </div>}
+          {feeds && feeds.length > 1 && (
+            <div className="form-group mx-sm-3 url-form-group">
+              <select
+                className="form-control form-control-lg"
+                onChange={(e) => setSelectedFeed(e.target.value)}
+                value={selectedFeed}
+              >
+                <option value="">Select a GTFS Feed</option>
+                {feeds.map(renderFeedOption)}
+              </select>
+            </div>
+          )}
           <div className="form-group mx-sm-3 url-form-group">
             <small className="form-text text-muted ml-1">
               or direcly enter the URL of a zipped GTFS file
@@ -269,72 +310,98 @@ function Home() {
           </div>
           {renderOptions()}
           <div className="form-group mx-sm-3 url-form-group">
-            <input type="submit" value="Create HTML Timetables" className="btn btn-primary btn-lg btn-block" />
+            <input
+              type="submit"
+              value="Create HTML Timetables"
+              className="btn btn-primary btn-lg btn-block"
+            />
           </div>
         </form>
 
-        {statuses.length === 0 && <div className="row">
-          <div className="col-sm-8 offset-sm-2 mt-lg-5 mt-2">
-            <div className="card">
-              <div className="card-body">
-                <h5 className="card-title">What is this tool?</h5>
-                <div className="row mb-4">
-                  <div className="col-3 display-4 text-center">
-                    🚆
+        {statuses.length === 0 && (
+          <div className="row">
+            <div className="col-sm-8 offset-sm-2 mt-lg-5 mt-2">
+              <div className="card">
+                <div className="card-body">
+                  <h5 className="card-title">What is this tool?</h5>
+                  <div className="row mb-4">
+                    <div className="col-3 display-4 text-center">🚆</div>
+                    <div className="col-9">
+                      <p className="card-text">
+                        GTFS-to-HTML creates human-readable, user-friendly
+                        transit timetables in HTML format directly from GTFS
+                        transit data.
+                      </p>
+                    </div>
                   </div>
-                  <div className="col-9">
-                    <p className="card-text">GTFS-to-HTML creates human-readable, user-friendly transit timetables in HTML format directly from GTFS transit data.</p>
-                  </div>
-                </div>
 
-                <div className="row mb-4">
-                  <div className="col-3 display-4 text-center">
-                    🕑
+                  <div className="row mb-4">
+                    <div className="col-3 display-4 text-center">🕑</div>
+                    <div className="col-9">
+                      <p className="card-text">
+                        Most transit agencies have schedule data in GTFS format
+                        but need to show each route's schedule to users on a
+                        website.
+                      </p>
+                    </div>
                   </div>
-                  <div className="col-9">
-                    <p className="card-text">Most transit agencies have schedule data in GTFS format but need to show each route's schedule to users on a website.</p>
-                  </div>
-                </div>
 
-                <div className="row mb-4">
-                  <div className="col-3 display-4 text-center">
-                    🖥
+                  <div className="row mb-4">
+                    <div className="col-3 display-4 text-center">🖥</div>
+                    <div className="col-9">
+                      <p className="card-text">
+                        GTFS allows transit data to be published to apps like
+                        Google Maps and Citymapper. HTML is a human-readable
+                        format (like this website).
+                      </p>
+                    </div>
                   </div>
-                  <div className="col-9">
-                    <p className="card-text">GTFS allows transit data to be published to apps like Google Maps and Citymapper. HTML is a human-readable format (like this website).</p>
-                  </div>
-                </div>
 
-                <div className="row mb-4">
-                  <div className="col-3 display-4 text-center">
-                    🧰
+                  <div className="row mb-4">
+                    <div className="col-3 display-4 text-center">🧰</div>
+                    <div className="col-9">
+                      <p className="card-text">
+                        This tool automates the process of creating nicely
+                        formatted HTML or PDF timetables for inclusion on a
+                        transit agency website.
+                      </p>
+                    </div>
                   </div>
-                  <div className="col-9">
-                    <p className="card-text">This tool automates the process of creating nicely formatted HTML or PDF timetables for inclusion on a transit agency website.</p>
-                  </div>
-                </div>
 
-                <div className="row mb-4">
-                  <div className="col-3 display-4 text-center">
-                    ✅
+                  <div className="row mb-4">
+                    <div className="col-3 display-4 text-center">✅</div>
+                    <div className="col-9">
+                      <p className="card-text">
+                        Automating timetable creation means that timetables can
+                        be kept up to date and accurate when schedule changes
+                        happen and the likelihood of errors is reduced.
+                      </p>
+                    </div>
                   </div>
-                  <div className="col-9">
-                    <p className="card-text">Automating timetable creation means that timetables can be kept up to date and accurate when schedule changes happen and the likelihood of errors is reduced.</p>
-                  </div>
-                </div>
 
-                <div className="row">
-                  <div className="col">
-                    <a href="https://gtfstohtml.com/" className="btn btn-sm btn-primary btn-block">Read more</a>
-                  </div>
-                  <div className="col">
-                    <a href="https://gtfs.org/" className="btn btn-sm btn-secondary btn-block">Read more about GTFS</a>
+                  <div className="row">
+                    <div className="col">
+                      <a
+                        href="https://gtfstohtml.com/"
+                        className="btn btn-sm btn-primary btn-block"
+                      >
+                        Read more
+                      </a>
+                    </div>
+                    <div className="col">
+                      <a
+                        href="https://gtfs.org/"
+                        className="btn btn-sm btn-secondary btn-block"
+                      >
+                        Read more about GTFS
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>}
+        )}
 
         <style jsx>{`
           .url-form {
@@ -367,7 +434,16 @@ function Home() {
       <div className="loading">
         <h2>Generating HTML Timetables</h2>
         <p>from {url}</p>
-        <div className="lds-roller"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
+        <div className="lds-roller">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
         <style jsx>{`
           .loading {
             text-align: center;
@@ -385,7 +461,7 @@ function Home() {
             transform-origin: 32px 32px;
           }
           .lds-roller div:after {
-            content: " ";
+            content: ' ';
             display: block;
             position: absolute;
             width: 6px;
@@ -457,13 +533,14 @@ function Home() {
             100% {
               transform: rotate(360deg);
             }
-          }          
+          }
         `}</style>
       </div>
     );
   };
 
-  const formatStatusText = text => text && typeof text === 'string' ? text.replace(`${buildId}: `, '') : '';
+  const formatStatusText = (text) =>
+    text && typeof text === 'string' ? text.replace(`${buildId}: `, '') : '';
 
   const renderStatus = () => {
     if (statuses.length === 0) {
@@ -474,37 +551,49 @@ function Home() {
 
     return (
       <div>
-        <div className="status-container-header">HTML Timetable Generation Status</div>
+        <div className="status-container-header">
+          HTML Timetable Generation Status
+        </div>
         <div className="status-container" ref={statusContainer}>
           {statuses.map((status, index) => {
             if (status.error) {
               return (
-                <div className="status status-error" key={index}><strong>Error:</strong> {status.error}</div>
+                <div className="status status-error" key={index}>
+                  <strong>Error:</strong> {status.error}
+                </div>
               );
             }
 
             return (
               <div className="status" key={index}>
                 {formatStatusText(status.status)}
-                {status.html_download_url && <div className="row mt-4 mb-4">
-                  <div className="col-md-6">
-                    <a
-                      href={status.html_download_url}
-                      className="btn btn-lg btn-primary btn-block"
-                    >Download .zip</a>
+                {status.html_download_url && (
+                  <div className="row mt-4 mb-4">
+                    <div className="col-md-6">
+                      <a
+                        href={status.html_download_url}
+                        className="btn btn-lg btn-primary btn-block"
+                      >
+                        Download .zip
+                      </a>
+                    </div>
+                    <div className="col-md-6">
+                      <a
+                        href={status.html_preview_url}
+                        className="btn btn-lg btn-primary btn-block"
+                        target="_blank"
+                      >
+                        Preview Timetables
+                      </a>
+                    </div>
                   </div>
-                  <div className="col-md-6">
-                    <a
-                      href={status.html_preview_url}
-                      className="btn btn-lg btn-primary btn-block"
-                      target="_blank"
-                    >Preview Timetables</a>
-                  </div>
-                </div>}
+                )}
               </div>
             );
           })}
-          {!latestStatus.html_preview_url && !latestStatus.error && <div className="spinner mb-4"></div>}
+          {!latestStatus.html_preview_url && !latestStatus.error && (
+            <div className="spinner mb-4"></div>
+          )}
         </div>
         <style jsx>{`
           .status-container-header {
@@ -523,15 +612,18 @@ function Home() {
           .status-container {
             text-align: left;
             background-color: #1e1e1e;
-            color: #4AF626;
-            font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+            color: #4af626;
+            font-family: 'Courier New', Courier, 'Lucida Sans Typewriter',
+              'Lucida Typewriter', monospace;
             padding: 15px 30px;
             height: 400px;
             overflow-y: scroll;
             overflow-x: hidden;
             border-bottom-right-radius: 7px;
             border-bottom-left-radius: 7px;
-            box-shadow: 0 5px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
+            box-shadow:
+              0 5px 8px 0 rgba(0, 0, 0, 0.2),
+              0 6px 20px 0 rgba(0, 0, 0, 0.19) !important;
           }
 
           .status-error {
@@ -543,17 +635,17 @@ function Home() {
             margin-bottom: -15px;
             width: 1.5rem;
             height: 1.5rem;
-            border: 0.25rem solid #4AF626;
-            border-bottom: 0.25rem solid rgba(0,0,0,0);
+            border: 0.25rem solid #4af626;
+            border-bottom: 0.25rem solid rgba(0, 0, 0, 0);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             z-index: 9999;
           }
-          
+
           .spinner--hidden {
             display: none;
           }
-          
+
           @keyframes spin {
             to {
               transform: rotate(360deg);
@@ -579,11 +671,33 @@ function Home() {
   return (
     <div>
       <Head>
-        <title>GTFS-to-HTML: Build human readable transit timetables in HTML from GTFS</title>
-        <link rel="icon" type="image/png" href="/static/favicon-16x16.png" sizes="16x16" />
-        <link rel="icon" type="image/png" href="/static/favicon-32x32.png" sizes="32x32" />
-        <link rel="apple-touch-icon" href="/static/apple-touch-icon.png" sizes="180x180" />
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossOrigin="anonymous" />
+        <title>
+          GTFS-to-HTML: Build human readable transit timetables in HTML from
+          GTFS
+        </title>
+        <link
+          rel="icon"
+          type="image/png"
+          href="/static/favicon-16x16.png"
+          sizes="16x16"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          href="/static/favicon-32x32.png"
+          sizes="32x32"
+        />
+        <link
+          rel="apple-touch-icon"
+          href="/static/apple-touch-icon.png"
+          sizes="180x180"
+        />
+        <link
+          rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossOrigin="anonymous"
+        />
       </Head>
       <div className="wrapper">
         <div className="home-content">
@@ -594,7 +708,9 @@ function Home() {
           </div>
         </div>
         <div className="footer">
-          Created by <a href="https://blinktag.com">BlinkTag Inc</a> | Powered by <a href="https://github.com/BlinkTagInc/gtfs-to-html">GTFS-to-HTML</a>
+          Created by <a href="https://blinktag.com">BlinkTag Inc</a> | Powered
+          by{' '}
+          <a href="https://github.com/BlinkTagInc/gtfs-to-html">GTFS-to-HTML</a>
         </div>
       </div>
       <style jsx>{`
@@ -602,7 +718,9 @@ function Home() {
           position: relative;
           min-height: 100%;
           margin: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+            'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+            'Helvetica Neue', sans-serif;
           text-rendering: optimizeLegibility;
           -webkit-font-smoothing: antialiased;
           color: #000;
