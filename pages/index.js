@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Head from 'next/head.js';
+import { useQueryParam } from 'use-query-params';
 
 import io from 'socket.io-client';
 import { initGA, logPageView, logEvent } from '../util/analytics.js';
@@ -69,11 +70,11 @@ function Home() {
   const [showOptions, setShowOptions] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [statuses, setStatuses] = useState([]);
-  const [buildId, setBuildId] = useState();
   const [locations, setLocations] = useState();
   const [selectedLocation, setSelectedLocation] = useState('');
   const [feeds, setFeeds] = useState();
   const [selectedFeed, setSelectedFeed] = useState('');
+  const [buildId, setBuildId] = useQueryParam('build');
 
   const statusContainer = React.createRef();
 
@@ -85,6 +86,24 @@ function Home() {
 
     logPageView();
   }, []);
+
+  useEffect(() => {
+    if (buildId && statuses.length === 0) {
+      setStatuses([
+        {
+          status: 'Timetable creation completed',
+          html_download_url: new URL(
+            `/${buildId}/timetables.zip`,
+            process.env.NEXT_PUBLIC_GTFS_AWS_S3_URL,
+          ),
+          html_preview_url: new URL(
+            `/${buildId}/index.html`,
+            process.env.NEXT_PUBLIC_GTFS_AWS_S3_URL,
+          ),
+        },
+      ]);
+    }
+  }, [buildId]);
 
   useEffect(() => {
     socket.on('status', (payload) => {

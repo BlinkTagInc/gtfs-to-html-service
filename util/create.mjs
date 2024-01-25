@@ -1,5 +1,5 @@
 import {join} from 'node:path';
-import {fileURLToPath, resolve} from 'node:url';
+import {fileURLToPath} from 'node:url';
 import {readFile, stat, writeFile} from 'node:fs/promises';
 import fetch from 'node-fetch';
 import { throttle } from 'lodash-es';
@@ -123,9 +123,9 @@ export default async (data, socket) => {
     uploader.on('end', () => {
       setTimeout(() => {
         socket.emit('status', {
-          status: 'Timetable upload completed',
-          html_download_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'timetables.zip')),
-          html_preview_url: resolve(process.env.GTFS_AWS_S3_URL, join(buildId, 'index.html'))
+          status: 'Timetable creation completed',
+          html_download_url: new URL(`/${buildId}/timetables.zip`, process.env.NEXT_PUBLIC_GTFS_AWS_S3_URL),
+          html_preview_url: new URL(`/${buildId}/index.html`, process.env.NEXT_PUBLIC_GTFS_AWS_S3_URL),
         });
       }, 1000);
     });
