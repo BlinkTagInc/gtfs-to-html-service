@@ -19,11 +19,11 @@
   },
   "dependencies": {
     "@auth0/s3": "^1.0.0",
-    "@hapi/hapi": "^21.3.2",
+    "@hapi/hapi": "^21.3.3",
     "@hapi/inert": "^7.1.0",
     "acorn": "^8.11.3",
-    "dotenv": "16.4.1",
-    "gtfs-to-html": "^2.5.9",
+    "dotenv": "16.4.5",
+    "gtfs-to-html": "^2.6.0",
     "hapi-require-https": "^6.0.0",
     "lodash-es": "^4.17.21",
     "next": "^12.2.5",
@@ -39,9 +39,9 @@
     "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
-    "prettier": "^3.2.4"
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5"
   },
   "engines": {
     "node": "20.x"
