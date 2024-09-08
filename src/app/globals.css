@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 214, 219, 220;
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+h2 {
+  @apply text-2xl font-bold text-balance mb-2;
+}
+
+h3 {
+  @apply text-xl font-bold text-balance mb-2;
+}
+
+ul {
+  @apply list-disc list-inside;
+}
+
+p {
+  @apply text-lg mb-3 leading-8;
+}
+
+code {
+  @apply bg-gray-200 px-1 rounded;
+}
+
+a {
+  @apply text-[#3230AD];
+}
+
+a:hover {
+  @apply text-blue-700 underline;
+}
+
+input {
+  @apply border border-gray-300 rounded p-2;
+}
+
+button, .btn {
+  @apply bg-[#3230AD] text-white px-4 py-2 h-[42px] rounded;
+}
+
+button:hover {
+  @apply bg-[#1E1C7D];
+}
+
+table {
+  @apply border-collapse w-full;
+}
+
+th {
+  @apply bg-gray-100 text-left p-2;
+}
+
+td {
+  @apply border-t border-gray-300 p-2 align-top;
+}
+
+tr:last-of-type td {
+  @apply border-b border-gray-300;
+}
+
+.card {
+  @apply bg-white shadow-md rounded-lg p-4 border;
+}
+
+.footer {
+  @apply mt-12 bg-[#3230AD] px-24 py-12 text-white text-center;
+
+  a {
+    @apply text-white underline;
+  }
+
+  a:hover {
+    @apply text-gray-100;
+  }
+}

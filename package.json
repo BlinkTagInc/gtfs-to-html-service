@@ -1,50 +1,36 @@
 {
   "name": "gtfs-to-html-service",
-  "version": "1.0.5",
-  "private": false,
-  "description": "A service for building HTML timetables from GTFS using gtfs-to-html.",
-  "keywords": [
-    "transit",
-    "gtfs",
-    "transportation"
-  ],
-  "repository": "https://github.com/BlinkTagInc/gtfs-to-html-service.git",
-  "license": "MIT",
+  "version": "1.1.0",
+  "private": true,
   "author": "Brendan Nee <brendan@blinktag.com>",
   "scripts": {
+    "dev": "next dev",
     "build": "next build",
-    "dev": "node -r dotenv/config server.mjs",
-    "start": "NODE_ENV=production node -r dotenv/config server.mjs",
-    "prepare": "husky install"
+    "start": "next start",
+    "lint": "next lint",
+    "prepare": "husky"
   },
   "dependencies": {
-    "@auth0/s3": "^1.0.0",
-    "@hapi/hapi": "^21.3.2",
-    "@hapi/inert": "^7.1.0",
-    "acorn": "^8.11.3",
-    "dotenv": "16.4.1",
-    "gtfs-to-html": "^2.5.9",
-    "hapi-require-https": "^6.0.0",
-    "lodash-es": "^4.17.21",
-    "next": "^12.2.5",
-    "next-query-params": "^5.0.0",
-    "node-fetch": "^3.3.2",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-ga": "^3.3.1",
-    "socket.io": "^4.7.4",
-    "socket.io-client": "^4.7.4",
-    "tmp-promise": "^3.0.3",
-    "use-query-params": "^2.2.1",
-    "uuid": "^9.0.1"
+    "gtfs-to-html": "^2.9.4",
+    "next": "14.2.8",
+    "react": "^18",
+    "react-dom": "^18",
+    "react-dropzone": "^14.2.3",
+    "react-toastify": "^10.0.5",
+    "tempy": "^3.1.0"
   },
   "devDependencies": {
-    "husky": "^8.0.3",
-    "lint-staged": "^15.2.0",
-    "prettier": "^3.2.4"
-  },
-  "engines": {
-    "node": "20.x"
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.8",
+    "husky": "^9.1.5",
+    "lint-staged": "^15.2.10",
+    "postcss": "^8",
+    "prettier": "^3.3.3",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5"
   },
   "release-it": {
     "github": {
@@ -61,8 +47,9 @@
   },
   "lint-staged": {
     "*.js": "prettier --write",
+    "*.jsx": "prettier --write",
     "*.ts": "prettier --write",
-    "*.json": "prettier --write",
-    "*.{js,css,md}": "prettier --write"
+    "*.tsx": "prettier --write",
+    "*.json": "prettier --write"
   }
 }
