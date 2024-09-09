@@ -44,8 +44,9 @@ export const POST = async (request: Request, response: NextResponse) => {
           path: gtfsPath,
         },
       ],
-      verbose: true,
+      verbose: false,
       zipOutput: true,
+      templatePath: join(process.cwd(), 'views'),
       outputPath: join(tempDir, buildId),
     });
 

@@ -37,3 +37,6 @@ next-env.d.ts
 
 # output
 html
+
+# views (copied from gtfs-to-html module postinstall)
+views
