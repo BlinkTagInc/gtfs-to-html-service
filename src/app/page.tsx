@@ -5,7 +5,7 @@ import UploadForm from '../components/UploadForm';
 export default function Home() {
   return (
     <>
-      <main className="flex min-h-screen flex-col items-center justify-between px-3 py-4 md:p-20">
+      <main className="flex min-h-screen flex-col items-center justify-between px-3 py-4 md:pt-20">
         <div className="">
           <Image
             className="relative"
@@ -20,26 +20,65 @@ export default function Home() {
           <UploadForm />
         </div>
         <div>
-          <div className="card max-w-[650px] mx-auto my-6">
-            <h2 className="text-xl font-bold">What is GTFS-to-HTML?</h2>
-            <p>
-              A tool that creates human-readable, user-friendly transit
-              timetables in HTML, PDF or CSV format directly from{' '}
-              <a href="https://gtfs.org">GTFS transit data</a>.
-            </p>
+          <div className="card max-w-[475px] mx-auto my-6">
+            <h2 className="text-xl font-bold">What is this tool?</h2>
 
-            <h2 className="text-xl font-bold">Why?</h2>
-            <p>
-              Most transit agencies have schedule data in GTFS format but need
-              to route schedules and maps their website. GTFS-to-HTML automates
-              the process of creating nicely formatted HTML timetables and maps
-              which are fully accessible, mobile-friendly and interactive. This
-              makes it easy to keep timetables up to date and accurate whenever
-              schedule changes happen and reduces the likelihood of errors.
-            </p>
-            <a href="https://gtfstohtml.com/docs" className="btn">
-              Read More about GTFS-to-HTML
-            </a>
+            <div className="flex flex-row gap-6 mb-8">
+              <div className="flex-shrink-0 text-8xl">🚆</div>
+              <div>
+                GTFS-to-HTML creates human-readable, user-friendly transit
+                timetables in HTML format directly from GTFS transit data.
+              </div>
+            </div>
+
+            <div className="flex flex-row gap-6 mb-8">
+              <div className="flex-shrink-0 text-8xl">🕑</div>
+              <div>
+                Most transit agencies have schedule data in GTFS format but need
+                to public route timetables and maps on their website.
+              </div>
+            </div>
+
+            <div className="flex flex-row gap-6 mb-8">
+              <div className="flex-shrink-0 text-8xl">📱</div>
+              <div>
+                GTFS allows transit data to be published to apps like Google
+                Maps and the Transit app. HTML is a human-readable format (like
+                this website).
+              </div>
+            </div>
+
+            <div className="flex flex-row gap-6 mb-8">
+              <div className="flex-shrink-0 text-8xl">🧰</div>
+              <div>
+                This tool automates the process of creating attractively
+                formatted HTML or PDF timetables for inclusion on a transit
+                agency website.
+              </div>
+            </div>
+
+            <div className="flex flex-row gap-6 mb-8">
+              <div className="flex-shrink-0 text-8xl">✅</div>
+              <div>
+                Automating timetable creation means that timetables can be kept
+                up to date and accurate when schedule changes happen and the
+                likelihood of errors is reduced.
+              </div>
+            </div>
+
+            <div className="flex flex-row gap-6 mb-8">
+              <div className="flex-shrink-0 text-8xl">🚍</div>
+              <div>
+                GTFS-Realtime is supported. Display realtime vehicle locations
+                on route maps, arrival predictions and service alerts.
+              </div>
+            </div>
+
+            <div className="flex flex-row justify-center">
+              <a href="https://gtfstohtml.com/docs" className="btn">
+                Read More about GTFS-to-HTML
+              </a>
+            </div>
           </div>
         </div>
       </main>
@@ -47,8 +86,7 @@ export default function Home() {
       <div className="footer">
         Created by <a href="https://blinktag.com">BlinkTag Inc</a>
         <br />
-        Powered by{' '}
-        <a href="https://github.com/BlinkTagInc/gtfs-to-html">GTFS-to-HTML</a>
+        Powered by <a href="https://gtfstohtml.com">GTFS-to-HTML</a>
         <br />
         <a href="https://gtfstohtml.com/docs/related-libraries">
           Other GTFS Tools
