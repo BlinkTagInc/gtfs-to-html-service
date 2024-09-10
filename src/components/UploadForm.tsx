@@ -88,7 +88,9 @@ const UploadForm = () => {
         try {
           parsedOptions = JSON.parse(options);
         } catch (error) {
-          toast('Invalid options JSON', { type: 'error' });
+          toast('Invalid options JSON. Check the syntax and try again', {
+            type: 'error',
+          });
           return;
         }
       }
@@ -105,9 +107,13 @@ const UploadForm = () => {
 
         if (response.ok === false) {
           const data = await response.json();
-          toast(data.error ?? 'Error processing GTFS', {
-            type: 'error',
-          });
+          toast(
+            data.error ??
+              'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
+            {
+              type: 'error',
+            },
+          );
         } else {
           await downloadResponse(response);
           timetableGenerationSuccess();
@@ -116,7 +122,10 @@ const UploadForm = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error:', error);
-        toast('Error processing GTFS', { type: 'error' });
+        toast(
+          'Error processing GTFS  For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
+          { type: 'error' },
+        );
         setLoading(false);
       }
     },
@@ -179,7 +188,10 @@ const UploadForm = () => {
                 try {
                   parsedOptions = JSON.parse(options);
                 } catch (error) {
-                  toast('Invalid options JSON', { type: 'error' });
+                  toast(
+                    'Invalid options JSON. Check the syntax and try again.',
+                    { type: 'error' },
+                  );
                   return;
                 }
               }
@@ -197,9 +209,13 @@ const UploadForm = () => {
 
                 if (response.ok === false) {
                   const data = await response.json();
-                  toast(data.error ?? 'Error processing GTFS', {
-                    type: 'error',
-                  });
+                  toast(
+                    data.error ??
+                      'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
+                    {
+                      type: 'error',
+                    },
+                  );
                 } else {
                   await downloadResponse(response);
                   timetableGenerationSuccess();
@@ -208,7 +224,10 @@ const UploadForm = () => {
                 setLoading(false);
               } catch (error) {
                 console.error('Error:', error);
-                toast('Error processing GTFS', { type: 'error' });
+                toast(
+                  'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
+                  { type: 'error' },
+                );
                 setLoading(false);
               }
             }}
