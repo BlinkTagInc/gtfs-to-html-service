@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.3.1",
-    "gtfs-to-html": "^2.9.6",
+    "gtfs-to-html": "^2.9.8",
     "next": "14.2.9",
     "react": "^18",
     "react-dom": "^18",
@@ -42,6 +42,9 @@
       "@release-it/keep-a-changelog": {
         "filename": "CHANGELOG.md"
       }
+    },
+    "hooks": {
+      "after:bump": "npm run build"
     }
   },
   "prettier": {
