@@ -12,8 +12,8 @@
     "postinstall": "cp -r ./node_modules/gtfs-to-html/views/default ./views"
   },
   "dependencies": {
-    "gtfs-to-html": "^2.9.5",
-    "next": "14.2.8",
+    "gtfs-to-html": "^2.9.6",
+    "next": "14.2.9",
     "react": "^18",
     "react-dom": "^18",
     "react-dropzone": "^14.2.3",
@@ -25,7 +25,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "eslint": "^8",
-    "eslint-config-next": "14.2.8",
+    "eslint-config-next": "14.2.9",
     "husky": "^9.1.5",
     "lint-staged": "^15.2.10",
     "postcss": "^8",
