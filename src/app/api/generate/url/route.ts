@@ -4,6 +4,7 @@ import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { NextResponse } from 'next/server';
+import { track } from '@vercel/analytics/server';
 import gtfsToHtml from 'gtfs-to-html';
 import { temporaryDirectory } from 'tempy';
 
@@ -61,6 +62,9 @@ export const POST = async (request: Request) => {
             controller.close(); // Close the stream when done
             // Delete the file after streaming has finished
             try {
+              await track('GTFS Uploaded', {
+                url: gtfsUrl,
+              });
               await rm(tempDir, { recursive: true });
             } catch (error) {
               console.error('Error deleting file:', error);
