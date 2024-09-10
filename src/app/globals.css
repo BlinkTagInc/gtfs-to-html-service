@@ -64,6 +64,11 @@ button:hover, .btn:hover {
   @apply bg-[#1E1C7D] text-white no-underline;
 }
 
+
+button.no-style, .btn.no-style {
+  @apply bg-transparent text-[#3230AD] no-underline h-auto p-0;
+}
+
 table {
   @apply border-collapse w-full;
 }

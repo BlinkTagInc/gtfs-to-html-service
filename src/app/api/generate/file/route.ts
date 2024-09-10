@@ -35,19 +35,42 @@ export const POST = async (request: Request, response: NextResponse) => {
 
     await writeFile(gtfsPath, buffer);
 
+    const options = formData.get('options');
+
+    let parsedOptions;
+    if (options) {
+      try {
+        parsedOptions = JSON.parse(options as string);
+      } catch (error) {
+        return NextResponse.json(
+          {
+            error: 'Invalid options JSON',
+            success: false,
+          },
+          { status: 400 },
+        );
+      }
+    }
+
     const buildId = randomUUID();
     // @ts-ignore
     const timetablePath = await gtfsToHtml({
+      ...parsedOptions,
       agencies: [
         {
           agencyKey: buildId,
           path: gtfsPath,
         },
       ],
+      outputPath: join(tempDir, buildId),
+      sqlitePath: ':memory:',
+      skipImport: false,
+      templatePath: join(process.cwd(), 'views'),
       verbose: false,
       zipOutput: true,
-      templatePath: join(process.cwd(), 'views'),
-      outputPath: join(tempDir, buildId),
+      log: () => {},
+      logWarning: () => {},
+      logError: () => {},
     });
 
     const fileStats = statSync(timetablePath);

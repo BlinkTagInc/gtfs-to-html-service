@@ -12,6 +12,7 @@ export const maxDuration = 300; // 5 minutes
 export const POST = async (request: Request) => {
   const body = await request.json();
   const gtfsUrl = body.url;
+  const options = body.options;
 
   if (!gtfsUrl) {
     return NextResponse.json(
@@ -28,16 +29,22 @@ export const POST = async (request: Request) => {
     const buildId = randomUUID();
     // @ts-ignore
     const timetablePath = await gtfsToHtml({
+      ...(options || {}),
       agencies: [
         {
           agencyKey: buildId,
           url: gtfsUrl,
         },
       ],
+      outputPath: join(tempDir, buildId),
+      sqlitePath: ':memory:',
+      skipImport: false,
+      templatePath: join(process.cwd(), 'views'),
       verbose: false,
       zipOutput: true,
-      templatePath: join(process.cwd(), 'views'),
-      outputPath: join(tempDir, buildId),
+      log: () => {},
+      logWarning: () => {},
+      logError: () => {},
     });
 
     const fileStats = statSync(timetablePath);

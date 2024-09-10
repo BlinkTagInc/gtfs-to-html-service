@@ -7,9 +7,61 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { Loading } from './Loading';
 import SuccessMessage from './SuccessMessage';
+import { OptionsEditor } from './OptionsEditor';
+
+const defaultOptions = {
+  beautify: false,
+  coordinatePrecision: 5,
+  dateFormat: 'MMM D, YYYY',
+  daysShortStrings: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+  daysStrings: [
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+    'Sunday',
+  ],
+  defaultOrientation: 'vertical',
+  interpolatedStopSymbol: '•',
+  interpolatedStopText: 'Estimated time of arrival',
+  linkStopUrls: false,
+  mapboxAccessToken: '<YOUR_MAPBOX_ACCESS_TOKEN>',
+  menuType: 'jump',
+  noDropoffSymbol: '‡',
+  noDropoffText: 'No drop off available',
+  noHead: false,
+  noPickupSymbol: '**',
+  noPickupText: 'No pickup available',
+  noServiceSymbol: '-',
+  noServiceText: 'No service at this stop',
+  outputFormat: 'html',
+  requestDropoffSymbol: '†',
+  requestDropoffText: 'Must request drop off',
+  requestPickupSymbol: '***',
+  requestPickupText: 'Request stop - call for pickup',
+  serviceNotProvidedOnText: 'Service not provided on',
+  serviceProvidedOnText: 'Service provided on',
+  showArrivalOnDifference: 0.2,
+  showCalendarExceptions: true,
+  showMap: false,
+  showOnlyTimepoint: false,
+  showRouteTitle: true,
+  showStopCity: false,
+  showStopDescription: false,
+  showStoptimesForRequestStops: true,
+  sortingAlgorithm: 'common',
+  timeFormat: 'h:mma',
+  useParentStation: true,
+};
 
 const UploadForm = () => {
   const [url, setUrl] = useState('');
+  const [options, setOptions] = useState(
+    JSON.stringify(defaultOptions, null, 2),
+  );
+  const [showOptionsEditor, setShowOptionsEditor] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -30,6 +82,18 @@ const UploadForm = () => {
       const file = acceptedFiles[0];
       const formData = new FormData();
       formData.append('file', file);
+
+      let parsedOptions;
+      if (options) {
+        try {
+          parsedOptions = JSON.parse(options);
+        } catch (error) {
+          toast('Invalid options JSON', { type: 'error' });
+          return;
+        }
+      }
+
+      formData.append('options', JSON.stringify(parsedOptions));
 
       setLoading(true);
 
@@ -56,7 +120,7 @@ const UploadForm = () => {
         setLoading(false);
       }
     },
-    [],
+    [options],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -110,6 +174,16 @@ const UploadForm = () => {
                 return;
               }
 
+              let parsedOptions;
+              if (options) {
+                try {
+                  parsedOptions = JSON.parse(options);
+                } catch (error) {
+                  toast('Invalid options JSON', { type: 'error' });
+                  return;
+                }
+              }
+
               setLoading(true);
 
               try {
@@ -118,7 +192,7 @@ const UploadForm = () => {
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify({ url }),
+                  body: JSON.stringify({ url, options: parsedOptions }),
                 });
 
                 if (response.ok === false) {
@@ -200,6 +274,14 @@ const UploadForm = () => {
                 </p>
               </div>
             </label>
+          </div>
+          <div className="mt-2">
+            <OptionsEditor
+              options={options}
+              setOptions={setOptions}
+              showOptionsEditor={showOptionsEditor}
+              setShowOptionsEditor={setShowOptionsEditor}
+            />
           </div>
         </>
       )}
