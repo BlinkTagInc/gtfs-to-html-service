@@ -28,7 +28,6 @@ export const POST = async (request: Request) => {
   try {
     const tempDir = temporaryDirectory();
     const buildId = randomUUID();
-    // @ts-ignore
     const timetablePath = await gtfsToHtml({
       ...(options || {}),
       agencies: [

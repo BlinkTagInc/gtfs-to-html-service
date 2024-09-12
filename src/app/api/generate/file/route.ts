@@ -10,7 +10,7 @@ import { temporaryDirectory } from 'tempy';
 
 export const maxDuration = 300; // 5 minutes
 
-export const POST = async (request: Request, response: NextResponse) => {
+export const POST = async (request: Request) => {
   const formData = await request.formData();
   const file = formData.get('file');
 
@@ -54,7 +54,6 @@ export const POST = async (request: Request, response: NextResponse) => {
     }
 
     const buildId = randomUUID();
-    // @ts-ignore
     const timetablePath = await gtfsToHtml({
       ...parsedOptions,
       agencies: [

@@ -1,4 +1,4 @@
-const SuccessMessage = ({ clear }: { clear: Function }) => {
+const SuccessMessage = ({ clear }: { clear: () => void }) => {
   return (
     <div className="flex flex-col items-center justify-center h-full p-6">
       <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full">
