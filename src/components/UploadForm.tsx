@@ -88,6 +88,8 @@ const UploadForm = () => {
         try {
           parsedOptions = JSON.parse(options);
         } catch (error) {
+          console.error(error);
+
           toast('Invalid options JSON. Check the syntax and try again', {
             type: 'error',
           });
@@ -188,6 +190,8 @@ const UploadForm = () => {
                 try {
                   parsedOptions = JSON.parse(options);
                 } catch (error) {
+                  console.error(error);
+
                   toast(
                     'Invalid options JSON. Check the syntax and try again.',
                     { type: 'error' },

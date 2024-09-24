@@ -43,6 +43,8 @@ export const POST = async (request: Request) => {
       try {
         parsedOptions = JSON.parse(options as string);
       } catch (error) {
+        console.error(error);
+
         return NextResponse.json(
           {
             error: 'Invalid options JSON',

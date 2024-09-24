@@ -85,6 +85,8 @@ export const POST = async (request: Request) => {
       },
     );
   } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       {
         error: 'Unable to process GTFS',
