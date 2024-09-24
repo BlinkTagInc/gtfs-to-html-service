@@ -70,11 +70,19 @@ const UploadForm = () => {
       if (rejectedFiles.length > 0) {
         toast(
           rejectedFiles
-            .flatMap((file) =>
-              file.errors.map((fileError) => fileError.message),
-            )
+            .flatMap((file) => {
+              if (
+                file.errors.some((error) => error.code === 'file-too-large')
+              ) {
+                return [
+                  'File is too large. (Maximum file size is 4MB). Try loading via URL instead of file upload, or use GTFS-to-HTML library from the command line.',
+                ];
+              }
+
+              return file.errors.map((fileError) => fileError.message);
+            })
             .join(', '),
-          { type: 'error' },
+          { type: 'error', autoClose: 5000 },
         );
         return;
       }
@@ -138,7 +146,7 @@ const UploadForm = () => {
     accept: {
       'application/x-zip': ['.zip'],
     },
-    maxSize: 20 * 1024 * 1024,
+    maxSize: 4 * 1024 * 1024,
     maxFiles: 1,
   });
 
@@ -293,7 +301,7 @@ const UploadForm = () => {
                   )}
                 </p>
                 <p className="text-xs text-gray-500">
-                  Zipped GTFS only (MAX. 20MB)
+                  Zipped GTFS only (MAX. 4MB)
                 </p>
               </div>
             </label>
