@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Updated max file upload size
 
+### Updated
+- Dependency updates
+- Next.js v15
+- GTFS-to-HTML use openfreemap
+
 ## [1.2.2] - 2024-09-23
 ### Updated
 - Dependency updates
