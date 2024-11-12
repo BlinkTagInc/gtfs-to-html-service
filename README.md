@@ -1,6 +1,6 @@
 # GTFS to HTML as a Service
 
-This project is a next.js app that runs on a server and uses [GTFS-to-HTML](https://github.com/brendannee/gtfs-to-html) to generate HTML or PDF schedules from transit data in GTFS format.
+This project is a next.js app that runs on a server and uses [GTFS-to-HTML](https://github.com/BlinkTagInc/gtfs-to-html) to generate HTML or PDF schedules from transit data in GTFS format.
 
 Try it out at https://run.gtfstohtml.com/.
 
