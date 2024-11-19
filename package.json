@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.4.0",
-    "gtfs-to-html": "^2.10.3",
+    "gtfs-to-html": "^2.10.4",
     "next": "^15.0.3",
     "react": "^18",
     "react-dom": "^18",
@@ -27,11 +27,11 @@
     "@types/react-dom": "^18",
     "eslint": "^9",
     "eslint-config-next": "^15.0.3",
-    "husky": "^9.1.6",
+    "husky": "^9.1.7",
     "lint-staged": "^15.2.10",
     "postcss": "^8",
     "prettier": "^3.3.3",
-    "tailwindcss": "^3.4.14",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5"
   },
   "release-it": {
