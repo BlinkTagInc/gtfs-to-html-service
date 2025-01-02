@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { useDropzone, FileRejection, FileWithPath } from 'react-dropzone';
-import 'react-toastify/dist/ReactToastify.css';
 
 import { Loading } from './Loading';
 import SuccessMessage from './SuccessMessage';
