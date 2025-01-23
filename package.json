@@ -22,6 +22,7 @@
     "tempy": "^3.1.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -31,7 +32,7 @@
     "lint-staged": "^15.3.0",
     "postcss": "^8",
     "prettier": "^3.4.2",
-    "tailwindcss": "^3.4.17",
+    "tailwindcss": "^4.0.0",
     "typescript": "^5"
   },
   "release-it": {

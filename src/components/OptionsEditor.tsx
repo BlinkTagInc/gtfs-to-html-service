@@ -21,7 +21,7 @@ export const OptionsEditor = ({
           View Documentation
         </a>
         <textarea
-          className="w-full p-2 mt-2 border border-gray-300 rounded h-[600px]"
+          className="w-full p-2 mt-2 border border-gray-300 rounded-sm h-[600px]"
           value={options}
           onChange={(e) => setOptions(e.target.value)}
         />

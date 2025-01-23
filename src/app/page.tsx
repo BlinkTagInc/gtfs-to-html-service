@@ -23,7 +23,7 @@ export default function Home() {
           <h2 className="text-xl font-bold mb-3">What is this tool?</h2>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl mt-2">🚆</div>
+            <div className="shrink-0 text-6xl mt-2">🚆</div>
             <div>
               GTFS-to-HTML creates human-readable, user-friendly transit
               timetables in HTML format directly from GTFS transit data.
@@ -31,7 +31,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl mt-2">🕑</div>
+            <div className="shrink-0 text-6xl mt-2">🕑</div>
             <div>
               Most transit agencies have schedule data in GTFS format but need
               to public route timetables and maps on their website.
@@ -39,7 +39,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl mt-2">📱</div>
+            <div className="shrink-0 text-6xl mt-2">📱</div>
             <div>
               GTFS allows transit data to be published to apps like Google Maps
               and the Transit app. HTML is a human-readable format (like this
@@ -48,7 +48,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl mt-2">🧰</div>
+            <div className="shrink-0 text-6xl mt-2">🧰</div>
             <div>
               This tool automates the process of creating attractively formatted
               HTML or PDF timetables for inclusion on a transit agency website.
@@ -56,7 +56,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl mt-2">✅</div>
+            <div className="shrink-0 text-6xl mt-2">✅</div>
             <div>
               Automating timetable creation means that timetables can be kept up
               to date and accurate when schedule changes happen and the
@@ -65,7 +65,7 @@ export default function Home() {
           </div>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl mt-2">🚍</div>
+            <div className="shrink-0 text-6xl mt-2">🚍</div>
             <div>
               GTFS-Realtime is supported. Display realtime vehicle locations on
               route maps, arrival predictions and service alerts.
@@ -85,7 +85,7 @@ export default function Home() {
           </h2>
 
           <div className="flex flex-row gap-10 mb-8">
-            <div className="flex-shrink-0 text-6xl">✉️</div>
+            <div className="shrink-0 text-6xl">✉️</div>
             <div>
               Have questions about GTFS-to-HTML or need help integrating it into
               your agency&apos;s website? Email us at{' '}
