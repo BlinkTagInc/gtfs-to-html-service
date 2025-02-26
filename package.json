@@ -12,27 +12,27 @@
     "postinstall": "cp -r ./node_modules/gtfs-to-html/views/default ./views"
   },
   "dependencies": {
-    "@vercel/analytics": "^1.4.1",
-    "gtfs-to-html": "^2.10.7",
-    "next": "^15.1.3",
+    "@vercel/analytics": "^1.5.0",
+    "gtfs-to-html": "^2.10.10",
+    "next": "^15.1.7",
     "react": "^19",
     "react-dom": "^19",
-    "react-dropzone": "^14.3.5",
-    "react-toastify": "^11.0.2",
+    "react-dropzone": "^14.3.8",
+    "react-toastify": "^11.0.5",
     "tempy": "^3.1.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.0.0",
+    "@tailwindcss/postcss": "^4.0.9",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^15.1.3",
+    "eslint-config-next": "^15.1.7",
     "husky": "^9.1.7",
-    "lint-staged": "^15.3.0",
+    "lint-staged": "^15.4.3",
     "postcss": "^8",
-    "prettier": "^3.4.2",
-    "tailwindcss": "^4.0.0",
+    "prettier": "^3.5.2",
+    "tailwindcss": "^4.0.9",
     "typescript": "^5"
   },
   "release-it": {
