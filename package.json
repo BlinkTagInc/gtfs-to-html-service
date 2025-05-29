@@ -1,6 +1,6 @@
 {
   "name": "gtfs-to-html-service",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "private": true,
   "author": "Brendan Nee <brendan@blinktag.com>",
   "scripts": {
