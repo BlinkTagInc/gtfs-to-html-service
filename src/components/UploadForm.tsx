@@ -132,7 +132,7 @@ const UploadForm = () => {
       } catch (error) {
         console.error('Error:', error);
         toast(
-          'Error processing GTFS  For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
+          'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
           { type: 'error' },
         );
         setLoading(false);
