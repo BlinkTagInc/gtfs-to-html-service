@@ -14,7 +14,7 @@
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
     "gtfs-to-html": "^2.10.13",
-    "next": "^15.3.2",
+    "next": "^15.3.5",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^14.3.8",
@@ -22,17 +22,17 @@
     "tempy": "^3.1.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.8",
+    "@tailwindcss/postcss": "^4.1.11",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^15.3.2",
+    "eslint-config-next": "^15.3.5",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.0",
+    "lint-staged": "^16.1.2",
     "postcss": "^8",
-    "prettier": "^3.5.3",
-    "tailwindcss": "^4.1.8",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.11",
     "typescript": "^5"
   },
   "release-it": {
