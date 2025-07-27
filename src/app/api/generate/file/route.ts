@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { createReadStream, statSync } from 'node:fs';
-import { rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { NextResponse } from 'next/server';
@@ -78,6 +78,16 @@ export const POST = async (request: Request) => {
     const fileStats = statSync(timetablePath);
     const fileStream = createReadStream(timetablePath);
 
+    // Read the log file
+    const logFileContent = await readFile(
+      join(tempDir, buildId, 'log.txt'),
+      'utf8',
+    );
+    const agenciesLine = logFileContent
+      ?.split('\n')
+      .find((line: string) => line.startsWith('Agencies'));
+    const agencies = agenciesLine?.replace('Agencies: ', '') || '';
+
     return new NextResponse(
       new ReadableStream({
         async start(controller) {
@@ -89,7 +99,9 @@ export const POST = async (request: Request) => {
             controller.close(); // Close the stream when done
             // Delete the file after streaming has finished
             try {
-              await track('GTFS Uploaded');
+              await track('GTFS Uploaded', {
+                agencies,
+              });
               await rm(tempDir, { recursive: true });
             } catch (error) {
               console.error('Error deleting file:', error);
