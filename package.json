@@ -13,8 +13,8 @@
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
-    "gtfs-to-html": "^2.10.15",
-    "next": "^15.4.4",
+    "gtfs-to-html": "^2.10.16",
+    "next": "^15.5.2",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^14.3.8",
@@ -22,17 +22,17 @@
     "tempy": "^3.1.0"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.11",
-    "@types/node": "^22",
+    "@tailwindcss/postcss": "^4.1.12",
+    "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^15.4.4",
+    "eslint-config-next": "^15.5.2",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.2",
+    "lint-staged": "^16.1.6",
     "postcss": "^8",
     "prettier": "^3.6.2",
-    "tailwindcss": "^4.1.11",
+    "tailwindcss": "^4.1.12",
     "typescript": "^5"
   },
   "release-it": {
