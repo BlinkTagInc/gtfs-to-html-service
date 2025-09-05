@@ -23,6 +23,8 @@ const defaultOptions = {
     'Sunday',
   ],
   defaultOrientation: 'vertical',
+  ignoreDuplicates: false,
+  ignoreErrors: false,
   interpolatedStopSymbol: '•',
   interpolatedStopText: 'Estimated time of arrival',
   linkStopUrls: false,
