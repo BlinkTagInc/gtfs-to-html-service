@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
-    "postinstall": "cp -r ./node_modules/gtfs-to-html/views/default ./views"
+    "postinstall": "rm -rf ./views && cp -r ./node_modules/gtfs-to-html/views/default ./views"
   },
   "dependencies": {
     "@vercel/analytics": "^1.5.0",
