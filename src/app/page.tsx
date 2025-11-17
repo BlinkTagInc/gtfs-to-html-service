@@ -5,8 +5,8 @@ import UploadForm from '../components/UploadForm';
 export default function Home() {
   return (
     <>
-      <main className="flex min-h-screen flex-col items-center justify-between px-3 py-4 md:pt-20">
-        <div className="">
+      <main className="flex min-h-screen flex-col md:items-center justify-between px-3 py-4 md:pt-20">
+        <div className="flex flex-row justify-center">
           <Image
             className="relative"
             src="/gtfs-to-html-logo.svg"

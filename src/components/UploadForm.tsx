@@ -6,66 +6,14 @@ import { useDropzone, FileRejection, FileWithPath } from 'react-dropzone';
 
 import { Loading } from './Loading';
 import SuccessMessage from './SuccessMessage';
-import { OptionsEditor } from './OptionsEditor';
-
-const defaultOptions = {
-  beautify: false,
-  coordinatePrecision: 5,
-  dateFormat: 'MMM D, YYYY',
-  daysShortStrings: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-  daysStrings: [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ],
-  defaultOrientation: 'vertical',
-  groupTimetablesIntoPages: true,
-  ignoreDuplicates: false,
-  ignoreErrors: false,
-  interpolatedStopSymbol: '•',
-  interpolatedStopText: 'Estimated time of arrival',
-  linkStopUrls: false,
-  mapStyleUrl: 'https://tiles.openfreemap.org/styles/positron',
-  menuType: 'jump',
-  noDropoffSymbol: '‡',
-  noDropoffText: 'No drop off available',
-  noHead: false,
-  noPickupSymbol: '**',
-  noPickupText: 'No pickup available',
-  noRegularServiceDaysText: 'No regular service days',
-  noServiceSymbol: '—',
-  noServiceText: 'No service at this stop',
-  outputFormat: 'html',
-  requestDropoffSymbol: '†',
-  requestDropoffText: 'Must request drop off',
-  requestPickupSymbol: '***',
-  requestPickupText: 'Request stop - call for pickup',
-  serviceNotProvidedOnText: 'Service not provided on',
-  serviceProvidedOnText: 'Service provided on',
-  showArrivalOnDifference: 0.2,
-  showCalendarExceptions: true,
-  showDuplicateTrips: false,
-  showMap: true,
-  showOnlyTimepoint: true,
-  showRouteTitle: true,
-  showStopCity: false,
-  showStopDescription: false,
-  showStoptimesForRequestStops: true,
-  sortingAlgorithm: 'common',
-  timeFormat: 'h:mma',
-  useParentStation: true,
-};
+import { ConfigurationForm } from './ConfigurationForm';
+import { type GTFSConfig, defaultGTFSConfig } from '@/types/gtfs-config';
 
 const UploadForm = () => {
   const [url, setUrl] = useState('');
-  const [options, setOptions] = useState(
-    JSON.stringify(defaultOptions, null, 2),
+  const [config, setConfig] = useState<GTFSConfig>(
+    defaultGTFSConfig as GTFSConfig,
   );
-  const [showOptionsEditor, setShowOptionsEditor] = useState(false);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -94,22 +42,7 @@ const UploadForm = () => {
       const file = acceptedFiles[0];
       const formData = new FormData();
       formData.append('file', file);
-
-      let parsedOptions;
-      if (options) {
-        try {
-          parsedOptions = JSON.parse(options);
-        } catch (error) {
-          console.error(error);
-
-          toast('Invalid options JSON. Check the syntax and try again', {
-            type: 'error',
-          });
-          return;
-        }
-      }
-
-      formData.append('options', JSON.stringify(parsedOptions));
+      formData.append('options', JSON.stringify(config));
 
       setLoading(true);
 
@@ -143,7 +76,7 @@ const UploadForm = () => {
         setLoading(false);
       }
     },
-    [options],
+    [config],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -197,21 +130,6 @@ const UploadForm = () => {
                 return;
               }
 
-              let parsedOptions;
-              if (options) {
-                try {
-                  parsedOptions = JSON.parse(options);
-                } catch (error) {
-                  console.error(error);
-
-                  toast(
-                    'Invalid options JSON. Check the syntax and try again.',
-                    { type: 'error' },
-                  );
-                  return;
-                }
-              }
-
               setLoading(true);
 
               try {
@@ -220,7 +138,7 @@ const UploadForm = () => {
                   headers: {
                     'Content-Type': 'application/json',
                   },
-                  body: JSON.stringify({ url, options: parsedOptions }),
+                  body: JSON.stringify({ url, options: config }),
                 });
 
                 if (response.ok === false) {
@@ -261,7 +179,7 @@ const UploadForm = () => {
                 setUrl(event.target.value);
               }}
             />
-            <button type="submit" className="block w-[150px]">
+            <button type="submit" className="block w-[150px] btn">
               Generate
             </button>
           </form>
@@ -310,13 +228,17 @@ const UploadForm = () => {
               </div>
             </label>
           </div>
-          <div className="mt-2">
-            <OptionsEditor
-              options={options}
-              setOptions={setOptions}
-              showOptionsEditor={showOptionsEditor}
-              setShowOptionsEditor={setShowOptionsEditor}
-            />
+          <div className="mt-6">
+            <h3 className="text-lg font-medium text-gray-900 mb-4">
+              Configuration Options
+            </h3>
+
+            <div className="w-full overflow-hidden">
+              <ConfigurationForm
+                onConfigChange={setConfig}
+                initialConfig={config}
+              />
+            </div>
           </div>
         </>
       )}

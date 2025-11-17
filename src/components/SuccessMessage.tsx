@@ -24,7 +24,7 @@ const SuccessMessage = ({ clear }: { clear: () => void }) => {
       <p className="mt-1 text-sm text-gray-600">
         Look for <code>timetables.zip</code> in your downloads folder.
       </p>
-      <button className="mt-2" onClick={() => clear()}>
+      <button className="mt-2 btn" onClick={() => clear()}>
         Generate More Timetables
       </button>
     </div>
