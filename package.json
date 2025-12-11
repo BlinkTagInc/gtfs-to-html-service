@@ -14,8 +14,8 @@
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
     "@vercel/analytics": "^1.6.1",
-    "gtfs-to-html": "^2.12.2",
-    "next": "^16.0.7",
+    "gtfs-to-html": "^2.12.3",
+    "next": "^16.0.10",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^14.3.8",
@@ -25,17 +25,17 @@
     "zod": "^4.1.13"
   },
   "devDependencies": {
-    "@tailwindcss/postcss": "^4.1.17",
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "^16.0.7",
+    "eslint-config-next": "^16.0.10",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "postcss": "^8",
     "prettier": "^3.7.4",
-    "tailwindcss": "^4.1.17",
+    "tailwindcss": "^4.1.18",
     "typescript": "^5"
   },
   "release-it": {
