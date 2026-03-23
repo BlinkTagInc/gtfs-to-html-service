@@ -7,18 +7,40 @@ import { NextResponse } from 'next/server';
 import { track } from '@vercel/analytics/server';
 import gtfsToHtml from 'gtfs-to-html';
 import { temporaryDirectory } from 'tempy';
+import { getPublicGtfsErrorResponse } from '@/lib/gtfs-error';
 
 export const maxDuration = 300; // 5 minutes
 
 export const POST = async (request: Request) => {
-  const body = await request.json();
-  const gtfsUrl = body.url;
-  const options = body.options;
+  let body: { url?: unknown; options?: unknown };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        error: 'Invalid request body. Please submit valid JSON.',
+        code: 'INVALID_REQUEST',
+        category: 'request',
+        success: false,
+      },
+      { status: 400 },
+    );
+  }
+
+  const gtfsUrl = typeof body.url === 'string' ? body.url.trim() : '';
+  const options: Record<string, unknown> | undefined =
+    body.options &&
+    typeof body.options === 'object' &&
+    !Array.isArray(body.options)
+      ? (body.options as Record<string, unknown>)
+      : undefined;
 
   if (!gtfsUrl) {
     return NextResponse.json(
       {
-        error: 'Missing URL',
+        error: 'Missing URL. Please provide a GTFS zip URL.',
+        code: 'MISSING_URL',
+        category: 'request',
         success: false,
       },
       { status: 400 },
@@ -28,7 +50,7 @@ export const POST = async (request: Request) => {
   try {
     const tempDir = temporaryDirectory();
     const buildId = randomUUID();
-    const timetablePath = await gtfsToHtml({
+    const gtfsConfig = {
       ...(options || {}),
       agencies: [
         {
@@ -45,7 +67,8 @@ export const POST = async (request: Request) => {
       log: () => {},
       logWarning: () => {},
       logError: () => {},
-    });
+    } as unknown as Parameters<typeof gtfsToHtml>[0];
+    const timetablePath = await gtfsToHtml(gtfsConfig);
 
     const fileStats = statSync(timetablePath);
     const fileStream = createReadStream(timetablePath);
@@ -97,78 +120,16 @@ export const POST = async (request: Request) => {
     );
   } catch (error) {
     console.error(error);
-
-    // Extract meaningful error message from the error object
-    let errorMessage = 'Unable to process GTFS';
-    let statusCode = 400;
-
-    if (error instanceof Error) {
-      const errorString = error.message;
-
-      // Check for specific error types and provide more helpful messages
-      if (errorString.includes('Unable to download GTFS')) {
-        errorMessage = errorString;
-
-        // Extract status code if available (e.g., "Got status 404")
-        const statusMatch = errorString.match(/Got status (\d+)/);
-        if (statusMatch) {
-          const httpStatus = parseInt(statusMatch[1], 10);
-          if (httpStatus === 404) {
-            errorMessage = `GTFS file not found at the provided URL. Please verify the URL is correct and the file exists.`;
-          } else if (httpStatus === 403) {
-            errorMessage = `Access denied to the GTFS file. The URL may require authentication or have restricted access.`;
-          } else if (httpStatus >= 500) {
-            errorMessage = `Server error when downloading GTFS file. The server may be temporarily unavailable.`;
-          } else {
-            errorMessage = `Unable to download GTFS file. Server returned status ${httpStatus}.`;
-          }
-        }
-      } else if (
-        errorString.includes('ENOTFOUND') ||
-        errorString.includes('getaddrinfo')
-      ) {
-        errorMessage =
-          'Unable to reach the server. Please check the URL and your internet connection.';
-      } else if (errorString.includes('timeout')) {
-        errorMessage =
-          'Request timed out. The server may be slow to respond or the file may be too large.';
-      } else if (errorString.includes('Invalid GTFS')) {
-        errorMessage =
-          'The downloaded file is not a valid GTFS file. Please check the file format.';
-      } else if (
-        errorString.includes('EMFILE') ||
-        errorString.includes('ENFILE')
-      ) {
-        errorMessage =
-          'Server is currently busy processing requests. Please try again in a few minutes.';
-      } else if (
-        errorString.includes('EACCES') ||
-        errorString.includes('permission')
-      ) {
-        errorMessage =
-          'Unable to process the GTFS file due to server configuration.';
-      } else if (errorString.includes('ENOSPC')) {
-        errorMessage =
-          'Server storage is temporarily full. Please try again later.';
-      } else if (
-        errorString.includes('zip') ||
-        errorString.includes('archive')
-      ) {
-        errorMessage =
-          'The file appears to be corrupted or is not a valid ZIP archive. Please check the file format.';
-      } else {
-        // For unknown errors, provide a generic message and log the actual error for debugging
-        console.error('Unhandled error in GTFS processing:', errorString);
-        errorMessage = 'Unable to process GTFS';
-      }
-    }
+    const publicError = getPublicGtfsErrorResponse(error);
 
     return NextResponse.json(
       {
-        error: errorMessage,
+        error: publicError.error,
+        code: publicError.code,
+        category: publicError.category,
         success: false,
       },
-      { status: statusCode },
+      { status: publicError.statusCode },
     );
   }
 };

@@ -7,17 +7,34 @@ import { NextResponse } from 'next/server';
 import { track } from '@vercel/analytics/server';
 import gtfsToHtml from 'gtfs-to-html';
 import { temporaryDirectory } from 'tempy';
+import { getPublicGtfsErrorResponse } from '@/lib/gtfs-error';
 
 export const maxDuration = 300; // 5 minutes
 
 export const POST = async (request: Request) => {
-  const formData = await request.formData();
+  let formData: FormData;
+  try {
+    formData = await request.formData();
+  } catch {
+    return NextResponse.json(
+      {
+        error: 'Invalid form data. Please upload a GTFS zip file.',
+        code: 'INVALID_REQUEST',
+        category: 'request',
+        success: false,
+      },
+      { status: 400 },
+    );
+  }
+
   const file = formData.get('file');
 
   if (!file) {
     return NextResponse.json(
       {
-        error: 'No files received',
+        error: 'No file received. Please upload a GTFS zip file.',
+        code: 'MISSING_FILE',
+        category: 'request',
         success: false,
       },
       { status: 400 },
@@ -42,12 +59,30 @@ export const POST = async (request: Request) => {
     if (options) {
       try {
         parsedOptions = JSON.parse(options as string);
+
+        if (
+          !parsedOptions ||
+          typeof parsedOptions !== 'object' ||
+          Array.isArray(parsedOptions)
+        ) {
+          return NextResponse.json(
+            {
+              error: 'Invalid options JSON. Expected an object.',
+              code: 'INVALID_OPTIONS',
+              category: 'request',
+              success: false,
+            },
+            { status: 400 },
+          );
+        }
       } catch (error) {
         console.error(error);
 
         return NextResponse.json(
           {
-            error: 'Invalid options JSON',
+            error: 'Invalid options JSON. Please provide valid JSON.',
+            code: 'INVALID_OPTIONS',
+            category: 'request',
             success: false,
           },
           { status: 400 },
@@ -124,12 +159,16 @@ export const POST = async (request: Request) => {
     );
   } catch (error) {
     console.error('Error occurred ', error);
+    const publicError = getPublicGtfsErrorResponse(error);
+
     return NextResponse.json(
       {
-        error: 'Unable to process GTFS',
+        error: publicError.error,
+        code: publicError.code,
+        category: publicError.category,
         success: false,
       },
-      { status: 400 },
+      { status: publicError.statusCode },
     );
   }
 };

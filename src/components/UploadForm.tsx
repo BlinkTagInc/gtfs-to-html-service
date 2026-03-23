@@ -9,6 +9,69 @@ import SuccessMessage from './SuccessMessage';
 import { ConfigurationForm } from './ConfigurationForm';
 import { type GTFSConfig, defaultGTFSConfig } from '@/types/gtfs-config';
 
+const DEFAULT_CLIENT_ERROR_MESSAGE =
+  'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.';
+
+type ApiErrorResponse = {
+  error?: string;
+  code?: string;
+  category?: string;
+};
+
+const isApiErrorResponse = (value: unknown): value is ApiErrorResponse => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.error === 'string';
+};
+
+const formatErrorCategory = (category: string): string => {
+  return category
+    .trim()
+    .split(/[_-\s]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
+const formatApiErrorMessage = (errorData: ApiErrorResponse): string => {
+  const normalizedError = errorData.error?.trim();
+  const normalizedCategory = errorData.category?.trim();
+  const normalizedCode = errorData.code?.trim();
+
+  if (!normalizedError && normalizedCode) {
+    return `Request failed (${normalizedCode}).`;
+  }
+
+  if (!normalizedError) {
+    return DEFAULT_CLIENT_ERROR_MESSAGE;
+  }
+
+  if (!normalizedCategory) {
+    return normalizedError;
+  }
+
+  const formattedCategory = formatErrorCategory(normalizedCategory);
+  const prefixedCategory = `${formattedCategory} Error:`;
+  const hasCategoryPrefix = normalizedError
+    .toLowerCase()
+    .startsWith(prefixedCategory.toLowerCase());
+
+  return hasCategoryPrefix
+    ? normalizedError
+    : `${prefixedCategory} ${normalizedError}`;
+};
+
+const getUnexpectedErrorMessage = (error: unknown): string => {
+  if (error instanceof TypeError) {
+    return 'Unable to reach the server. Please check your connection and try again.';
+  }
+
+  return DEFAULT_CLIENT_ERROR_MESSAGE;
+};
+
 const UploadForm = () => {
   const [url, setUrl] = useState('');
   const [config, setConfig] = useState<GTFSConfig>(
@@ -40,6 +103,13 @@ const UploadForm = () => {
       }
 
       const file = acceptedFiles[0];
+      if (!file) {
+        toast('No file selected. Please upload a GTFS zip file.', {
+          type: 'error',
+        });
+        return;
+      }
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('options', JSON.stringify(config));
@@ -53,26 +123,26 @@ const UploadForm = () => {
         });
 
         if (response.ok === false) {
-          const data = await response.json();
-          toast(
-            data.error ??
-              'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
-            {
-              type: 'error',
-            },
-          );
+          let data: unknown = null;
+          try {
+            data = await response.json();
+          } catch {
+            data = null;
+          }
+
+          if (isApiErrorResponse(data)) {
+            toast(formatApiErrorMessage(data), { type: 'error' });
+          } else {
+            toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
+          }
         } else {
           await downloadResponse(response);
           timetableGenerationSuccess();
         }
-
-        setLoading(false);
       } catch (error) {
         console.error('Error:', error);
-        toast(
-          'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
-          { type: 'error' },
-        );
+        toast(getUnexpectedErrorMessage(error), { type: 'error' });
+      } finally {
         setLoading(false);
       }
     },
@@ -142,26 +212,26 @@ const UploadForm = () => {
                 });
 
                 if (response.ok === false) {
-                  const data = await response.json();
-                  toast(
-                    data.error ??
-                      'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
-                    {
-                      type: 'error',
-                    },
-                  );
+                  let data: unknown = null;
+                  try {
+                    data = await response.json();
+                  } catch {
+                    data = null;
+                  }
+
+                  if (isApiErrorResponse(data)) {
+                    toast(formatApiErrorMessage(data), { type: 'error' });
+                  } else {
+                    toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
+                  }
                 } else {
                   await downloadResponse(response);
                   timetableGenerationSuccess();
                 }
-
-                setLoading(false);
               } catch (error) {
                 console.error('Error:', error);
-                toast(
-                  'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.',
-                  { type: 'error' },
-                );
+                toast(getUnexpectedErrorMessage(error), { type: 'error' });
+              } finally {
                 setLoading(false);
               }
             }}
