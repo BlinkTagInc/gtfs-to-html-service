@@ -132,11 +132,16 @@ export const POST = async (request: Request) => {
 
           fileStream.on('end', async () => {
             controller.close(); // Close the stream when done
+            await track(
+              'GTFS Uploaded',
+              {
+                agencies,
+              },
+              { request },
+            );
+
             // Delete the file after streaming has finished
             try {
-              await track('GTFS Uploaded', {
-                agencies,
-              });
               await rm(tempDir, { recursive: true });
             } catch (error) {
               console.error('Error deleting file:', error);
