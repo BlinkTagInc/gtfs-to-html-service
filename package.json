@@ -3,13 +3,14 @@
   "version": "1.3.2",
   "private": true,
   "author": "Brendan Nee <brendan@blinktag.com>",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "prepare": "husky",
-    "postinstall": "rm -rf ./views && cp -r ./node_modules/gtfs-to-html/views/default ./views"
+    "postinstall": "node ./node_modules/gtfs-to-html/scripts/postinstall.js && rm -rf ./views && cp -r ./node_modules/gtfs-to-html/views/default ./views"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -64,6 +65,7 @@
   "pnpm": {
     "onlyBuiltDependencies": [
       "better-sqlite3",
+      "gtfs-to-html",
       "puppeteer"
     ]
   }
