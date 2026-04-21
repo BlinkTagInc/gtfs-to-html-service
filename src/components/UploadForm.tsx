@@ -36,8 +36,29 @@ const formatErrorCategory = (category: string): string => {
     .join(' ');
 };
 
+const MAX_TOAST_MESSAGE_LENGTH = 300;
+
+// Ensure multi-line/verbose messages (e.g. stack traces or lists of paths
+// leaked from library errors) do not end up rendered in a toast.
+const sanitizeToastMessage = (message: string): string => {
+  const firstLine = message.split(/\r?\n/, 1)[0]?.trim() ?? '';
+  const cleaned = firstLine.replace(/[:\s]+$/, '');
+
+  if (!cleaned) {
+    return DEFAULT_CLIENT_ERROR_MESSAGE;
+  }
+
+  if (cleaned.length <= MAX_TOAST_MESSAGE_LENGTH) {
+    return cleaned;
+  }
+
+  return `${cleaned.slice(0, MAX_TOAST_MESSAGE_LENGTH - 1).trimEnd()}…`;
+};
+
 const formatApiErrorMessage = (errorData: ApiErrorResponse): string => {
-  const normalizedError = errorData.error?.trim();
+  const normalizedError = errorData.error
+    ? sanitizeToastMessage(errorData.error)
+    : '';
   const normalizedCategory = errorData.category?.trim();
   const normalizedCode = errorData.code?.trim();
 

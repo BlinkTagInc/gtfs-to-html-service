@@ -103,12 +103,58 @@ const getServerErrorResponse = (): PublicErrorResponse => {
   };
 };
 
+const MAX_PUBLIC_MESSAGE_LENGTH = 400;
+
+/**
+ * Categories that represent server/infrastructure issues rather than problems
+ * with the user's GTFS input. Surfacing the underlying message to the user is
+ * unhelpful for these, so we swap in a generic server error message.
+ */
+const SERVER_ERROR_CATEGORIES = new Set(['database']);
+
+/**
+ * Error codes that should always be surfaced as a generic server error.
+ * These typically indicate a deployment/environment problem (e.g. missing
+ * native bindings) that the user cannot resolve.
+ */
+const SERVER_ERROR_CODES = new Set([
+  'GTFS_TO_HTML_DATABASE_OPEN_FAILED',
+  'GTFS_DATABASE_OPEN_FAILED',
+]);
+
+/**
+ * Strip multi-line/verbose content from a library error message so it can be
+ * safely shown in a UI toast. Keeps the first meaningful line and trims noise
+ * like trailing colons, file paths, and stack traces.
+ */
+const sanitizePublicMessage = (message: string): string => {
+  const firstLine = message.split(/\r?\n/, 1)[0]?.trim() ?? '';
+  const withoutTrailingColon = firstLine.replace(/[:\s]+$/, '');
+
+  if (!withoutTrailingColon) {
+    return DEFAULT_SERVER_ERROR_MESSAGE;
+  }
+
+  if (withoutTrailingColon.length <= MAX_PUBLIC_MESSAGE_LENGTH) {
+    return withoutTrailingColon;
+  }
+
+  return `${withoutTrailingColon.slice(0, MAX_PUBLIC_MESSAGE_LENGTH - 1).trimEnd()}…`;
+};
+
 export const getPublicGtfsErrorResponse = (
   error: unknown,
 ): PublicErrorResponse => {
   if (isGtfsToHtmlError(error) || isGtfsError(error)) {
+    if (
+      SERVER_ERROR_CODES.has(error.code) ||
+      SERVER_ERROR_CATEGORIES.has(error.category)
+    ) {
+      return getServerErrorResponse();
+    }
+
     return {
-      error: error.message,
+      error: sanitizePublicMessage(error.message),
       code: error.code,
       category: error.category,
       statusCode: 400,
