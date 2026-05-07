@@ -1,0 +1,7 @@
+allowBuilds:
+  better-sqlite3: true
+  gtfs-to-html: true
+  protobufjs: true
+  puppeteer: true
+  sharp: true
+  unrs-resolver: true
