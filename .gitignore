@@ -38,5 +38,6 @@ next-env.d.ts
 # output
 html
 
-# views (copied from gtfs-to-html module postinstall)
+# views and browser assets (copied from gtfs-to-html at build time)
 views
+dist/browser

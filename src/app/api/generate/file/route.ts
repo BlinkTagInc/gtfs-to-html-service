@@ -102,7 +102,6 @@ export const POST = async (request: Request) => {
       outputPath: join(tempDir, buildId),
       sqlitePath: ':memory:',
       skipImport: false,
-      templatePath: join(process.cwd(), 'views'),
       verbose: false,
       zipOutput: true,
       log: () => {},

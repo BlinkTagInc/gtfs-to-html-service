@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Updated
 - Dependency updates
+- Remove postinstall file copying - add to build process
 
 ## [1.3.2] - 2026-03-22
 ### Updated

@@ -5,21 +5,20 @@
   "author": "Brendan Nee <brendan@blinktag.com>",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "husky",
-    "postinstall": "rm -rf ./views && cp -r ./node_modules/gtfs-to-html/views/default ./views"
+    "prepare": "husky"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@vercel/analytics": "^2.0.1",
-    "gtfs-to-html": "^2.12.11",
-    "next": "^16.2.6",
+    "gtfs-to-html": "^2.12.13",
+    "next": "^16.2.9",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^15.0.0",
-    "react-hook-form": "^7.76.1",
+    "react-hook-form": "^7.78.0",
     "react-toastify": "^11.1.0",
     "tempy": "^3.2.0",
     "zod": "^4.4.3"
@@ -29,12 +28,12 @@
     "@types/node": "^25",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^10",
-    "eslint-config-next": "^16.2.6",
+    "eslint": "^9",
+    "eslint-config-next": "^16.2.9",
     "husky": "^9.1.7",
-    "lint-staged": "^17.0.5",
+    "lint-staged": "^17.0.7",
     "postcss": "^8",
-    "prettier": "^3.8.3",
+    "prettier": "^3.8.4",
     "tailwindcss": "^4.3.0",
     "typescript": "^6"
   },
@@ -61,5 +60,5 @@
     "*.tsx": "prettier --write",
     "*.json": "prettier --write"
   },
-  "packageManager": "pnpm@11.3.0"
+  "packageManager": "pnpm@11.7.0"
 }
