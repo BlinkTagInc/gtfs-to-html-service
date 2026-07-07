@@ -6,5 +6,5 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 minimumReleaseAgeExclude:
-  - gtfs-to-html@2.12.13
-  - gtfs@4.19.1
+  - gtfs-to-html@2.12.14
+  - gtfs@4.19.3
