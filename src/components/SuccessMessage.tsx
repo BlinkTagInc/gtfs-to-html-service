@@ -26,8 +26,8 @@ const SuccessMessage = ({
     .replaceAll('+', '%20')}`;
 
   return (
-    <div className=" h-full p-6">
-      <div className="mt-6 w-full rounded-lg border border-[#008000]/30 bg-green-50 p-5 flex flex-col items-center justify-center">
+    <div className="h-full">
+      <div className="w-full rounded-lg border border-[#008000]/30 bg-green-50 p-5 flex flex-col items-center justify-center">
         <div className="flex items-center justify-center w-16 h-16 bg-green-200 rounded-full">
           <svg
             className="w-12 h-12 text-green-600"
@@ -66,11 +66,11 @@ const SuccessMessage = ({
             height={36}
             className="shrink-0"
           />
-          <h2 className="text-lg font-bold mb-0 text-balance text-center sm:text-left">
+          <h2 className="text-xl font-bold mb-0 text-balance text-center sm:text-left">
             Need help getting these timetables on your website?
           </h2>
         </div>
-        <p className="text-base text-gray-700 leading-6 mb-3">
+        <p className="text-gray-700 mb-4">
           The typical next steps are adjusting the configuration, customizing
           the template to match your agency&apos;s brand and integrating the
           HTML, CSS and JS into your website. You can do it all yourself - or if

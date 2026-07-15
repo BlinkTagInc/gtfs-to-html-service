@@ -32,7 +32,7 @@
 
 @layer utilities {
   :root {
-    --foreground-rgb: 0, 0, 0;
+    --foreground-rgb: 17, 24, 39;
     --background-start-rgb: 214, 219, 220;
     --background-end-rgb: 255, 255, 255;
   }
@@ -49,11 +49,11 @@
 }
 
 h2 {
-  @apply text-2xl font-bold text-balance mb-2;
+  @apply text-2xl font-bold tracking-tight text-balance mb-2;
 }
 
 h3 {
-  @apply text-xl font-bold text-balance mb-2;
+  @apply text-xl font-bold tracking-tight text-balance mb-2;
 }
 
 ul {
@@ -61,7 +61,7 @@ ul {
 }
 
 p {
-  @apply text-lg mb-3 leading-8;
+  @apply text-base mb-3 leading-7;
 }
 
 code {
@@ -73,7 +73,7 @@ a {
 }
 
 a:hover {
-  @apply text-blue-700 underline;
+  @apply text-[#1E1C7D] underline;
 }
 
 input {
@@ -81,16 +81,15 @@ input {
 }
 
 .btn {
-  @apply bg-[#3230AD] text-white px-4 py-2 h-[42px] rounded-sm;
+  @apply inline-flex items-center justify-center text-center bg-[#3230AD] text-white font-medium px-5 py-2 min-h-[42px] rounded-md transition-colors;
 }
 
 .btn:hover {
   @apply bg-[#1E1C7D] text-white no-underline;
 }
 
-
-button.no-style, .btn.no-style {
-  @apply bg-transparent text-[#3230AD] no-underline h-auto p-0;
+.btn:focus-visible {
+  @apply outline-2 outline-offset-2 outline-[#3230AD];
 }
 
 table {
@@ -110,17 +109,17 @@ tr:last-of-type td {
 }
 
 .card {
-  @apply bg-white shadow-md rounded-lg p-4 border;
+  @apply bg-white shadow-sm rounded-xl p-6 border border-gray-200;
 }
 
 .footer {
-  @apply mt-12 bg-[#3230AD] px-24 py-12 text-white text-center;
+  @apply mt-16 bg-[#1E1C7D] px-6 py-10 text-indigo-200 text-center text-sm leading-loose;
 
   a {
-    @apply text-white underline;
+    @apply text-white underline decoration-indigo-400 underline-offset-2;
   }
 
   a:hover {
-    @apply text-gray-100;
+    @apply text-indigo-100;
   }
 }

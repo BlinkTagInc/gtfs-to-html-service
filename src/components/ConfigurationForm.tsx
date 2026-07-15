@@ -97,7 +97,7 @@ export const ConfigurationForm = ({
               type="text"
               {...register('startDate')}
               placeholder="YYYY-MM-DD"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
               pattern="\d{4}-\d{2}-\d{2}"
             />
           </div>
@@ -122,7 +122,7 @@ export const ConfigurationForm = ({
               type="text"
               {...register('endDate')}
               placeholder="YYYY-MM-DD"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
               pattern="\d{4}-\d{2}-\d{2}"
             />
           </div>
@@ -145,7 +145,7 @@ export const ConfigurationForm = ({
         <select
           key="defaultOrientation"
           {...register('defaultOrientation')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         >
           <option value="vertical">Vertical</option>
           <option value="horizontal">Horizontal</option>
@@ -159,7 +159,7 @@ export const ConfigurationForm = ({
         </label>
         <select
           {...register('menuType')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         >
           <option value="simple">Simple List</option>
           <option value="jump">Jump Menu</option>
@@ -176,7 +176,7 @@ export const ConfigurationForm = ({
               type="checkbox"
               checked={Boolean(value)}
               onChange={(e) => onChange(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
             />
           )}
         />
@@ -195,7 +195,7 @@ export const ConfigurationForm = ({
         </label>
         <select
           {...register('outputFormat')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         >
           <option value="html">HTML</option>
           <option value="pdf">PDF</option>
@@ -218,7 +218,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -236,7 +236,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -260,7 +260,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -278,7 +278,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -296,7 +296,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -314,7 +314,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -332,7 +332,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -350,7 +350,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -369,7 +369,7 @@ export const ConfigurationForm = ({
                   type="checkbox"
                   checked={Boolean(value)}
                   onChange={(e) => onChange(e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
                 />
               )}
             />
@@ -392,7 +392,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -411,7 +411,7 @@ export const ConfigurationForm = ({
           step="0.1"
           min="0"
           {...register('showArrivalOnDifference', { valueAsNumber: true })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         />
         <div className="mt-1 text-xs text-gray-500">
           Show arrival column when difference ≥ this value (in minutes). Leave
@@ -432,7 +432,7 @@ export const ConfigurationForm = ({
           type="text"
           {...register('dateFormat')}
           placeholder="MMM D, YYYY"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         />
         <div className="mt-1 text-xs text-gray-500">
           Moment.js format string (e.g., "MMM D, YYYY" → "Mar 15, 2024")
@@ -448,7 +448,7 @@ export const ConfigurationForm = ({
           type="text"
           {...register('timeFormat')}
           placeholder="h:mma"
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         />
         <div className="mt-1 text-xs text-gray-500">
           Moment.js format string (e.g., "h:mma" → "8:36pm")
@@ -473,7 +473,7 @@ export const ConfigurationForm = ({
               key={day}
               type="text"
               {...register(`daysStrings.${index}` as const)}
-              className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#3230AD]"
             />
           ))}
         </div>
@@ -490,7 +490,7 @@ export const ConfigurationForm = ({
                 key={day}
                 type="text"
                 {...register(`daysShortStrings.${index}` as const)}
-                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-[#3230AD]"
               />
             ),
           )}
@@ -509,7 +509,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noServiceSymbol')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
         <div>
@@ -519,7 +519,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noServiceText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
       </div>
@@ -532,7 +532,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noPickupSymbol')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
         <div>
@@ -542,7 +542,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noPickupText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
       </div>
@@ -555,7 +555,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noDropoffSymbol')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
         <div>
@@ -565,7 +565,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noDropoffText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
       </div>
@@ -578,7 +578,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('requestPickupSymbol')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
         <div>
@@ -588,7 +588,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('requestPickupText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
       </div>
@@ -601,7 +601,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('requestDropoffSymbol')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
         <div>
@@ -611,7 +611,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('requestDropoffText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
       </div>
@@ -624,7 +624,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('interpolatedStopSymbol')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
         <div>
@@ -634,7 +634,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('interpolatedStopText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
       </div>
@@ -647,7 +647,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('serviceProvidedOnText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
 
@@ -658,7 +658,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('serviceNotProvidedOnText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
 
@@ -669,7 +669,7 @@ export const ConfigurationForm = ({
           <input
             type="text"
             {...register('noRegularServiceDaysText')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
         </div>
 
@@ -681,7 +681,7 @@ export const ConfigurationForm = ({
             type="text"
             {...register('effectiveDate')}
             placeholder="e.g., March 15, 2024"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
           />
           <div className="mt-1 text-xs text-gray-500">
             Date to print at the top of timetables, leave blank to omit
@@ -707,7 +707,7 @@ export const ConfigurationForm = ({
               type="checkbox"
               checked={Boolean(value)}
               onChange={(e) => onChange(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
             />
           )}
         />
@@ -724,7 +724,7 @@ export const ConfigurationForm = ({
           key="mapStyleUrl"
           type="url"
           {...register('mapStyleUrl')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         />
         <div className="mt-1 text-xs text-gray-500">
           MapLibre style URL for route maps
@@ -745,7 +745,7 @@ export const ConfigurationForm = ({
           min="0"
           max="10"
           {...register('coordinatePrecision', { valueAsNumber: true })}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         />
         <div className="mt-1 text-xs text-gray-500">
           Number of decimal places for GeoJSON coordinates (0-10)
@@ -762,7 +762,7 @@ export const ConfigurationForm = ({
         </label>
         <select
           {...register('sortingAlgorithm')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         >
           <option value="common">Common Stop</option>
           <option value="beginning">Beginning Stop</option>
@@ -785,7 +785,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -803,7 +803,7 @@ export const ConfigurationForm = ({
                 type="checkbox"
                 checked={Boolean(value)}
                 onChange={(e) => onChange(e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                className="h-4 w-4 accent-[#3230AD] border-gray-300 rounded"
               />
             )}
           />
@@ -837,20 +837,20 @@ export const ConfigurationForm = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
       {/* Mobile Navigation - Horizontal Tabs */}
       <div className="md:hidden">
-        <div className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-gray-200 p-2">
+        <div className="bg-gray-50 border-b border-gray-200 p-2">
           <div className="flex overflow-x-auto space-x-1 pb-2 scrollbar-hide">
             {sections.map((section) => (
               <button
                 key={section.id}
                 type="button"
                 onClick={() => setActiveSection(section.id)}
-                className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 whitespace-nowrap ${
+                className={`flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-colors duration-200 whitespace-nowrap ${
                   activeSection === section.id
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-200'
+                    ? 'bg-[#3230AD] text-white shadow-sm'
+                    : 'text-gray-700 bg-white hover:bg-gray-100 border border-gray-200'
                 }`}
               >
                 <span className="mr-1">{section.icon}</span>
@@ -877,34 +877,24 @@ export const ConfigurationForm = ({
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden md:flex min-h-[600px]">
+      <div className="hidden md:flex min-h-[420px]">
         {/* Desktop Sidebar Navigation */}
-        <div className="w-60 lg:w-72 bg-gradient-to-b from-slate-50 to-slate-100 border-r border-gray-200 flex flex-col">
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {sections.map((section, index) => (
+        <div className="w-48 bg-gray-50 border-r border-gray-200 flex flex-col">
+          <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+            {sections.map((section) => (
               <button
                 key={section.id}
                 type="button"
                 onClick={() => setActiveSection(section.id)}
-                className={`group w-full text-left px-3 py-3 rounded-lg text-sm font-medium transition-all duration-200 ease-in-out transform hover:scale-[1.02] ${
+                className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors duration-200 ${
                   activeSection === section.id
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/25 border border-blue-500'
-                    : 'text-gray-700 hover:bg-white hover:text-gray-900 hover:shadow-md border border-transparent hover:border-gray-200'
+                    ? 'bg-[#3230AD] text-white shadow-sm'
+                    : 'text-gray-700 hover:bg-white hover:text-gray-900 border border-transparent hover:border-gray-200'
                 }`}
               >
                 <div className="flex items-center">
-                  <span
-                    className={`text-lg mr-3 transition-transform duration-200 ${
-                      activeSection === section.id
-                        ? 'scale-110'
-                        : 'group-hover:scale-105'
-                    }`}
-                  >
-                    {section.icon}
-                  </span>
-                  <div className="flex-1">
-                    <div className="font-medium">{section.label}</div>
-                  </div>
+                  <span className="text-base mr-2.5">{section.icon}</span>
+                  <div className="flex-1">{section.label}</div>
                 </div>
               </button>
             ))}
@@ -914,13 +904,13 @@ export const ConfigurationForm = ({
         {/* Desktop Main Content */}
         <div className="flex-1 relative">
           {/* Desktop Header */}
-          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-6 py-4">
+          <div className="sticky top-0 z-10 bg-white border-b border-gray-200 px-5 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-2xl font-bold text-gray-900">
+                <h4 className="text-lg font-bold text-gray-900">
                   {sections.find((s) => s.id === activeSection)?.label}
                 </h4>
-                <div className="text-gray-600 mt-1">
+                <div className="text-sm text-gray-600 mt-0.5">
                   {getSectionDescription(activeSection)}
                 </div>
               </div>
@@ -928,7 +918,7 @@ export const ConfigurationForm = ({
           </div>
 
           {/* Desktop Content */}
-          <div className="px-6 py-6 max-h-[calc(100vh-200px)] overflow-y-auto">
+          <div className="px-5 py-5 max-h-[calc(100vh-200px)] overflow-y-auto">
             <form key={activeSection}>
               <div className="max-w-4xl">{renderSection()}</div>
             </form>

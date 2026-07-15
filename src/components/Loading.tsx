@@ -41,7 +41,7 @@ export const Loading = ({ url }: { url: string }) => {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #000;
+          background: #3230ad;
           margin: -3px 0 0 -3px;
         }
         .lds-roller div:nth-child(1) {

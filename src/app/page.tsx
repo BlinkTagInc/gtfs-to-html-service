@@ -16,11 +16,11 @@ export default function Home() {
             priority
           />
         </div>
-        <div className="max-w-[650px] mx-auto mt-6 text-center">
-          <h1 className="text-3xl font-bold text-balance mb-3">
+        <div className="max-w-[650px] mx-auto mt-8 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-balance mb-3">
             Turn your GTFS into timetables for your website
           </h1>
-          <p className="text-gray-600 text-balance">
+          <p className="text-lg leading-8 text-gray-600 text-balance">
             GTFS-to-HTML converts your transit agency&apos;s GTFS into
             ready-to-publish HTML timetables and route maps. Free and open
             source - no signup required.
@@ -30,11 +30,11 @@ export default function Home() {
           <UploadForm />
         </div>
         <div className="card max-w-[650px] mx-auto my-6">
-          <h2 className="text-xl font-bold mb-3">Why use GTFS-to-HTML?</h2>
+          <h2 className="mb-5">Why use GTFS-to-HTML?</h2>
 
-          <div className="flex flex-row gap-10 mb-8">
-            <div className="shrink-0 text-6xl mt-2">🕑</div>
-            <div>
+          <div className="flex flex-row gap-5 mb-6">
+            <div className="shrink-0 text-4xl mt-1">📱</div>
+            <div className="leading-7">
               Your agency already publishes GTFS so that trip planning apps like
               Google Maps and Transit can use your schedules. But riders also
               expect timetables and route maps on your agency&apos;s own website
@@ -42,35 +42,36 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex flex-row gap-10 mb-8">
-            <div className="shrink-0 text-6xl mt-2">🧰</div>
-            <div>
+          <div className="flex flex-row gap-5 mb-6">
+            <div className="shrink-0 text-4xl mt-1">📄</div>
+            <div className="leading-7">
               GTFS-to-HTML turns that same GTFS data into attractively
               formatted, mobile-friendly timetables and maps in HTML, PDF or CSV
               format, ready to add to your website.
             </div>
           </div>
 
-          <div className="flex flex-row gap-10 mb-8">
-            <div className="shrink-0 text-6xl mt-2">✅</div>
-            <div>
+          <div className="flex flex-row gap-5 mb-6">
+            <div className="shrink-0 text-4xl mt-1">🔄</div>
+            <div className="leading-7">
               When schedules change, regenerate your timetables instead of
               rebuilding them by hand. Timetables stay accurate and up to date,
               and the likelihood of errors is reduced.
             </div>
           </div>
 
-          <div className="flex flex-row gap-10 mb-8">
-            <div className="shrink-0 text-6xl mt-2">🚍</div>
-            <div>
-              GTFS-Realtime is supported. Display realtime vehicle locations on
-              route maps, arrival predictions and service alerts.
+          <div className="flex flex-row gap-5 mb-6">
+            <div className="shrink-0 text-4xl mt-1">🚍</div>
+            <div className="leading-7">
+              GTFS-Realtime is supported out of the box. Display realtime
+              vehicle locations on route maps, arrival predictions and service
+              alerts.
             </div>
           </div>
 
-          <div className="flex flex-row gap-10 mb-8">
-            <div className="shrink-0 text-6xl mt-2">🆓</div>
-            <div>
+          <div className="flex flex-row gap-5 mb-8">
+            <div className="shrink-0 text-4xl mt-1">🆓</div>
+            <div className="leading-7">
               GTFS-to-HTML is{' '}
               <a href="https://github.com/BlinkTagInc/gtfs-to-html">
                 free and open source
@@ -96,7 +97,7 @@ export default function Home() {
               height={36}
               className="shrink-0"
             />
-            <h2 className="text-xl font-bold mb-0 text-center sm:text-left">
+            <h2 className="mb-0 text-center sm:text-left">
               Implementation Help &amp; Support
             </h2>
           </div>
@@ -109,7 +110,7 @@ export default function Home() {
             behind GTFS-to-HTML) is available for consulting:
           </p>
 
-          <ul className="text-gray-600 text-lg mb-4">
+          <ul className="text-gray-600 leading-7 space-y-1 mb-5">
             <li>Configuration help and troubleshooting</li>
             <li>
               Custom timetable templates matching your agency&apos;s brand

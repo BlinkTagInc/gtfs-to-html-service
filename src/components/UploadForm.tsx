@@ -227,7 +227,7 @@ const UploadForm = () => {
       ) : (
         <>
           <h2 className="text-center">Try it now with your GTFS</h2>
-          <p className="text-center text-base text-gray-600 leading-6">
+          <p className="text-center text-gray-600 mb-5">
             Paste the URL of your GTFS or upload it as a zip file. In about a
             minute you&apos;ll get a zip of timetables you can preview right
             away.
@@ -296,14 +296,18 @@ const UploadForm = () => {
               Generate
             </button>
           </form>
-          <div className="text-center text-2xl my-3">OR</div>
+          <div className="flex items-center gap-4 my-4 text-sm font-medium text-gray-400">
+            <div className="h-px flex-1 bg-gray-200"></div>
+            OR
+            <div className="h-px flex-1 bg-gray-200"></div>
+          </div>
           <div
             className="flex items-center justify-center w-full"
             {...getRootProps()}
           >
             <label
               htmlFor="dropzone-file"
-              className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
+              className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
             >
               <div className="flex flex-col items-center justify-center pt-5 pb-6">
                 <input {...getInputProps()} />
