@@ -100,6 +100,7 @@ const UploadForm = () => {
   );
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [agencies, setAgencies] = useState('');
 
   const onDrop = useCallback(
     async (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
@@ -157,8 +158,9 @@ const UploadForm = () => {
             toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
           }
         } else {
+          const responseAgencies = getAgenciesFromResponse(response);
           await downloadResponse(response);
-          timetableGenerationSuccess();
+          timetableGenerationSuccess(responseAgencies);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -177,6 +179,19 @@ const UploadForm = () => {
     maxSize: 4 * 1024 * 1024,
     maxFiles: 1,
   });
+
+  const getAgenciesFromResponse = (response: Response): string => {
+    const header = response.headers.get('X-Agencies');
+    if (!header) {
+      return '';
+    }
+
+    try {
+      return decodeURIComponent(header);
+    } catch {
+      return '';
+    }
+  };
 
   const downloadResponse = async (response: Response) => {
     // Convert response to a Blob
@@ -197,20 +212,26 @@ const UploadForm = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  const timetableGenerationSuccess = () => {
+  const timetableGenerationSuccess = (responseAgencies: string) => {
+    setAgencies(responseAgencies);
     setSuccess(true);
     setUrl('');
   };
 
   return (
     <>
-      <h2 className="text-center">Generate HTML timetables from GTFS</h2>
       {success ? (
-        <SuccessMessage clear={() => setSuccess(false)} />
+        <SuccessMessage agencies={agencies} clear={() => setSuccess(false)} />
       ) : loading ? (
         <Loading url={url} />
       ) : (
         <>
+          <h2 className="text-center">Try it now with your GTFS</h2>
+          <p className="text-center text-base text-gray-600 leading-6">
+            Paste the URL of your GTFS or upload it as a zip file. In about a
+            minute you&apos;ll get a zip of timetables you can preview right
+            away.
+          </p>
           <form
             className="flex flex-row gap-3 items-start"
             onSubmit={async (event) => {
@@ -246,8 +267,9 @@ const UploadForm = () => {
                     toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
                   }
                 } else {
+                  const responseAgencies = getAgenciesFromResponse(response);
                   await downloadResponse(response);
-                  timetableGenerationSuccess();
+                  timetableGenerationSuccess(responseAgencies);
                 }
               } catch (error) {
                 console.error('Error:', error);
@@ -320,9 +342,13 @@ const UploadForm = () => {
             </label>
           </div>
           <div className="mt-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
+            <h3 className="text-lg font-medium text-gray-900 mb-1">
               Configuration Options
             </h3>
+            <p className="text-sm text-gray-600 mb-4">
+              Optional - the default settings work well for a first try. You can
+              always regenerate with different settings.
+            </p>
 
             <div className="w-full overflow-hidden">
               <ConfigurationForm

@@ -119,6 +119,7 @@ export const POST = async (request: Request) => {
           'Content-Type': 'application/zip',
           'Content-Disposition': 'attachment; filename="timetables.zip"',
           'Content-Length': fileStats.size.toString(), // Set the content length
+          'X-Agencies': encodeURIComponent(agencies),
         },
       },
     );

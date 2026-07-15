@@ -2,9 +2,9 @@ export const Loading = ({ url }: { url: string }) => {
   return (
     <div className="loading mt-3">
       <div className="text-sm break-words text-center">
-        Generating HTML Timetables
+        Generating your HTML timetables
         <br />
-        {url ? `from ${url}` : 'from uploaded file'}
+        {url ? `from ${url}` : 'from your uploaded GTFS'}
       </div>
       <div className="lds-roller">
         <div></div>
@@ -17,7 +17,7 @@ export const Loading = ({ url }: { url: string }) => {
         <div></div>
       </div>
       <br />
-      This can take a minute or two...
+      This can take a minute or two - keep this tab open.
       <style jsx>{`
         .loading {
           text-align: center;
