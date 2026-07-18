@@ -1,4 +1,4 @@
-import { isGtfsToHtmlError, isGtfsError } from 'gtfs-to-html';
+import { isGtfsToHtmlError, isGtfsError, type GtfsError } from 'gtfs-to-html';
 
 const DEFAULT_SERVER_ERROR_MESSAGE =
   'An unexpected server error occurred. For help, email gtfs@blinktag.com with the GTFS you are trying to use.';
@@ -103,6 +103,86 @@ const getServerErrorResponse = (): PublicErrorResponse => {
   };
 };
 
+const MAX_CAUSE_CHAIN_DEPTH = 5;
+
+/**
+ * A fetch failure can report a timeout at several layers, each wrapping the
+ * next in `.cause`:
+ *  - `AbortSignal.timeout()` firing rejects with a DOMException named
+ *    `TimeoutError`.
+ *  - undici's own connect/headers/body timeouts reject with a
+ *    `TypeError: fetch failed`, whose `.cause` is a `ConnectTimeoutError`,
+ *    `HeadersTimeoutError`, or `BodyTimeoutError` (code starting
+ *    `UND_ERR_..._TIMEOUT`).
+ * so we walk the whole cause chain rather than only the top level.
+ */
+const isTimeoutCause = (cause: unknown, depth = 0): boolean => {
+  if (!(cause instanceof Error) || depth >= MAX_CAUSE_CHAIN_DEPTH) {
+    return false;
+  }
+
+  const code = (cause as { code?: unknown }).code;
+  const isTimeout =
+    /timeout/i.test(cause.name) ||
+    (typeof code === 'string' && /timeout/i.test(code)) ||
+    /timeout/i.test(cause.message);
+
+  if (isTimeout) {
+    return true;
+  }
+
+  return isTimeoutCause(cause.cause, depth + 1);
+};
+
+/**
+ * `gtfsToHtml` throws a `GtfsError` (category `download`) whenever fetching
+ * the user-provided URL fails. The failing URL and, for HTTP failures, the
+ * upstream status code are available on `error.details`/`error.statusCode`
+ * rather than needing to be parsed back out of the message. For non-HTTP
+ * failures (DNS, connection refused, timeout, ...) `error.cause` holds the
+ * underlying fetch error (and its own `.cause` chain), which we inspect
+ * only to detect a timeout - the underlying message is never shown to the
+ * user.
+ */
+const getDownloadFailureResponse = (error: GtfsError): PublicErrorResponse => {
+  const details = error.details;
+  const url = typeof details?.url === 'string' ? details.url : undefined;
+  const urlSuffix = url ? ` URL tried: ${url}` : '';
+
+  if (error.code === 'GTFS_DOWNLOAD_HTTP') {
+    const status =
+      typeof error.statusCode === 'number'
+        ? error.statusCode
+        : typeof details?.status === 'number'
+          ? details.status
+          : undefined;
+    const statusCode = status !== undefined && status >= 500 ? 502 : 400;
+
+    return {
+      error: `Unable to download GTFS: server responded with HTTP ${status ?? 'error'}.${urlSuffix}`,
+      code: 'DOWNLOAD_HTTP_ERROR',
+      category: 'download',
+      statusCode,
+    };
+  }
+
+  if (isTimeoutCause(error.cause)) {
+    return {
+      error: `Timed out while trying to download GTFS. The source server took too long to respond.${urlSuffix}`,
+      code: 'DOWNLOAD_TIMEOUT',
+      category: 'download',
+      statusCode: 400,
+    };
+  }
+
+  return {
+    error: `Unable to download GTFS. Please verify the URL is correct and publicly accessible.${urlSuffix}`,
+    code: 'DOWNLOAD_FAILED',
+    category: 'download',
+    statusCode: 400,
+  };
+};
+
 const MAX_PUBLIC_MESSAGE_LENGTH = 400;
 
 /**
@@ -151,6 +231,10 @@ export const getPublicGtfsErrorResponse = (
       SERVER_ERROR_CATEGORIES.has(error.category)
     ) {
       return getServerErrorResponse();
+    }
+
+    if (error.category === 'download') {
+      return getDownloadFailureResponse(error);
     }
 
     return {

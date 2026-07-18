@@ -123,3 +123,9 @@ tr:last-of-type td {
     @apply text-indigo-100;
   }
 }
+
+/* Long unbroken strings (e.g. GTFS URLs) in error toasts must wrap instead
+   of overflowing the toast popup. */
+.Toastify__toast-body {
+  overflow-wrap: anywhere;
+}
