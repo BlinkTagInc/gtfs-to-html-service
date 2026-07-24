@@ -15,8 +15,8 @@ importers:
         specifier: ^2.0.1
         version: 2.0.1(next@16.2.11(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react@19.2.8)
       gtfs-to-html:
-        specifier: ^2.13.1
-        version: 2.13.1(supports-color@7.2.0)
+        specifier: ^2.13.2
+        version: 2.13.2(supports-color@7.2.0)
       next:
         specifier: ^16.2.11
         version: 16.2.11(@babel/core@7.29.7(supports-color@7.2.0))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1745,8 +1745,8 @@ packages:
     resolution: {integrity: sha512-++VHaoPiKPC53MJ0rNOq47qCQwj3k26D4pJepSQAmI/eFq+Uv+Kr4NCI4KNu5XsmPapiNPywymKHSfcGupVj/g==}
     engines: {node: '>=22'}
 
-  gtfs-to-html@2.13.1:
-    resolution: {integrity: sha512-el2Pb5H6dh8TdJ53L737pFS1ZNyqW8mVcLz1beBguRmlm1YBVI+TZkSsB56hwSxklbhAztb7Tl4mbcg2eFy+5g==}
+  gtfs-to-html@2.13.2:
+    resolution: {integrity: sha512-UmpjJ7Zs7Mo67iPGcEUDZtbRUmFVADHF9N4YNSmojXJ3RLY/MYTNuBOyWN9/AKFO3MS2S1hx/cGp0L9+ckrpWQ==}
     engines: {node: '>= 22'}
     hasBin: true
 
@@ -4913,7 +4913,7 @@ snapshots:
       protobufjs: 8.7.1
       protobufjs-cli: 2.6.1(protobufjs@8.7.1)
 
-  gtfs-to-html@2.13.1(supports-color@7.2.0):
+  gtfs-to-html@2.13.2(supports-color@7.2.0):
     dependencies:
       '@turf/helpers': 7.3.5
       '@turf/simplify': 7.3.5

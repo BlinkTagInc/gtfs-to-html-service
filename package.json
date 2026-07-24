@@ -13,7 +13,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@vercel/analytics": "^2.0.1",
-    "gtfs-to-html": "^2.13.1",
+    "gtfs-to-html": "^2.13.2",
     "next": "^16.2.11",
     "react": "^19",
     "react-dom": "^19",
