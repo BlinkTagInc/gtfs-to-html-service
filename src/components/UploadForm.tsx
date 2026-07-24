@@ -13,6 +13,22 @@ import { type GTFSConfig, defaultGTFSConfig } from '@/types/gtfs-config';
 const DEFAULT_CLIENT_ERROR_MESSAGE =
   'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.';
 
+const TIMEOUT_ERROR_MESSAGE =
+  'Processing timed out after 5 minutes - the GTFS file may be too large or complex to process in time. Use the GTFS-to-HTML library from the command line, or email gtfs@blinktag.com for help with larger datasets.';
+
+// Vercel kills the function itself once `maxDuration` is exceeded, so this
+// never reaches our own error handling on the server - the platform returns
+// its own 504 response (identified by a `FUNCTION_INVOCATION_TIMEOUT` body)
+// instead of the JSON our API routes normally send.
+const isFunctionTimeoutResponse = (
+  response: Response,
+  rawBody: string,
+): boolean => {
+  return (
+    response.status === 504 || /FUNCTION_INVOCATION_TIMEOUT/i.test(rawBody)
+  );
+};
+
 type ApiErrorResponse = {
   error?: string;
   code?: string;
@@ -94,6 +110,30 @@ const getUnexpectedErrorMessage = (error: unknown): string => {
   return DEFAULT_CLIENT_ERROR_MESSAGE;
 };
 
+const showErrorToast = async (response: Response): Promise<void> => {
+  const rawBody = await response.text().catch(() => '');
+
+  if (isFunctionTimeoutResponse(response, rawBody)) {
+    toast(TIMEOUT_ERROR_MESSAGE, { type: 'error' });
+    return;
+  }
+
+  let data: unknown = null;
+  if (rawBody) {
+    try {
+      data = JSON.parse(rawBody);
+    } catch {
+      data = null;
+    }
+  }
+
+  if (isApiErrorResponse(data)) {
+    toast(formatApiErrorMessage(data), { type: 'error' });
+  } else {
+    toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
+  }
+};
+
 const UploadForm = () => {
   const [url, setUrl] = useState('');
   const [config, setConfig] = useState<GTFSConfig>(
@@ -146,18 +186,7 @@ const UploadForm = () => {
         });
 
         if (response.ok === false) {
-          let data: unknown = null;
-          try {
-            data = await response.json();
-          } catch {
-            data = null;
-          }
-
-          if (isApiErrorResponse(data)) {
-            toast(formatApiErrorMessage(data), { type: 'error' });
-          } else {
-            toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
-          }
+          await showErrorToast(response);
         } else {
           const responseAgencies = getAgenciesFromResponse(response);
           await downloadResponse(response);
@@ -255,18 +284,7 @@ const UploadForm = () => {
                 });
 
                 if (response.ok === false) {
-                  let data: unknown = null;
-                  try {
-                    data = await response.json();
-                  } catch {
-                    data = null;
-                  }
-
-                  if (isApiErrorResponse(data)) {
-                    toast(formatApiErrorMessage(data), { type: 'error' });
-                  } else {
-                    toast(DEFAULT_CLIENT_ERROR_MESSAGE, { type: 'error' });
-                  }
+                  await showErrorToast(response);
                 } else {
                   const responseAgencies = getAgenciesFromResponse(response);
                   await downloadResponse(response);
