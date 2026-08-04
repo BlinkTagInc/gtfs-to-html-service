@@ -11,14 +11,14 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.4.0",
+    "@hookform/resolvers": "^5.7.1",
     "@vercel/analytics": "^2.0.1",
-    "gtfs-to-html": "^2.13.2",
-    "next": "^16.2.11",
+    "gtfs-to-html": "^2.13.3",
+    "next": "^16.3.0",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^15.0.0",
-    "react-hook-form": "^7.82.0",
+    "react-hook-form": "^7.84.0",
     "react-toastify": "^11.1.0",
     "tempy": "^3.2.0",
     "zod": "^4.4.3"
@@ -28,14 +28,14 @@
     "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "^16.2.11",
+    "eslint": "^10",
+    "eslint-config-next": "^16.3.0",
     "husky": "^9.1.7",
-    "lint-staged": "^17.2.0",
+    "lint-staged": "^17.3.0",
     "postcss": "^8",
     "prettier": "^3.9.6",
     "tailwindcss": "^4.3.3",
-    "typescript": "^6"
+    "typescript": "^7"
   },
   "release-it": {
     "github": {
@@ -60,5 +60,5 @@
     "*.tsx": "prettier --write",
     "*.json": "prettier --write"
   },
-  "packageManager": "pnpm@11.17.0"
+  "packageManager": "pnpm@11.20.0"
 }
