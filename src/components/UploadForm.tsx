@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { useDropzone, FileRejection, FileWithPath } from 'react-dropzone';
+import { useDropzone, type FileRejection } from 'react-dropzone';
 
 import { Loading } from './Loading';
 import SuccessMessage from './SuccessMessage';
@@ -144,7 +144,7 @@ const UploadForm = () => {
   const [agencies, setAgencies] = useState('');
 
   const onDrop = useCallback(
-    async (acceptedFiles: FileWithPath[], rejectedFiles: FileRejection[]) => {
+    async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (rejectedFiles.length > 0) {
         toast(
           rejectedFiles

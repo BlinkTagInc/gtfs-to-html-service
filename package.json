@@ -11,14 +11,14 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.7.1",
+    "@hookform/resolvers": "^5.9.1",
     "@vercel/analytics": "^2.0.1",
-    "gtfs-to-html": "^2.13.3",
-    "next": "^16.3.0",
+    "gtfs-to-html": "^2.13.4",
+    "next": "^16.3.2",
     "react": "^19",
     "react-dom": "^19",
-    "react-dropzone": "^15.0.0",
-    "react-hook-form": "^7.84.0",
+    "react-dropzone": "^20.1.1",
+    "react-hook-form": "^7.86.0",
     "react-toastify": "^11.1.0",
     "tempy": "^3.2.0",
     "zod": "^4.4.3"
@@ -29,7 +29,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^10",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "^16.3.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
     "postcss": "^8",
@@ -60,5 +60,5 @@
     "*.tsx": "prettier --write",
     "*.json": "prettier --write"
   },
-  "packageManager": "pnpm@11.20.0"
+  "packageManager": "pnpm@11.22.0"
 }

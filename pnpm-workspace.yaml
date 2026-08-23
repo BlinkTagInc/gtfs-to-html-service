@@ -5,3 +5,6 @@ allowBuilds:
   puppeteer: true
   sharp: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - gtfs-to-html@2.13.4
+  - gtfs@4.21.0

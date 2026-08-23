@@ -103,7 +103,7 @@ export const POST = async (request: Request) => {
       sqlitePath: join(tempDir, `${buildId}.sqlite`),
       deleteDbAfter: true,
       skipImport: false,
-      verbose: false,
+      logLevel: 'silent',
       zipOutput: true,
       log: () => {},
       logWarning: () => {},
