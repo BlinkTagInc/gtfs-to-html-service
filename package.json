@@ -14,7 +14,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@vercel/analytics": "^2.0.1",
     "gtfs-to-html": "^2.13.4",
-    "next": "^16.3.2",
+    "next": "^16.3.3",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^20.1.1",
@@ -29,7 +29,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^10",
-    "eslint-config-next": "^16.3.2",
+    "eslint-config-next": "^16.3.3",
     "husky": "^9.1.7",
     "lint-staged": "^17.3.0",
     "postcss": "^8",
@@ -60,5 +60,5 @@
     "*.tsx": "prettier --write",
     "*.json": "prettier --write"
   },
-  "packageManager": "pnpm@11.22.0"
+  "packageManager": "pnpm@11.24.0"
 }
