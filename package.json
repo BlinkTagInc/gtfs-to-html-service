@@ -19,7 +19,6 @@
     "react-dom": "^19",
     "react-dropzone": "^20.1.1",
     "react-hook-form": "^7.86.0",
-    "react-toastify": "^11.1.0",
     "tempy": "^3.2.0",
     "zod": "^4.4.3"
   },

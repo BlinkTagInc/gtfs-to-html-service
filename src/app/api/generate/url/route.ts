@@ -9,7 +9,7 @@ import gtfsToHtml from 'gtfs-to-html';
 import { temporaryDirectory } from 'tempy';
 import { getPublicGtfsErrorResponse } from '@/lib/gtfs-error';
 
-export const maxDuration = 300; // 5 minutes
+export const maxDuration = 800; // 13 minutes 20 seconds
 
 export const POST = async (request: Request) => {
   let body: { url?: unknown; options?: unknown };

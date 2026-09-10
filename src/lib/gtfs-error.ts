@@ -204,7 +204,7 @@ const SERVER_ERROR_CODES = new Set([
 
 /**
  * Strip multi-line/verbose content from a library error message so it can be
- * safely shown in a UI toast. Keeps the first meaningful line and trims noise
+ * safely shown in a UI status message. Keeps the first meaningful line and trims noise
  * like trailing colons, file paths, and stack traces.
  */
 const sanitizePublicMessage = (message: string): string => {

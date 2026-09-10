@@ -17,7 +17,7 @@ export const Loading = ({ url }: { url: string }) => {
         <div></div>
       </div>
       <br />
-      This can take a minute or two - keep this tab open.
+      Large feeds can take up to 13 minutes. Keep this tab open.
       <style jsx>{`
         .loading {
           text-align: center;
