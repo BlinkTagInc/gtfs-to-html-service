@@ -48,12 +48,12 @@ const SuccessMessage = ({
           Your timetables are ready!
         </h1>
         <p className="mt-2 text-gray-600 text-center">
-          HTML timetables{agencyNames ? ` for ${agencyNames}` : ''} were
-          generated and downloaded as <code>timetables.zip</code>.
+          HTML timetables
+          {agencyNames ? ` for ${agencyNames}` : ''} were generated and
+          downloaded as <code>timetables.zip</code>.
         </p>
         <p className="mt-1 text-sm text-gray-600 text-center">
-          To preview them, unzip it and open <code>index.html</code> in your
-          browser.
+          Unzip and open <code>index.html</code> in your browser.
         </p>
       </div>
 

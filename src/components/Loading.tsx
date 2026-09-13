@@ -1,12 +1,7 @@
 export const Loading = ({ url }: { url: string }) => {
   return (
-    <div className="loading mt-3">
-      <div className="text-sm break-words text-center">
-        Generating your HTML timetables
-        <br />
-        {url ? `from ${url}` : 'from your uploaded GTFS'}
-      </div>
-      <div className="lds-roller">
+    <div className="loading flex flex-row items-start gap-2">
+      <div className="lds-roller shrink-0">
         <div></div>
         <div></div>
         <div></div>
@@ -16,19 +11,16 @@ export const Loading = ({ url }: { url: string }) => {
         <div></div>
         <div></div>
       </div>
-      <br />
-      Large feeds can take up to 13 minutes. Keep this tab open.
+      <div className="text-sm break-words">
+        <h2 className="mb-0">Generating HTML timetables</h2>
+        {url && `Source: ${url}`}
+      </div>
       <style jsx>{`
-        .loading {
-          text-align: center;
-        }
         .lds-roller {
           display: inline-block;
           position: relative;
           width: 64px;
           height: 64px;
-          margin-top: 20px;
-          margin-bottom: 20px;
         }
         .lds-roller div {
           animation: lds-roller 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
@@ -41,7 +33,7 @@ export const Loading = ({ url }: { url: string }) => {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #3230ad;
+          background: currentColor;
           margin: -3px 0 0 -3px;
         }
         .lds-roller div:nth-child(1) {
