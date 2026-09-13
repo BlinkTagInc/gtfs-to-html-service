@@ -1,7 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useDropzone, type FileRejection } from 'react-dropzone';
+
+import {
+  GENERATION_STREAM_TYPE,
+  type GenerationLog,
+} from '@/lib/generation-events';
+import { readGenerationStream } from '@/lib/read-generation-stream';
 
 import { Loading } from './Loading';
 import SuccessMessage from './SuccessMessage';
@@ -12,7 +18,7 @@ const DEFAULT_CLIENT_ERROR_MESSAGE =
   'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.';
 
 const TIMEOUT_ERROR_MESSAGE =
-  'Timetable generation exceeded the processing time limit of 13 minutes This GTFS may be too large or complex to process online. Use the GTFS-to-HTML library from the command line, or email gtfs@blinktag.com for help with this dataset.';
+  'Timetable generation exceeded the processing time limit of 13 minutes. This GTFS may be too large or complex to process online. Use the GTFS-to-HTML library from the command line, or email gtfs@blinktag.com for help with this dataset.';
 
 // Vercel kills the function itself once `maxDuration` is exceeded, so this
 // never reaches our own error handling on the server - the platform returns
@@ -140,6 +146,55 @@ const UploadForm = () => {
   const [success, setSuccess] = useState(false);
   const [agencies, setAgencies] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [generationLogs, setGenerationLogs] = useState<GenerationLog[]>([]);
+  const logPanel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (logPanel.current) {
+      logPanel.current.scrollTop = logPanel.current.scrollHeight;
+    }
+  }, [generationLogs]);
+
+  const appendLog = useCallback((log: GenerationLog) => {
+    setGenerationLogs((previous) => {
+      const logs = [...previous];
+      if (log.overwrite && logs.at(-1)?.overwrite) {
+        logs.pop();
+      }
+      return [...logs, log].slice(-200);
+    });
+  }, []);
+
+  const handleStreamResponse = useCallback(
+    async (response: Response) => {
+      const result = await readGenerationStream(response, appendLog);
+      if ('error' in result) {
+        setErrorMessage(
+          result.code === 'GENERATION_TIMEOUT'
+            ? TIMEOUT_ERROR_MESSAGE
+            : formatApiErrorMessage(result),
+        );
+        return;
+      }
+      const { blob, agencies } = result;
+      // Create a temporary URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // Create a link element and trigger a download
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'timetables.zip');
+      document.body.appendChild(link);
+      link.click(); // Trigger the download
+      document.body.removeChild(link); // Clean up
+
+      // Revoke the object URL to free up memory
+      window.URL.revokeObjectURL(url);
+      setAgencies(agencies);
+      setSuccess(true);
+      setUrl('');
+    },
+    [appendLog],
+  );
 
   const onDrop = useCallback(
     async (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
@@ -175,20 +230,20 @@ const UploadForm = () => {
 
       setSuccess(false);
       setErrorMessage('');
+      setGenerationLogs([]);
       setLoading(true);
 
       try {
         const response = await fetch('/api/generate/file', {
           method: 'POST',
+          headers: { Accept: GENERATION_STREAM_TYPE },
           body: formData,
         });
 
         if (response.ok === false) {
           setErrorMessage(await getResponseError(response));
         } else {
-          const responseAgencies = getAgenciesFromResponse(response);
-          await downloadResponse(response);
-          timetableGenerationSuccess(responseAgencies);
+          await handleStreamResponse(response);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -197,7 +252,7 @@ const UploadForm = () => {
         setLoading(false);
       }
     },
-    [config],
+    [config, handleStreamResponse],
   );
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -208,44 +263,6 @@ const UploadForm = () => {
     maxFiles: 1,
     disabled: loading,
   });
-
-  const getAgenciesFromResponse = (response: Response): string => {
-    const header = response.headers.get('X-Agencies');
-    if (!header) {
-      return '';
-    }
-
-    try {
-      return decodeURIComponent(header);
-    } catch {
-      return '';
-    }
-  };
-
-  const downloadResponse = async (response: Response) => {
-    // Convert response to a Blob
-    const blob = await response.blob();
-
-    // Create a temporary URL for the blob
-    const url = window.URL.createObjectURL(blob);
-
-    // Create a link element and trigger a download
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'timetables.zip');
-    document.body.appendChild(link);
-    link.click(); // Trigger the download
-    document.body.removeChild(link); // Clean up
-
-    // Revoke the object URL to free up memory
-    window.URL.revokeObjectURL(url);
-  };
-
-  const timetableGenerationSuccess = (responseAgencies: string) => {
-    setAgencies(responseAgencies);
-    setSuccess(true);
-    setUrl('');
-  };
 
   return (
     <>
@@ -268,6 +285,7 @@ const UploadForm = () => {
 
             setSuccess(false);
             setErrorMessage('');
+            setGenerationLogs([]);
             setLoading(true);
 
             try {
@@ -275,6 +293,7 @@ const UploadForm = () => {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
+                  Accept: GENERATION_STREAM_TYPE,
                 },
                 body: JSON.stringify({ url, options: config }),
               });
@@ -282,9 +301,7 @@ const UploadForm = () => {
               if (response.ok === false) {
                 setErrorMessage(await getResponseError(response));
               } else {
-                const responseAgencies = getAgenciesFromResponse(response);
-                await downloadResponse(response);
-                timetableGenerationSuccess(responseAgencies);
+                await handleStreamResponse(response);
               }
             } catch (error) {
               console.error('Error:', error);
@@ -384,6 +401,42 @@ const UploadForm = () => {
           )}
         </div>
       </div>
+      {generationLogs.length > 0 && (
+        <section className="mt-4" aria-labelledby="generation-output-heading">
+          <h3
+            id="generation-output-heading"
+            className="text-sm font-semibold text-gray-800 mb-2"
+          >
+            Generation output
+          </h3>
+          <div
+            ref={logPanel}
+            role="log"
+            aria-live="off"
+            aria-label="Generation output"
+            tabIndex={0}
+            className="max-h-64 overflow-y-auto rounded-lg border border-gray-300 bg-gray-50 p-3 font-mono text-xs whitespace-pre-wrap [overflow-wrap:anywhere]"
+          >
+            {generationLogs.map((log, index) => (
+              <p
+                key={index}
+                className={
+                  log.level === 'error'
+                    ? 'text-red-800'
+                    : log.level === 'warning'
+                      ? 'text-amber-800'
+                      : 'text-gray-800'
+                }
+              >
+                {log.message}
+              </p>
+            ))}
+          </div>
+          <p className="mt-1 text-xs text-gray-500">
+            Showing the latest 200 messages.
+          </p>
+        </section>
+      )}
       <fieldset disabled={loading} className="min-w-0 mt-6">
         <h3 className="text-lg font-medium text-gray-900 mb-1">
           Configuration Options

@@ -13,6 +13,7 @@ const rel = (p) => './' + path.relative(process.cwd(), p);
 const nextConfig = {
   outputFileTracingIncludes: {
     '/api/**': [
+      './workers/generate.mjs',
       rel(path.join(gtfsToHtmlRoot, 'dist/browser')) + '/**',
       rel(path.join(gtfsToHtmlRoot, 'views/default')) + '/**',
     ],

@@ -1,17 +1,24 @@
 import { randomUUID } from 'node:crypto';
-import { createReadStream, statSync } from 'node:fs';
-import { readFile, rm } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { NextResponse } from 'next/server';
-import { track } from '@vercel/analytics/server';
-import gtfsToHtml from 'gtfs-to-html';
 import { temporaryDirectory } from 'tempy';
 import { getPublicGtfsErrorResponse } from '@/lib/gtfs-error';
+import {
+  generateInWorker,
+  GENERATION_TIMEOUT_MS,
+} from '@/lib/generation-worker';
+import { generationResponse } from '@/lib/generation-response';
+import { cleanupGeneration } from '@/lib/generation-files';
+import { generationProgressResponse } from '@/lib/generation-progress-response';
+import { GENERATION_STREAM_TYPE } from '@/lib/generation-events';
+
+export const runtime = 'nodejs';
 
 export const maxDuration = 800; // 13 minutes 20 seconds
 
 export const POST = async (request: Request) => {
+  const deadline = Date.now() + GENERATION_TIMEOUT_MS;
   let body: { url?: unknown; options?: unknown };
   try {
     body = await request.json();
@@ -47,8 +54,10 @@ export const POST = async (request: Request) => {
     );
   }
 
+  let tempDir: string | undefined;
+  let streaming = false;
   try {
-    const tempDir = temporaryDirectory();
+    tempDir = temporaryDirectory();
     const buildId = randomUUID();
     const gtfsConfig = {
       ...(options || {}),
@@ -59,71 +68,35 @@ export const POST = async (request: Request) => {
         },
       ],
       outputPath: join(tempDir, buildId),
-      sqlitePath: join(tempDir, `${buildId}.sqlite`),
-      deleteDbAfter: true,
-      skipImport: false,
-      logLevel: 'silent',
-      zipOutput: true,
-      log: () => {},
-      logWarning: () => {},
-      logError: () => {},
-    } as unknown as Parameters<typeof gtfsToHtml>[0];
-    const timetablePath = await gtfsToHtml(gtfsConfig);
-
-    const fileStats = statSync(timetablePath);
-    const fileStream = createReadStream(timetablePath);
-
-    // Read the log file
-    const logFileContent = await readFile(
-      join(tempDir, buildId, 'log.txt'),
-      'utf8',
+    };
+    if (request.headers.get('accept')?.includes(GENERATION_STREAM_TYPE)) {
+      const response = generationProgressResponse(
+        gtfsConfig,
+        tempDir,
+        buildId,
+        request,
+        deadline,
+        gtfsUrl,
+      );
+      streaming = true;
+      return response;
+    }
+    const timetablePath = await generateInWorker(
+      gtfsConfig,
+      tempDir,
+      request.signal,
+      deadline,
     );
-    const agenciesLine = logFileContent
-      ?.split('\n')
-      .find((line: string) => line.startsWith('Agencies'));
-    const agencies = agenciesLine?.replace('Agencies: ', '') || '';
 
-    return new NextResponse(
-      new ReadableStream({
-        async start(controller) {
-          fileStream.on('data', (chunk) => {
-            controller.enqueue(chunk); // Send chunks to the stream
-          });
-
-          fileStream.on('end', async () => {
-            controller.close(); // Close the stream when done
-            await track(
-              'GTFS Uploaded',
-              {
-                url: gtfsUrl,
-                agencies,
-              },
-              { request },
-            );
-
-            // Delete the file after streaming has finished
-            try {
-              await rm(tempDir, { recursive: true });
-            } catch (error) {
-              console.error('Error deleting file:', error);
-            }
-          });
-
-          fileStream.on('error', (err) => {
-            console.error('Error reading file:', err);
-            controller.error(err); // Handle any read errors
-          });
-        },
-      }),
-      {
-        headers: {
-          'Content-Type': 'application/zip',
-          'Content-Disposition': 'attachment; filename="timetables.zip"',
-          'Content-Length': fileStats.size.toString(), // Set the content length
-          'X-Agencies': encodeURIComponent(agencies),
-        },
-      },
+    const response = await generationResponse(
+      timetablePath,
+      tempDir,
+      buildId,
+      request,
+      gtfsUrl,
     );
+    streaming = true;
+    return response;
   } catch (error) {
     console.error(error);
     const publicError = getPublicGtfsErrorResponse(error);
@@ -137,5 +110,9 @@ export const POST = async (request: Request) => {
       },
       { status: publicError.statusCode },
     );
+  } finally {
+    if (tempDir && !streaming) {
+      await cleanupGeneration(tempDir);
+    }
   }
 };

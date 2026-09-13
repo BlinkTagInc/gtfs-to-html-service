@@ -225,6 +225,32 @@ const sanitizePublicMessage = (message: string): string => {
 export const getPublicGtfsErrorResponse = (
   error: unknown,
 ): PublicErrorResponse => {
+  if (
+    error instanceof Error &&
+    (error as { code?: string }).code === 'GENERATION_TIMEOUT'
+  ) {
+    return {
+      error:
+        'Timetable generation took too long. Please try a smaller GTFS feed.',
+      code: 'GENERATION_TIMEOUT',
+      category: 'server',
+      statusCode: 504,
+    };
+  }
+
+  if (
+    error instanceof Error &&
+    (error as { code?: string }).code === 'GENERATION_BUSY'
+  ) {
+    return {
+      error:
+        'The server is busy generating timetables. Please try again shortly.',
+      code: 'GENERATION_BUSY',
+      category: 'server',
+      statusCode: 503,
+    };
+  }
+
   if (isGtfsToHtmlError(error) || isGtfsError(error)) {
     if (
       SERVER_ERROR_CODES.has(error.code) ||
