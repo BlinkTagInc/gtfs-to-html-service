@@ -16,7 +16,7 @@ import { GENERATION_STREAM_TYPE } from '@/lib/generation-events';
 
 export const runtime = 'nodejs';
 
-export const maxDuration = 800; // 13 minutes 20 seconds
+export const maxDuration = 900; // 15 minutes
 
 export const POST = async (request: Request) => {
   const deadline = Date.now() + GENERATION_TIMEOUT_MS;

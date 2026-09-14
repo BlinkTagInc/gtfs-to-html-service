@@ -18,7 +18,7 @@ const DEFAULT_CLIENT_ERROR_MESSAGE =
   'Error processing GTFS. For help, email gtfs@blinktag.com with the GTFS you are trying to use.';
 
 const TIMEOUT_ERROR_MESSAGE =
-  'Timetable generation exceeded the processing time limit of 13 minutes. This GTFS may be too large or complex to process online. Use the GTFS-to-HTML library from the command line, or email gtfs@blinktag.com for help with this dataset.';
+  'Timetable generation exceeded the processing time limit of 15 minutes. This GTFS may be too large or complex to process online. Use the GTFS-to-HTML library from the command line, or email gtfs@blinktag.com for help with this dataset.';
 
 // Vercel kills the function itself once `maxDuration` is exceeded, so this
 // never reaches our own error handling on the server - the platform returns
@@ -454,7 +454,7 @@ const UploadForm = () => {
                 </div>
               )}
               <div className="px-4 py-2">
-                Large feeds can take up to 13 minutes. Keep this tab open.
+                Large feeds can take up to 15 minutes. Keep this tab open.
               </div>
             </>
           )}
