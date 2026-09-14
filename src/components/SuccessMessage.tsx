@@ -1,3 +1,6 @@
+'use client';
+
+import { useRef, useState } from 'react';
 import { archiveFilename } from '@/lib/archive-filename';
 import type { TimetablePreview } from '@/lib/preview-policy';
 import Image from 'next/image';
@@ -14,6 +17,26 @@ const SuccessMessage = ({
   preview?: TimetablePreview;
 }) => {
   const agencyNames = agencies?.trim() || '';
+  const shareUrlInput = useRef<HTMLInputElement>(null);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>(
+    'idle',
+  );
+
+  const copyShareUrl = async () => {
+    if (!preview) {
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(
+        new URL(preview.url, window.location.origin).href,
+      );
+      setCopyStatus('copied');
+    } catch {
+      shareUrlInput.current?.focus();
+      shareUrlInput.current?.select();
+      setCopyStatus('error');
+    }
+  };
 
   const helpMailto = `mailto:${CONSULTING_EMAIL}?${new URLSearchParams({
     subject: `GTFS-to-HTML implementation help${agencyNames ? ` for ${agencyNames}` : ''}`,
@@ -81,17 +104,46 @@ const SuccessMessage = ({
             <div className="mt-3 text-sm text-gray-600">
               A sharable preview of your timetables was published to:
             </div>
-            <input
-              aria-label="Shareable preview URL"
-              readOnly
-              value={
-                typeof window === 'undefined'
-                  ? preview.url
-                  : new URL(preview.url, window.location.origin).href
-              }
-              onFocus={(event) => event.target.select()}
-              className="my-1 w-full text-sm bg-white"
-            />
+            <div className="my-1 flex items-center gap-2">
+              <input
+                ref={shareUrlInput}
+                aria-label="Shareable preview URL"
+                readOnly
+                value={
+                  typeof window === 'undefined'
+                    ? preview.url
+                    : new URL(preview.url, window.location.origin).href
+                }
+                onFocus={(event) => event.target.select()}
+                className="min-w-0 flex-1 text-sm bg-white"
+              />
+              <button
+                type="button"
+                onClick={copyShareUrl}
+                aria-label="Copy shareable preview URL"
+                className="btn inline-flex shrink-0 items-center gap-2 cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2"
+              >
+                <svg
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <rect x="9" y="9" width="11" height="11" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <p role="status" className="text-xs text-gray-700">
+              {copyStatus === 'copied'
+                ? 'Link copied!'
+                : copyStatus === 'error'
+                  ? 'Unable to copy automatically. Copy the selected link manually.'
+                  : ''}
+            </p>
             <div className="text-xs">
               Anyone with this link can view the timetables until{' '}
               {new Date(preview.expiresAt).toLocaleString()}.
