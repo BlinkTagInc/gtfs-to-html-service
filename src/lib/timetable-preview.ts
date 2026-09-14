@@ -42,6 +42,7 @@ export const publishPreview = async (
   agencies = '',
 ): Promise<TimetablePreview> => {
   const created = Date.now();
+  const zipFilename = archiveFilename(agencies);
   const agency =
     agencies
       .normalize('NFKD')
@@ -87,19 +88,18 @@ export const publishPreview = async (
         while (next < files.length) {
           signal.throwIfAborted();
           const file = files[next++];
+          const publishedFilename =
+            file.name === 'timetables.zip' ? zipFilename : file.name;
+          const pathname = `${PREVIEW_PREFIX}${id}/${publishedFilename}`;
           const stream = createReadStream(file.path);
           try {
-            await put(
-              `${PREVIEW_PREFIX}${id}/${file.name === 'timetables.zip' ? archiveFilename(agencies) : file.name}`,
-              stream,
-              {
-                access: 'private',
-                addRandomSuffix: false,
-                allowOverwrite: false,
-                contentType: previewContentType(file.name),
-                abortSignal: signal,
-              },
-            );
+            await put(pathname, stream, {
+              access: 'private',
+              addRandomSuffix: false,
+              allowOverwrite: false,
+              contentType: previewContentType(file.name),
+              abortSignal: signal,
+            });
           } finally {
             stream.destroy();
           }
@@ -112,7 +112,7 @@ export const publishPreview = async (
     }
     return {
       url: `/preview/${id}/index.html`,
-      downloadUrl: `/preview/${id}/${encodeURIComponent(archiveFilename(agencies))}`,
+      downloadUrl: `/preview/${id}/${encodeURIComponent(zipFilename)}`,
       expiresAt: new Date(created + PREVIEW_LIFETIME_MS).toISOString(),
     };
   } catch (error) {

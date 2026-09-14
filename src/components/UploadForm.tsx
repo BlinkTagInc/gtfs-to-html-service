@@ -151,6 +151,8 @@ const UploadForm = () => {
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState<TimetablePreview | undefined>();
   const [success, setSuccess] = useState(false);
+  const [generatedFormat, setGeneratedFormat] =
+    useState<NonNullable<GTFSConfig['outputFormat']>>('html');
   const [agencies, setAgencies] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [
@@ -182,7 +184,7 @@ const UploadForm = () => {
   }, []);
 
   const handleStreamResponse = useCallback(
-    async (response: Response) => {
+    async (response: Response, outputFormat: GTFSConfig['outputFormat']) => {
       const result = await readGenerationStream(response, appendLog);
       if ('error' in result) {
         setErrorMessage(
@@ -208,6 +210,7 @@ const UploadForm = () => {
       // Revoke the object URL to free up memory
       window.URL.revokeObjectURL(url);
       setAgencies(agencies);
+      setGeneratedFormat(outputFormat ?? 'html');
       setSuccess(true);
       setUrl('');
     },
@@ -282,7 +285,7 @@ const UploadForm = () => {
         if (response.ok === false) {
           setErrorMessage(await getResponseError(response));
         } else {
-          await handleStreamResponse(response);
+          await handleStreamResponse(response, config.outputFormat);
         }
       } catch (error) {
         console.error('Error:', error);
@@ -350,7 +353,7 @@ const UploadForm = () => {
               if (response.ok === false) {
                 setErrorMessage(await getResponseError(response));
               } else {
-                await handleStreamResponse(response);
+                await handleStreamResponse(response, config.outputFormat);
               }
             } catch (error) {
               console.error('Error:', error);
@@ -446,6 +449,7 @@ const UploadForm = () => {
           {success && (
             <SuccessMessage
               agencies={agencies}
+              outputFormat={generatedFormat}
               preview={preview}
               clear={() => setSuccess(false)}
             />

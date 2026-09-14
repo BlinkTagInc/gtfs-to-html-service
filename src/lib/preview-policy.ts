@@ -5,7 +5,7 @@ export const PREVIEW_LIFETIME_MS = 48 * 60 * 60 * 1000;
 export type TimetablePreview = {
   url: string;
   expiresAt: string;
-  downloadUrl?: string;
+  downloadUrl: string;
 };
 
 export const previewExpiry = (id: string, uploadedAt?: Date): number | null => {

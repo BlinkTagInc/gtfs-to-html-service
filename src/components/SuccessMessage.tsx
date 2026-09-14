@@ -11,9 +11,11 @@ const SuccessMessage = ({
   clear,
   agencies,
   preview,
+  outputFormat,
 }: {
   clear: () => void;
   agencies?: string;
+  outputFormat: 'html' | 'pdf' | 'csv';
   preview?: TimetablePreview;
 }) => {
   const agencyNames = agencies?.trim() || '';
@@ -75,14 +77,19 @@ const SuccessMessage = ({
           Your timetables are ready!
         </h1>
         <p className="mt-2 text-gray-600 text-center">
-          HTML timetables
+          {outputFormat.toUpperCase()} timetables
           {agencyNames ? ` for ${agencyNames}` : ''} were generated and
-          downloaded as <code>{archiveFilename(agencyNames)}</code>. Unzip and
-          open <code>index.html</code> in your browser.
+          downloaded as <code>{archiveFilename(agencyNames)}</code>.
+          {outputFormat === 'html' && (
+            <>
+              {' '}
+              Unzip and open <code>index.html</code> in your browser.
+            </>
+          )}
         </p>
         {preview ? (
           <div className="text-center w-full break-words">
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-4 justify-center">
               <a
                 href={preview.url}
                 target="_blank"
@@ -92,11 +99,8 @@ const SuccessMessage = ({
                 View timetables
               </a>
               <a
-                className="btn inline-block my-4"
-                href={
-                  preview.downloadUrl ??
-                  preview.url.replace(/index\.html$/, 'timetables.zip')
-                }
+                className="btn-secondary inline-block my-4"
+                href={preview.downloadUrl}
               >
                 Download ZIP again
               </a>
