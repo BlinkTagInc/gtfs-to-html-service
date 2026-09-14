@@ -58,18 +58,29 @@ const SuccessMessage = ({
           open <code>index.html</code> in your browser.
         </p>
         {preview ? (
-          <div className="mt-4 text-center w-full break-words">
-            <a
-              href={preview.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn inline-block"
-            >
-              View timetables
-            </a>
-            <p className="mt-3 text-sm text-gray-600">
-              A sharable preview of your timetables was pubslished to:
-            </p>
+          <div className="text-center w-full break-words">
+            <div className="flex flex-row gap-2">
+              <a
+                href={preview.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn inline-block my-4"
+              >
+                View timetables
+              </a>
+              <a
+                className="btn inline-block my-4"
+                href={
+                  preview.downloadUrl ??
+                  preview.url.replace(/index\.html$/, 'timetables.zip')
+                }
+              >
+                Download ZIP again
+              </a>
+            </div>
+            <div className="mt-3 text-sm text-gray-600">
+              A sharable preview of your timetables was published to:
+            </div>
             <input
               aria-label="Shareable preview URL"
               readOnly
@@ -79,26 +90,16 @@ const SuccessMessage = ({
                   : new URL(preview.url, window.location.origin).href
               }
               onFocus={(event) => event.target.select()}
-              className="mt-2 w-full text-sm bg-white"
+              className="my-1 w-full text-sm bg-white"
             />
             <div className="text-xs">
               Anyone with this link can view the timetables until{' '}
               {new Date(preview.expiresAt).toLocaleString()}.
             </div>
-            <a
-              className="inline-block mt-2"
-              href={
-                preview.downloadUrl ??
-                preview.url.replace(/index\.html$/, 'timetables.zip')
-              }
-            >
-              Download ZIP again
-            </a>
           </div>
         ) : (
-          <p className="mt-3 text-sm text-gray-600">
-            An online preview is unavailable. You can review the downloaded ZIP
-            locally.
+          <p className="text-center w-full break-words">
+            An online preview is unavailable.
           </p>
         )}
       </div>

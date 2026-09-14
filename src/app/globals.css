@@ -81,7 +81,7 @@ input {
 }
 
 .btn {
-  @apply inline-flex items-center justify-center text-center bg-[#3230AD] text-white font-medium px-5 py-2 min-h-[42px] rounded-md transition-colors;
+  @apply inline-flex items-center justify-center text-center bg-[#3230AD] text-white font-medium px-5 py-2 min-h-[42px] rounded-md transition-colors cursor-pointer;
 }
 
 .btn:hover {
@@ -92,6 +92,17 @@ input {
   @apply outline-2 outline-offset-2 outline-[#3230AD];
 }
 
+.btn-secondary {
+  @apply inline-flex items-center justify-center text-center bg-white text-[#3230AD] font-medium px-5 py-2 min-h-[42px] rounded-md transition-colors border border-[#3230AD] cursor-pointer;
+}
+
+.btn-secondary:hover {
+  @apply bg-[#EEEEEE] no-underline;
+}
+
+.btn-secondary:focus-visible {
+  @apply outline-2 outline-offset-2 outline-[#3230AD];
+}
 table {
   @apply border-collapse w-full;
 }
