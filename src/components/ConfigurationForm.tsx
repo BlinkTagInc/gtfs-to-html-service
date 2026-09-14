@@ -198,7 +198,9 @@ export const ConfigurationForm = ({
           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3230AD]"
         >
           <option value="html">HTML</option>
-          <option value="pdf">PDF</option>
+          <option value="pdf" disabled>
+            PDF (use the command-line tool)
+          </option>
           <option value="csv">CSV</option>
         </select>
         {errors.outputFormat && (

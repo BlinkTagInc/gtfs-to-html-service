@@ -41,7 +41,11 @@ const deleted = [];
 mock.module('@vercel/blob', {
   namedExports: {
     get: async () => blobResult,
-    del: async (pathname, options) => {
+    put: async (pathname, body, options) => {
+      assert.equal(body.length, 0);
+      assert.equal(options.allowOverwrite, true);
+      assert.equal(options.addRandomSuffix, false);
+      assert.equal(options.access, 'private');
       assert.equal(options.abortSignal.aborted, false);
       deleted.push(pathname);
       if (deleteFails) {
@@ -111,7 +115,7 @@ test('download accepts exactly 50 MB and rejects excess metadata and actual byte
   }
 });
 
-test('deletion has its own timeout and failure does not discard generation', async () => {
+test('empty tombstones have their own timeout and failure does not discard generation', async () => {
   await deleteUpload('test.zip');
   assert.deepEqual(deleted, ['test.zip']);
   deleteFails = true;

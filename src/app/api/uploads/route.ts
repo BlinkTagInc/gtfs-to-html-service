@@ -1,3 +1,5 @@
+import { SecurityError } from '@/lib/security-error';
+import { claimUpload } from '@/lib/upload-claims';
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { createUploadTicket, verifyUploadTicket } from '@/lib/upload-ticket';
 import { MAX_UPLOAD_BYTES } from '@/lib/upload-limits';
@@ -31,6 +33,7 @@ export const POST = async (request: Request) => {
         if (!verifyUploadTicket(pathname, ticket)) {
           throw new Error('Invalid upload ticket.');
         }
+        await claimUpload(pathname, ticket!, 'upload');
         return {
           allowedContentTypes: ['application/zip'],
           maximumSizeInBytes: MAX_UPLOAD_BYTES,
@@ -44,8 +47,13 @@ export const POST = async (request: Request) => {
   } catch (error) {
     console.error('Unable to authorize upload:', error);
     return Response.json(
-      { error: 'Unable to upload GTFS. Please try again.' },
-      { status: 400 },
+      {
+        error:
+          error instanceof SecurityError
+            ? error.message
+            : 'Unable to upload GTFS. Please start a new upload.',
+      },
+      { status: error instanceof SecurityError ? error.statusCode : 400 },
     );
   }
 };

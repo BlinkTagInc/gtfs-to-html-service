@@ -1,3 +1,5 @@
+import { claimUpload } from '@/lib/upload-claims';
+import { prepareGtfs } from '@/lib/prepare-gtfs';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 
@@ -9,7 +11,7 @@ import {
   GENERATION_TIMEOUT_MS,
 } from '@/lib/generation-worker';
 import { generationResponse } from '@/lib/generation-response';
-import { cleanupGeneration } from '@/lib/generation-files';
+import { cleanupGeneration, reserveGeneration } from '@/lib/generation-files';
 import { generationProgressResponse } from '@/lib/generation-progress-response';
 import { GENERATION_STREAM_TYPE } from '@/lib/generation-events';
 
@@ -46,6 +48,16 @@ export const POST = async (request: Request) => {
   }
 
   const pathname = body.pathname as string;
+  // Losing concurrent requests must not delete the winning request's input.
+  try {
+    await claimUpload(pathname, body.ticket as string, 'generation');
+  } catch (error) {
+    const result = getPublicGtfsErrorResponse(error);
+    return NextResponse.json(
+      { error: result.error, success: false },
+      { status: result.statusCode },
+    );
+  }
   let tempDir: string | undefined;
   let streaming = false;
   let uploadDeleted = false;
@@ -63,6 +75,7 @@ export const POST = async (request: Request) => {
       );
     }
     tempDir = temporaryDirectory();
+    reserveGeneration(tempDir);
     const gtfsPath = join(tempDir, 'input.zip');
     try {
       await downloadUpload(
@@ -81,18 +94,23 @@ export const POST = async (request: Request) => {
         { status: 400 },
       );
     }
-    // The worker only needs its local copy. Delete Blob before handing off
-    // to the response stream so disconnects and worker failures cannot orphan it.
+    // The worker only needs its local copy. Empty Blob before handing off
+    // to the stream, retaining the pathname until client tokens expire.
     await deleteUpload(pathname);
     uploadDeleted = true;
 
+    const feedPath = await prepareGtfs(
+      gtfsPath,
+      join(tempDir, 'feed'),
+      AbortSignal.any([request.signal, AbortSignal.timeout(60_000)]),
+    );
     const buildId = randomUUID();
     const gtfsConfig = {
       ...parsedOptions,
       agencies: [
         {
           agencyKey: buildId,
-          path: gtfsPath,
+          path: feedPath,
         },
       ],
       outputPath: join(tempDir, buildId),

@@ -1,6 +1,24 @@
 import { createReadStream } from 'node:fs';
 import { rm } from 'node:fs/promises';
 
+// Keep download/extraction and response streaming within the same per-instance
+// admission limit as generation, so simultaneous inputs cannot fill /tmp first.
+const state = globalThis as typeof globalThis & {
+  gtfsJobDirectory?: string;
+};
+
+export const reserveGeneration = (tempDir: string) => {
+  if (state.gtfsJobDirectory) {
+    throw Object.assign(
+      new Error('This instance is already processing a feed.'),
+      {
+        code: 'GENERATION_BUSY',
+      },
+    );
+  }
+  state.gtfsJobDirectory = tempDir;
+};
+
 export const cleanupGeneration = async (tempDir: string) => {
   try {
     await rm(tempDir, {
@@ -11,6 +29,10 @@ export const cleanupGeneration = async (tempDir: string) => {
     });
   } catch (error) {
     console.error('Error deleting generation directory:', tempDir, error);
+  } finally {
+    if (state.gtfsJobDirectory === tempDir) {
+      state.gtfsJobDirectory = undefined;
+    }
   }
 };
 

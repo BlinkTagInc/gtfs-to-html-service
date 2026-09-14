@@ -1,3 +1,4 @@
+import { cleanupUploadClaims } from '@/lib/upload-claims';
 import { cleanupPreviews } from '@/lib/timetable-preview';
 import { del, list } from '@vercel/blob';
 import {
@@ -32,6 +33,7 @@ export const GET = async (request: Request) => {
       }
       cursor = page.hasMore ? page.cursor : undefined;
     } while (cursor);
+    await cleanupUploadClaims();
     const previewsDeleted = await cleanupPreviews();
     return Response.json({ deleted, previewsDeleted });
   } catch (error) {

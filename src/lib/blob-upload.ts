@@ -1,12 +1,20 @@
 import { createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { get, del } from '@vercel/blob';
+import { get, put } from '@vercel/blob';
 import { MAX_UPLOAD_BYTES } from './upload-limits.ts';
 
 export const deleteUpload = async (pathname: string) => {
   try {
     // Cleanup must still run after the generation request is aborted.
-    await del(pathname, { abortSignal: AbortSignal.timeout(10_000) });
+    // Retain an empty tombstone so live no-overwrite client tokens cannot
+    // recreate this pathname after consumption. Cron removes it after expiry.
+    await put(pathname, Buffer.alloc(0), {
+      access: 'private',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: 'application/octet-stream',
+      abortSignal: AbortSignal.timeout(10_000),
+    });
   } catch (error) {
     console.error(
       'Unable to delete uploaded GTFS; scheduled cleanup will retry.',

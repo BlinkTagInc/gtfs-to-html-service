@@ -1,3 +1,5 @@
+import { downloadPublicGtfs } from '@/lib/safe-download';
+import { prepareGtfs } from '@/lib/prepare-gtfs';
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
 
@@ -9,7 +11,7 @@ import {
   GENERATION_TIMEOUT_MS,
 } from '@/lib/generation-worker';
 import { generationResponse } from '@/lib/generation-response';
-import { cleanupGeneration } from '@/lib/generation-files';
+import { cleanupGeneration, reserveGeneration } from '@/lib/generation-files';
 import { generationProgressResponse } from '@/lib/generation-progress-response';
 import { GENERATION_STREAM_TYPE } from '@/lib/generation-events';
 
@@ -34,9 +36,9 @@ export const POST = async (request: Request) => {
     );
   }
 
-  const gtfsUrl = typeof body.url === 'string' ? body.url.trim() : '';
+  const gtfsUrl = typeof body?.url === 'string' ? body.url.trim() : '';
   const options: Record<string, unknown> | undefined =
-    body.options &&
+    body?.options &&
     typeof body.options === 'object' &&
     !Array.isArray(body.options)
       ? (body.options as Record<string, unknown>)
@@ -58,13 +60,21 @@ export const POST = async (request: Request) => {
   let streaming = false;
   try {
     tempDir = temporaryDirectory();
+    reserveGeneration(tempDir);
+    const archive = join(tempDir, 'input.zip');
+    await downloadPublicGtfs(gtfsUrl, archive, request.signal);
+    const feedPath = await prepareGtfs(
+      archive,
+      join(tempDir, 'feed'),
+      AbortSignal.any([request.signal, AbortSignal.timeout(60_000)]),
+    );
     const buildId = randomUUID();
     const gtfsConfig = {
       ...(options || {}),
       agencies: [
         {
           agencyKey: buildId,
-          url: gtfsUrl,
+          path: feedPath,
         },
       ],
       outputPath: join(tempDir, buildId),

@@ -20,6 +20,11 @@ const serializeError = (error, depth = 0) => {
 };
 
 try {
+  if (workerData.config.outputFormat === 'pdf') {
+    throw Object.assign(new Error('Server-side PDF generation is disabled.'), {
+      code: 'PDF_DISABLED',
+    });
+  }
   const { default: gtfsToHtml } = await import('gtfs-to-html');
   const timetablePath = await gtfsToHtml({
     ...workerData.config,

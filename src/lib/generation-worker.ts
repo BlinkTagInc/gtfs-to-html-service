@@ -1,9 +1,10 @@
+import { checkGenerationResources } from './generation-resource-limits.ts';
 import { join } from 'node:path';
 import { Worker } from 'node:worker_threads';
 import type { GenerationLog } from './generation-events.ts';
 import { publicGenerationMessage } from './public-generation-message.ts';
 
-// Leave 20 seconds of the routes' 800-second budget for termination and cleanup.
+// Leave room in the routes' 900-second budget for termination and cleanup.
 export const GENERATION_TIMEOUT_MS = 780_000;
 
 const generationTimeout = () => {
@@ -58,12 +59,15 @@ export const generateInWorker = async (
 
   state.gtfsGenerationActive = true;
   let worker: Worker | undefined;
+  let resourceTimer: ReturnType<typeof setInterval> | undefined;
+  let resourceCheck: Promise<void> | undefined;
   let onAbort: (() => void) | undefined;
   let timeout: ReturnType<typeof setTimeout> | undefined;
   try {
     const generationWorker = new Worker(
       join(process.cwd(), 'workers/generate.mjs'),
       {
+        resourceLimits: { maxOldGenerationSizeMb: 256 },
         workerData: {
           config,
         },
@@ -74,7 +78,16 @@ export const generateInWorker = async (
 
     worker = generationWorker;
 
-    return await new Promise<string>((resolve, reject) => {
+    const result = await new Promise<string>((resolve, reject) => {
+      resourceTimer = setInterval(() => {
+        if (!resourceCheck) {
+          resourceCheck = checkGenerationResources(tempDir)
+            .catch(reject)
+            .finally(() => {
+              resourceCheck = undefined;
+            });
+        }
+      }, 250);
       timeout = setTimeout(
         () => reject(generationTimeout()),
         Math.max(0, deadline - Date.now()),
@@ -114,8 +127,12 @@ export const generateInWorker = async (
         onAbort();
       }
     });
+    await checkGenerationResources(tempDir);
+    return result;
   } finally {
     clearTimeout(timeout);
+    clearInterval(resourceTimer);
+    await resourceCheck;
     if (onAbort) {
       signal.removeEventListener('abort', onAbort);
     }

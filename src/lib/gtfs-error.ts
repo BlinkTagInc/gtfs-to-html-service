@@ -1,3 +1,4 @@
+import { SecurityError } from './security-error.ts';
 import { isGtfsToHtmlError, isGtfsError, type GtfsError } from 'gtfs-to-html';
 
 const DEFAULT_SERVER_ERROR_MESSAGE =
@@ -225,6 +226,41 @@ const sanitizePublicMessage = (message: string): string => {
 export const getPublicGtfsErrorResponse = (
   error: unknown,
 ): PublicErrorResponse => {
+  if (error instanceof SecurityError) {
+    return {
+      error: error.message,
+      code: 'INPUT_REJECTED',
+      category: 'request',
+      statusCode: error.statusCode,
+    };
+  }
+  if (
+    error instanceof Error &&
+    ['GENERATION_RESOURCE_LIMIT', 'ERR_WORKER_OUT_OF_MEMORY'].includes(
+      (error as { code?: string }).code ?? '',
+    )
+  ) {
+    return {
+      error:
+        'This feed exceeds the online processing limits. Use the command-line tool for this feed.',
+      code: 'GENERATION_RESOURCE_LIMIT',
+      category: 'request',
+      statusCode: 413,
+    };
+  }
+  if (
+    error instanceof Error &&
+    (error as { code?: string }).code === 'PDF_DISABLED'
+  ) {
+    return {
+      error:
+        'Server-side PDF generation is unavailable. Generate HTML and print it to PDF locally.',
+      code: 'PDF_DISABLED',
+      category: 'request',
+      statusCode: 400,
+    };
+  }
+
   if (
     error instanceof Error &&
     (error as { code?: string }).code === 'GENERATION_TIMEOUT'
