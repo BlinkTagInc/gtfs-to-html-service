@@ -14,6 +14,25 @@ Try it out at https://run.gtfstohtml.com/.
 
     npm run dev
 
+### File uploads (Vercel Blob)
+
+Connect a **private** Vercel Blob store to the project and set `BLOB_READ_WRITE_TOKEN` in Development, Preview, and Production. Client upload authorization requires this static token; `BLOB_STORE_ID` and
+`BLOB_WEBHOOK_PUBLIC_KEY` alone are not sufficient for this integration. Keep
+the token server-side. Add it to `.env.local` for local development.
+
+Set `CRON_SECRET` to a random secret in production. The daily Vercel cron in
+`vercel.json` deletes completed uploads older than 24 hours; depending on the
+schedule, an abandoned upload can remain for up to about 48 hours. Configure
+and monitor this job before enabling public uploads. Local development does
+not run Vercel cron automatically.
+
+The browser uploads ZIPs directly to Blob, with a **50 MB (50,000,000 bytes)**
+limit enforced both in the form and in the upload token. Uploads remain
+anonymous. Server-issued signed tickets authorize upload, generation, and
+cleanup for a unique private pathname. Upload tokens expire after 15 minutes;
+generation tickets expire after one hour. No filenames or permanent Blob URLs
+are exposed publicly.
+
 ## Setting up in production
 
     git clone https://github.com/BlinkTagInc/gtfs-to-html-service.git

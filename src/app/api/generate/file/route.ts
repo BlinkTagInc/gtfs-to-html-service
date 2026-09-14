@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { NextResponse } from 'next/server';
@@ -14,89 +13,78 @@ import { cleanupGeneration } from '@/lib/generation-files';
 import { generationProgressResponse } from '@/lib/generation-progress-response';
 import { GENERATION_STREAM_TYPE } from '@/lib/generation-events';
 
+import { verifyUploadTicket } from '@/lib/upload-ticket';
+import { deleteUpload, downloadUpload } from '@/lib/blob-upload';
+
 export const runtime = 'nodejs';
 
 export const maxDuration = 900; // 15 minutes
 
 export const POST = async (request: Request) => {
   const deadline = Date.now() + GENERATION_TIMEOUT_MS;
-  let formData: FormData;
+  let body: { pathname?: unknown; ticket?: unknown; options?: unknown };
   try {
-    formData = await request.formData();
+    body = await request.json();
+    if (
+      !body ||
+      typeof body !== 'object' ||
+      !verifyUploadTicket(body.pathname, body.ticket)
+    ) {
+      return NextResponse.json(
+        {
+          error: 'Invalid or expired upload. Please upload your GTFS again.',
+          success: false,
+        },
+        { status: 400 },
+      );
+    }
   } catch {
     return NextResponse.json(
-      {
-        error: 'Invalid form data. Please upload a GTFS zip file.',
-        code: 'INVALID_REQUEST',
-        category: 'request',
-        success: false,
-      },
+      { error: 'Invalid upload request.', success: false },
       { status: 400 },
     );
   }
 
-  const file = formData.get('file');
-
-  if (!file) {
-    return NextResponse.json(
-      {
-        error: 'No file received. Please upload a GTFS zip file.',
-        code: 'MISSING_FILE',
-        category: 'request',
-        success: false,
-      },
-      { status: 400 },
-    );
-  }
-
-  const buffer = Buffer.from(await (file as Blob).arrayBuffer());
-
-  const filename = 'input.zip';
-
+  const pathname = body.pathname as string;
   let tempDir: string | undefined;
   let streaming = false;
+  let uploadDeleted = false;
   try {
-    tempDir = temporaryDirectory();
-    const gtfsPath = join(tempDir, filename);
-
-    await writeFile(gtfsPath, buffer);
-
-    const options = formData.get('options');
-
-    let parsedOptions;
-    if (options) {
-      try {
-        parsedOptions = JSON.parse(options as string);
-
-        if (
-          !parsedOptions ||
-          typeof parsedOptions !== 'object' ||
-          Array.isArray(parsedOptions)
-        ) {
-          return NextResponse.json(
-            {
-              error: 'Invalid options JSON. Expected an object.',
-              code: 'INVALID_OPTIONS',
-              category: 'request',
-              success: false,
-            },
-            { status: 400 },
-          );
-        }
-      } catch (error) {
-        console.error(error);
-
-        return NextResponse.json(
-          {
-            error: 'Invalid options JSON. Please provide valid JSON.',
-            code: 'INVALID_OPTIONS',
-            category: 'request',
-            success: false,
-          },
-          { status: 400 },
-        );
-      }
+    const parsedOptions = body.options;
+    if (
+      parsedOptions !== undefined &&
+      (!parsedOptions ||
+        typeof parsedOptions !== 'object' ||
+        Array.isArray(parsedOptions))
+    ) {
+      return NextResponse.json(
+        { error: 'Invalid options. Expected an object.', success: false },
+        { status: 400 },
+      );
     }
+    tempDir = temporaryDirectory();
+    const gtfsPath = join(tempDir, 'input.zip');
+    try {
+      await downloadUpload(
+        pathname,
+        gtfsPath,
+        AbortSignal.any([request.signal, AbortSignal.timeout(60_000)]),
+      );
+    } catch (error) {
+      console.error('Unable to read uploaded GTFS:', error);
+      return NextResponse.json(
+        {
+          error:
+            'Unable to read uploaded GTFS. Please upload a ZIP of up to 50 MB and try again.',
+          success: false,
+        },
+        { status: 400 },
+      );
+    }
+    // The worker only needs its local copy. Delete Blob before handing off
+    // to the response stream so disconnects and worker failures cannot orphan it.
+    await deleteUpload(pathname);
+    uploadDeleted = true;
 
     const buildId = randomUUID();
     const gtfsConfig = {
@@ -149,6 +137,9 @@ export const POST = async (request: Request) => {
       { status: publicError.statusCode },
     );
   } finally {
+    if (!uploadDeleted) {
+      await deleteUpload(pathname);
+    }
     if (tempDir && !streaming) {
       await cleanupGeneration(tempDir);
     }

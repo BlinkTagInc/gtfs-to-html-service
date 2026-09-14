@@ -1,5 +1,8 @@
 'use client';
 
+import { upload } from '@vercel/blob/client';
+import { MAX_UPLOAD_BYTES } from '@/lib/upload-limits';
+
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useDropzone, type FileRejection } from 'react-dropzone';
 
@@ -142,6 +145,7 @@ const UploadForm = () => {
   const [config, setConfig] = useState<GTFSConfig>(
     defaultGTFSConfig as GTFSConfig,
   );
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [agencies, setAgencies] = useState('');
@@ -217,7 +221,7 @@ const UploadForm = () => {
                 file.errors.some((error) => error.code === 'file-too-large')
               ) {
                 return [
-                  'File is too large. (Maximum file size is 4MB). Try loading via URL instead of file upload, or use GTFS-to-HTML library from the command line.',
+                  'File is too large. (Maximum file size is 50 MB). Try loading via URL instead of file upload, or use GTFS-to-HTML library from the command line.',
                 ];
               }
 
@@ -234,20 +238,41 @@ const UploadForm = () => {
         return;
       }
 
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('options', JSON.stringify(config));
-
       setSuccess(false);
       setErrorMessage('');
       setGenerationOutput({ logs: [], truncated: false });
       setLoading(true);
 
+      let uploadSession: { pathname: string; ticket: string } | undefined;
+      setUploadProgress(0);
+      setUrl('');
       try {
+        const preparation = await fetch('/api/uploads', { method: 'PUT' });
+        if (!preparation.ok) {
+          setErrorMessage(await getResponseError(preparation));
+          return;
+        }
+        uploadSession = await preparation.json();
+        if (!uploadSession) {
+          throw new Error('Missing upload session.');
+        }
+        await upload(uploadSession.pathname, file, {
+          access: 'private',
+          handleUploadUrl: '/api/uploads',
+          clientPayload: uploadSession.ticket,
+          contentType: 'application/zip',
+          multipart: true,
+          onUploadProgress: ({ percentage }) =>
+            setUploadProgress(Math.round(percentage)),
+        });
+        setUploadProgress(null);
         const response = await fetch('/api/generate/file', {
           method: 'POST',
-          headers: { Accept: GENERATION_STREAM_TYPE },
-          body: formData,
+          headers: {
+            Accept: GENERATION_STREAM_TYPE,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ ...uploadSession, options: config }),
         });
 
         if (response.ok === false) {
@@ -259,7 +284,18 @@ const UploadForm = () => {
         console.error('Error:', error);
         setErrorMessage(getUnexpectedErrorMessage(error));
       } finally {
+        setUploadProgress(null);
         setLoading(false);
+        if (uploadSession) {
+          // Best effort for upload/generation failures; scheduled server cleanup
+          // also handles closed tabs and uploads whose response never arrived.
+          void fetch('/api/uploads', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(uploadSession),
+            keepalive: true,
+          }).catch(() => {});
+        }
       }
     },
     [config, handleStreamResponse],
@@ -269,7 +305,7 @@ const UploadForm = () => {
     accept: {
       'application/x-zip': ['.zip'],
     },
-    maxSize: 4 * 1024 * 1024,
+    maxSize: MAX_UPLOAD_BYTES,
     maxFiles: 1,
     disabled: loading,
   });
@@ -384,7 +420,7 @@ const UploadForm = () => {
                     )}
                   </div>
                   <div className="text-xs text-gray-500">
-                    Zipped GTFS only (MAX. 4MB)
+                    Zipped GTFS only (MAX. 50 MB)
                   </div>
                 </div>
               </label>
@@ -420,7 +456,14 @@ const UploadForm = () => {
           {loading && (
             <>
               <div role="status" aria-atomic="true" className="px-4 py-2">
-                <Loading url={url} />
+                <Loading
+                  url={url}
+                  title={
+                    uploadProgress === null
+                      ? undefined
+                      : `Uploading GTFS: ${uploadProgress}%`
+                  }
+                />
               </div>
 
               {generationLogs.length > 0 && (

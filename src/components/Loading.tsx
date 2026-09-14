@@ -1,4 +1,10 @@
-export const Loading = ({ url }: { url: string }) => {
+export const Loading = ({
+  url,
+  title = 'Generating HTML timetables',
+}: {
+  url: string;
+  title?: string;
+}) => {
   return (
     <div className="loading flex flex-row items-start gap-2">
       <div className="lds-roller shrink-0">
@@ -12,7 +18,7 @@ export const Loading = ({ url }: { url: string }) => {
         <div></div>
       </div>
       <div className="text-sm break-words">
-        <h2 className="mb-0">Generating HTML timetables</h2>
+        <h2 className="mb-0">{title}</h2>
         {url && `Source: ${url}`}
       </div>
       <style jsx>{`
