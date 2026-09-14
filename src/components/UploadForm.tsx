@@ -312,10 +312,9 @@ const UploadForm = () => {
 
   return (
     <>
-      <h2 className="text-center">Try it now with your GTFS</h2>
       <p className="text-center text-gray-600 mb-5">
-        Paste the URL of your GTFS or upload it as a zip file to generate a zip
-        of timetables you can preview. Large feeds may take several minutes.
+        Paste the URL of your GTFS or upload it as a zip file to generate
+        timetables and maps.
       </p>
       <fieldset disabled={loading} className="min-w-0">
         <form
@@ -466,31 +465,29 @@ const UploadForm = () => {
                 />
               </div>
 
-              {generationLogs.length > 0 && (
-                <div
-                  ref={logPanel}
-                  role="log"
-                  aria-live="off"
-                  aria-label="Generation output"
-                  tabIndex={0}
-                  className={`bg-slate-950 text-slate-200 max-h-80 overflow-y-auto pt-4 px-4 pb-2 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${loading ? 'border-t border-slate-700' : ''}`}
-                >
-                  {generationLogs.map((log, index) => (
-                    <div
-                      key={index}
-                      className={`${
-                        log.level === 'error'
-                          ? 'text-red-300'
-                          : log.level === 'warning'
-                            ? 'text-amber-300'
-                            : 'text-slate-200'
-                      } mb-2`}
-                    >
-                      {log.message}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <div
+                ref={logPanel}
+                role="log"
+                aria-live="off"
+                aria-label="Generation output"
+                tabIndex={0}
+                className={`bg-slate-950 text-slate-200 max-h-80 overflow-y-auto pt-4 px-4 pb-2 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${loading ? 'border-t border-slate-700' : ''}`}
+              >
+                {generationLogs.map((log, index) => (
+                  <div
+                    key={index}
+                    className={`${
+                      log.level === 'error'
+                        ? 'text-red-300'
+                        : log.level === 'warning'
+                          ? 'text-amber-300'
+                          : 'text-slate-200'
+                    } mb-2`}
+                  >
+                    {log.message}
+                  </div>
+                ))}
+              </div>
               {logsTruncated && (
                 <div className="border-t border-slate-700 px-4 py-2 text-xs text-slate-400">
                   Showing the latest 200 messages.

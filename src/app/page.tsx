@@ -21,9 +21,9 @@ export default function Home() {
             Turn your GTFS into timetables for your website
           </h1>
           <p className="text-lg leading-8 text-gray-600 text-balance">
-            GTFS-to-HTML converts your transit agency&apos;s GTFS into
-            ready-to-publish HTML timetables and route maps. Free and open
-            source - no signup required.
+            <a href="https://gtfstohtml.com">GTFS-to-HTML</a> converts your
+            transit agency&apos;s GTFS into ready-to-publish HTML timetables and
+            route maps. Free and open source - no signup required.
           </p>
         </div>
         <div className="card my-6 max-w-[650px]">
