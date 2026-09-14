@@ -40,6 +40,14 @@ export const GET = async (
     if (!blob || blob.statusCode !== 200) {
       return unavailable(404, 'Preview file not found.');
     }
+    const uploadedExpiry = previewExpiry(id, blob.blob.uploadedAt);
+    if (uploadedExpiry !== null && uploadedExpiry <= Date.now()) {
+      await blob.stream.cancel();
+      return unavailable(
+        410,
+        'This timetable preview has expired. Generate a new preview to continue.',
+      );
+    }
     return new Response(blob.stream, { headers: previewHeaders(name) });
   } catch (error) {
     console.error('Unable to serve timetable preview:', error);

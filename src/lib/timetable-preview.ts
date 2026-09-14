@@ -24,7 +24,7 @@ export const cleanupPreviews = async (onlyId?: string) => {
     });
     const stale = page.blobs.filter((blob) => {
       const id = blob.pathname.slice(PREVIEW_PREFIX.length).split('/')[0];
-      const expiry = previewExpiry(id);
+      const expiry = previewExpiry(id, blob.uploadedAt);
       return expiry !== null && (onlyId === id || expiry <= Date.now());
     });
     if (stale.length) {
@@ -42,7 +42,16 @@ export const publishPreview = async (
   agencies = '',
 ): Promise<TimetablePreview> => {
   const created = Date.now();
-  const id = `${created}-${randomBytes(24).toString('hex')}`;
+  const agency =
+    agencies
+      .normalize('NFKD')
+      .replace(/\p{M}/gu, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .slice(0, 80)
+      .replace(/^-+|-+$/g, '') || 'timetables';
+  const date = new Date(created).toISOString().slice(0, 10);
+  const id = `${agency}-${date}-${randomBytes(8).toString('hex')}`;
   const signal = AbortSignal.any([requestSignal, AbortSignal.timeout(60_000)]);
   const files: { path: string; name: string }[] = [];
   let bytes = 0;

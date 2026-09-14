@@ -11,6 +11,7 @@ import {
 } from '../src/lib/preview-policy.ts';
 
 const objects = new Map();
+const uploadedTimes = new Map();
 let failUpload = false;
 mock.module('@vercel/blob', {
   namedExports: {
@@ -24,13 +25,18 @@ mock.module('@vercel/blob', {
         chunks.push(chunk);
       }
       objects.set(pathname, Buffer.concat(chunks));
+      uploadedTimes.set(pathname, new Date());
       return { pathname };
     },
     list: async ({ prefix }) => ({
       hasMore: false,
       blobs: [...objects.keys()]
         .filter((p) => p.startsWith(prefix))
-        .map((pathname) => ({ pathname, url: pathname })),
+        .map((pathname) => ({
+          pathname,
+          url: pathname,
+          uploadedAt: uploadedTimes.get(pathname),
+        })),
     }),
     del: async (paths) => {
       for (const path of paths) {
@@ -70,6 +76,25 @@ test('preview identifiers expire at 48 hours and reject forged paths', () => {
   );
 });
 
+test('dated agency identifiers validate dates and expire 48 hours after upload', () => {
+  const uploadedAt = new Date('2026-01-15T18:45:00Z');
+  const id = 'mvgo-2026-01-15-aca6142231e8fed0';
+  assert.equal(
+    previewExpiry(id, uploadedAt),
+    uploadedAt.getTime() + PREVIEW_LIFETIME_MS,
+  );
+  assert.equal(previewExpiry(id), Date.parse('2026-01-18T00:00:00Z'));
+  for (const invalid of [
+    'mvgo-2026-02-30-aca6142231e8fed0',
+    'mvgo-2026-13-15-aca6142231e8fed0',
+    'mvgo-2999-01-15-aca6142231e8fed0',
+    'mvgo-2026-01-15-aca614',
+    '../mvgo-2026-01-15-aca6142231e8fed0',
+  ]) {
+    assert.equal(previewExpiry(invalid), null);
+  }
+});
+
 test('publishes nested assets and ZIP, omits logs, rolls back failures and expires old objects', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'preview-test-'));
   try {
@@ -81,8 +106,19 @@ test('publishes nested assets and ZIP, omits logs, rolls back failures and expir
     await writeFile(join(dir, 'css/main.css'), 'body { color: green; }');
     await writeFile(join(dir, 'timetables.zip'), 'zip-fixture');
     await writeFile(join(dir, 'log.txt'), 'internal paths');
-    const preview = await publishPreview(dir, new AbortController().signal);
-    assert.match(preview.url, /^\/preview\/\d{13}-[a-f0-9]{48}\/index.html$/);
+    const preview = await publishPreview(
+      dir,
+      new AbortController().signal,
+      'MVGO',
+    );
+    assert.match(
+      preview.url,
+      /^\/preview\/mvgo-\d{4}-\d{2}-\d{2}-[a-f0-9]{16}\/index.html$/,
+    );
+    assert.equal(
+      preview.downloadUrl,
+      preview.url.replace('index.html', 'mvgo-timetables.zip'),
+    );
     assert.equal(objects.size, 3);
     assert.equal(
       [...objects.keys()].some((p) => p.endsWith('/log.txt')),
@@ -96,8 +132,15 @@ test('publishes nested assets and ZIP, omits logs, rolls back failures and expir
     assert.equal(objects.size, 3);
     const oldId = `${Date.now() - PREVIEW_LIFETIME_MS - 1}-${'b'.repeat(48)}`;
     objects.set(`timetable-previews/${oldId}/index.html`, Buffer.from('old'));
+    const expiredPath =
+      'timetable-previews/mvgo-2026-01-15-aca6142231e8fed0/index.html';
+    objects.set(expiredPath, Buffer.from('old'));
+    uploadedTimes.set(
+      expiredPath,
+      new Date(Date.now() - PREVIEW_LIFETIME_MS - 1),
+    );
     objects.set('gtfs-uploads/leave-alone.zip', Buffer.from('input'));
-    assert.equal(await cleanupPreviews(), 1);
+    assert.equal(await cleanupPreviews(), 2);
     assert.equal(objects.size, 4);
   } finally {
     await rm(dir, { recursive: true, force: true });

@@ -8,15 +8,31 @@ export type TimetablePreview = {
   downloadUrl?: string;
 };
 
-export const previewExpiry = (id: string): number | null => {
-  if (!/^\d{13}-[0-9a-f]{48}$/.test(id)) {
+export const previewExpiry = (id: string, uploadedAt?: Date): number | null => {
+  const legacy = /^\d{13}-[0-9a-f]{48}$/.test(id);
+  if (legacy) {
+    const created = Number(id.slice(0, 13));
+    return created <= Date.now() ? created + PREVIEW_LIFETIME_MS : null;
+  }
+  const match =
+    /^[a-z0-9]+(?:-[a-z0-9]+)*-(\d{4}-\d{2}-\d{2})-[0-9a-f]{16}$/.exec(id);
+  if (!match) {
     return null;
   }
-  const created = Number(id.slice(0, 13));
-  if (created > Date.now()) {
+  const created = Date.parse(`${match[1]}T00:00:00.000Z`);
+  if (
+    !Number.isFinite(created) ||
+    created > Date.now() ||
+    new Date(created).toISOString().slice(0, 10) !== match[1]
+  ) {
     return null;
   }
-  return created + PREVIEW_LIFETIME_MS;
+  // Without storage metadata, use the latest possible expiry for this UTC day.
+  // Serving and cleanup use the actual upload time for the 48-hour lifetime.
+  return (
+    (uploadedAt?.getTime() ?? created + 24 * 60 * 60 * 1000) +
+    PREVIEW_LIFETIME_MS
+  );
 };
 
 export const safePreviewPath = (parts: string[]) => {

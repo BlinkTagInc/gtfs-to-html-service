@@ -54,10 +54,8 @@ const SuccessMessage = ({
         <p className="mt-2 text-gray-600 text-center">
           HTML timetables
           {agencyNames ? ` for ${agencyNames}` : ''} were generated and
-          downloaded as <code>{archiveFilename(agencyNames)}</code>.
-        </p>
-        <p className="mt-1 text-sm text-gray-600 text-center">
-          Unzip and open <code>index.html</code> in your browser.
+          downloaded as <code>{archiveFilename(agencyNames)}</code>. Unzip and
+          open <code>index.html</code> in your browser.
         </p>
         {preview ? (
           <div className="mt-4 text-center w-full break-words">
@@ -67,11 +65,10 @@ const SuccessMessage = ({
               rel="noopener noreferrer"
               className="btn inline-block"
             >
-              View and share preview
+              View timetables
             </a>
             <p className="mt-3 text-sm text-gray-600">
-              Anyone with this link can view the timetables until{' '}
-              {new Date(preview.expiresAt).toLocaleString()}.
+              A sharable preview of your timetables was pubslished to:
             </p>
             <input
               aria-label="Shareable preview URL"
@@ -82,8 +79,12 @@ const SuccessMessage = ({
                   : new URL(preview.url, window.location.origin).href
               }
               onFocus={(event) => event.target.select()}
-              className="mt-2 w-full text-sm"
+              className="mt-2 w-full text-sm bg-white"
             />
+            <div className="text-xs">
+              Anyone with this link can view the timetables until{' '}
+              {new Date(preview.expiresAt).toLocaleString()}.
+            </div>
             <a
               className="inline-block mt-2"
               href={
