@@ -1,3 +1,5 @@
+import { archiveFilename, archiveDisposition } from './archive-filename';
+import { publishPreview } from './timetable-preview';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
 
@@ -20,6 +22,14 @@ export const generationResponse = async (
       .split('\n')
       .find((line) => line.startsWith('Agencies: '))
       ?.slice(10) ?? '';
+  const preview = await publishPreview(
+    join(tempDir, buildId),
+    request.signal,
+    agencies,
+  ).catch((error) => {
+    console.error('Preview publication failed:', error);
+    return undefined;
+  });
   const { stream, finish, isComplete } = createGenerationStream(
     timetablePath,
     tempDir,
@@ -46,9 +56,15 @@ export const generationResponse = async (
   return new NextResponse(stream, {
     headers: {
       'Content-Type': 'application/zip',
-      'Content-Disposition': 'attachment; filename="timetables.zip"',
+      'Content-Disposition': archiveDisposition(archiveFilename(agencies)),
       'Content-Length': fileStats.size.toString(),
       'X-Agencies': encodeURIComponent(agencies),
+      ...(preview
+        ? {
+            'X-Preview-URL': preview.url,
+            'X-Preview-Expires': preview.expiresAt,
+          }
+        : {}),
     },
   });
 };

@@ -1,3 +1,5 @@
+import { archiveFilename } from '@/lib/archive-filename';
+import type { TimetablePreview } from '@/lib/preview-policy';
 import Image from 'next/image';
 
 const CONSULTING_EMAIL = 'gtfs@blinktag.com';
@@ -5,9 +7,11 @@ const CONSULTING_EMAIL = 'gtfs@blinktag.com';
 const SuccessMessage = ({
   clear,
   agencies,
+  preview,
 }: {
   clear: () => void;
   agencies?: string;
+  preview?: TimetablePreview;
 }) => {
   const agencyNames = agencies?.trim() || '';
 
@@ -50,11 +54,52 @@ const SuccessMessage = ({
         <p className="mt-2 text-gray-600 text-center">
           HTML timetables
           {agencyNames ? ` for ${agencyNames}` : ''} were generated and
-          downloaded as <code>timetables.zip</code>.
+          downloaded as <code>{archiveFilename(agencyNames)}</code>.
         </p>
         <p className="mt-1 text-sm text-gray-600 text-center">
           Unzip and open <code>index.html</code> in your browser.
         </p>
+        {preview ? (
+          <div className="mt-4 text-center w-full break-words">
+            <a
+              href={preview.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn inline-block"
+            >
+              View and share preview
+            </a>
+            <p className="mt-3 text-sm text-gray-600">
+              Anyone with this link can view the timetables until{' '}
+              {new Date(preview.expiresAt).toLocaleString()}.
+            </p>
+            <input
+              aria-label="Shareable preview URL"
+              readOnly
+              value={
+                typeof window === 'undefined'
+                  ? preview.url
+                  : new URL(preview.url, window.location.origin).href
+              }
+              onFocus={(event) => event.target.select()}
+              className="mt-2 w-full text-sm"
+            />
+            <a
+              className="inline-block mt-2"
+              href={
+                preview.downloadUrl ??
+                preview.url.replace(/index\.html$/, 'timetables.zip')
+              }
+            >
+              Download ZIP again
+            </a>
+          </div>
+        ) : (
+          <p className="mt-3 text-sm text-gray-600">
+            An online preview is unavailable. You can review the downloaded ZIP
+            locally.
+          </p>
+        )}
       </div>
 
       <div className="mt-6 w-full rounded-lg border border-[#3230AD]/30 bg-indigo-50 p-5">

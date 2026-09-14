@@ -1,3 +1,5 @@
+import { publishPreview } from './timetable-preview.ts';
+import type { TimetablePreview } from './preview-policy.ts';
 import { createReadStream } from 'node:fs';
 import { readFile, stat } from 'node:fs/promises';
 import { join } from 'node:path';
@@ -125,8 +127,30 @@ export const createGenerationEventStream = (
           .split('\n')
           .find((line) => line.startsWith('Agencies: '))
           ?.slice(10) ?? '';
+      let preview: TimetablePreview | undefined;
+      yield {
+        type: 'log',
+        level: 'info',
+        message: 'Publishing shareable timetable preview…',
+      };
+      try {
+        preview = await publishPreview(
+          join(tempDir, buildId),
+          signal,
+          agencies,
+        );
+      } catch (error) {
+        console.error('Preview publication failed:', error);
+        signal.throwIfAborted();
+        yield {
+          type: 'log',
+          level: 'warning',
+          message:
+            'Preview could not be published. Your ZIP download is still available.',
+        };
+      }
       const { size } = await stat(timetablePath);
-      yield { type: 'archive', agencies, size };
+      yield { type: 'archive', agencies, size, preview };
       const file = createReadStream(timetablePath, {
         signal,
         highWaterMark: 48 * 1024,

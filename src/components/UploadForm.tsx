@@ -1,5 +1,7 @@
 'use client';
 
+import { archiveFilename } from '@/lib/archive-filename';
+import type { TimetablePreview } from '@/lib/preview-policy';
 import { upload } from '@vercel/blob/client';
 import { MAX_UPLOAD_BYTES } from '@/lib/upload-limits';
 
@@ -147,6 +149,7 @@ const UploadForm = () => {
   );
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [preview, setPreview] = useState<TimetablePreview | undefined>();
   const [success, setSuccess] = useState(false);
   const [agencies, setAgencies] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -190,13 +193,14 @@ const UploadForm = () => {
         return;
       }
       const { blob, agencies } = result;
+      setPreview(result.preview);
       // Create a temporary URL for the blob
       const url = window.URL.createObjectURL(blob);
 
       // Create a link element and trigger a download
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', 'timetables.zip');
+      link.setAttribute('download', archiveFilename(agencies));
       document.body.appendChild(link);
       link.click(); // Trigger the download
       document.body.removeChild(link); // Clean up
@@ -442,6 +446,7 @@ const UploadForm = () => {
           {success && (
             <SuccessMessage
               agencies={agencies}
+              preview={preview}
               clear={() => setSuccess(false)}
             />
           )}

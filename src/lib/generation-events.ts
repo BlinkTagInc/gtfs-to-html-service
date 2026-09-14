@@ -1,3 +1,4 @@
+import type { TimetablePreview } from './preview-policy.ts';
 export const GENERATION_STREAM_TYPE = 'application/x-ndjson';
 
 export type GenerationLog = {
@@ -9,7 +10,12 @@ export type GenerationLog = {
 export type GenerationEvent =
   | ({ type: 'log' } & GenerationLog)
   | { type: 'heartbeat' }
-  | { type: 'archive'; agencies: string; size: number }
+  | {
+      type: 'archive';
+      agencies: string;
+      size: number;
+      preview?: TimetablePreview;
+    }
   | { type: 'chunk'; data: string }
   | { type: 'complete' }
   | { type: 'error'; error: string; code: string; category: string };

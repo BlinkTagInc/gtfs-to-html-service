@@ -1,3 +1,4 @@
+import { cleanupPreviews } from '@/lib/timetable-preview';
 import { del, list } from '@vercel/blob';
 import {
   isUploadPathname,
@@ -31,7 +32,8 @@ export const GET = async (request: Request) => {
       }
       cursor = page.hasMore ? page.cursor : undefined;
     } while (cursor);
-    return Response.json({ deleted });
+    const previewsDeleted = await cleanupPreviews();
+    return Response.json({ deleted, previewsDeleted });
   } catch (error) {
     console.error('Upload cleanup failed:', error);
     return Response.json({ error: 'Upload cleanup failed.' }, { status: 500 });

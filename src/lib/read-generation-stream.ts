@@ -1,7 +1,8 @@
+import type { TimetablePreview } from './preview-policy.ts';
 import type { GenerationEvent, GenerationLog } from './generation-events';
 
 export type GenerationResult =
-  | { blob: Blob; agencies: string }
+  | { blob: Blob; agencies: string; preview?: TimetablePreview }
   | { error: string; code: string; category: string };
 
 export const readGenerationStream = async (
@@ -18,6 +19,7 @@ export const readGenerationStream = async (
   let size: number | undefined;
   let received = 0;
   let agencies = '';
+  let preview: TimetablePreview | undefined;
   let complete = false;
   let failure: GenerationResult | undefined;
   const handle = (line: string) => {
@@ -41,6 +43,7 @@ export const readGenerationStream = async (
         }
         size = event.size;
         agencies = event.agencies;
+        preview = event.preview;
         break;
       case 'chunk': {
         if (size === undefined) {
@@ -98,7 +101,11 @@ export const readGenerationStream = async (
     if (!complete || size === undefined || size !== received) {
       throw new Error('Generation stream ended before the download completed.');
     }
-    return { blob: new Blob(chunks, { type: 'application/zip' }), agencies };
+    return {
+      blob: new Blob(chunks, { type: 'application/zip' }),
+      agencies,
+      preview,
+    };
   } finally {
     await reader.cancel().catch(() => {});
     reader.releaseLock();
