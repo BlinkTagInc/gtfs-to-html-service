@@ -456,56 +456,55 @@ const UploadForm = () => {
           )}
         </div>
       </div>
-      {(loading || generationLogs.length > 0) && (
+      {(loading || (errorMessage && generationLogs.length > 0)) && (
         <section
           aria-label="Timetable generation"
           className="mt-4 overflow-hidden rounded-lg border border-gray-200"
         >
           {loading && (
-            <>
-              <div role="status" aria-atomic="true" className="px-4 py-2">
-                <Loading
-                  url={url}
-                  title={
-                    uploadProgress === null
-                      ? undefined
-                      : `Uploading GTFS: ${uploadProgress}%`
-                  }
-                />
-              </div>
-
+            <div role="status" aria-atomic="true" className="px-4 py-2">
+              <Loading
+                url={url}
+                title={
+                  uploadProgress === null
+                    ? undefined
+                    : `Uploading GTFS: ${uploadProgress}%`
+                }
+              />
+            </div>
+          )}
+          <div
+            ref={logPanel}
+            role="log"
+            aria-live="off"
+            aria-label="Generation output"
+            tabIndex={0}
+            className={`bg-slate-950 text-slate-200 max-h-80 overflow-y-auto pt-4 px-4 pb-2 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${loading ? 'border-t border-slate-700' : ''}`}
+          >
+            {generationLogs.map((log, index) => (
               <div
-                ref={logPanel}
-                role="log"
-                aria-live="off"
-                aria-label="Generation output"
-                tabIndex={0}
-                className={`bg-slate-950 text-slate-200 max-h-80 overflow-y-auto pt-4 px-4 pb-2 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${loading ? 'border-t border-slate-700' : ''}`}
+                key={index}
+                className={`${
+                  log.level === 'error'
+                    ? 'text-red-300'
+                    : log.level === 'warning'
+                      ? 'text-amber-300'
+                      : 'text-slate-200'
+                } mb-2`}
               >
-                {generationLogs.map((log, index) => (
-                  <div
-                    key={index}
-                    className={`${
-                      log.level === 'error'
-                        ? 'text-red-300'
-                        : log.level === 'warning'
-                          ? 'text-amber-300'
-                          : 'text-slate-200'
-                    } mb-2`}
-                  >
-                    {log.message}
-                  </div>
-                ))}
+                {log.message}
               </div>
-              {logsTruncated && (
-                <div className="border-t border-slate-700 px-4 py-2 text-xs text-slate-400">
-                  Showing the latest 200 messages.
-                </div>
-              )}
-              <div className="px-4 py-2">
-                Large feeds can take up to 15 minutes. Keep this tab open.
-              </div>
-            </>
+            ))}
+          </div>
+          {logsTruncated && (
+            <div className="border-t border-slate-700 px-4 py-2 text-xs text-slate-400">
+              Showing the latest 200 messages.
+            </div>
+          )}
+          {loading && (
+            <div className="px-4 py-2">
+              Large feeds can take up to 15 minutes. Keep this tab open.
+            </div>
           )}
         </section>
       )}
