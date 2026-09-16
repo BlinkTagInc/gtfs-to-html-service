@@ -56,7 +56,7 @@ const SuccessMessage = ({
 
   return (
     <div className="h-full">
-      <div className="w-full rounded-lg border border-[#008000]/30 bg-green-50 p-5 flex flex-col items-center justify-center">
+      <div className="w-full rounded-lg border border-[#008000]/30 bg-green-50 px-4 py-3 flex flex-col items-center justify-center">
         <div className="flex items-center justify-center w-16 h-16 bg-green-200 rounded-full">
           <svg
             className="w-12 h-12 text-green-600"

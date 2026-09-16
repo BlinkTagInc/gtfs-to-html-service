@@ -1,7 +1,14 @@
 import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { crc32, deflateRawSync } from 'node:zlib';
-import { mkdtemp, rm, readFile, writeFile, stat } from 'node:fs/promises';
+import {
+  mkdtemp,
+  rm,
+  readFile,
+  readdir,
+  writeFile,
+  stat,
+} from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepareGtfs } from '../src/lib/prepare-gtfs.ts';
@@ -113,20 +120,118 @@ test('real ZIP feed extracts one folder and generates HTML in the worker', async
   }
 });
 
-test('duplicate directions reach the client with the GTFS message, file and line', async () => {
+test('unused files are skipped while maps and timetable extensions still generate', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gtfs-filtered-'));
+  const extensions = [
+    [
+      'shapes.txt',
+      'shape_id,shape_pt_lat,shape_pt_lon,shape_pt_sequence\nshape,45,-122,1\nshape,45.1,-122.1,2\n',
+    ],
+    [
+      'route_attributes.txt',
+      'route_id,category,subcategory,running_way\nr,3,101,1\n',
+    ],
+    ['stop_attributes.txt', 'stop_id,stop_city\ns1,Example City\n'],
+    [
+      'timetables.txt',
+      'timetable_id,route_id,direction_id,monday,tuesday,wednesday,thursday,friday,saturday,sunday,timetable_label,timetable_page_id\ncustom,r,0,1,1,1,1,1,1,1,Custom Timetable,page\n',
+    ],
+    [
+      'timetable_pages.txt',
+      'timetable_page_id,timetable_page_label,filename\npage,Custom Page,custom.html\n',
+    ],
+    [
+      'timetable_stop_order.txt',
+      'timetable_id,stop_id,stop_sequence\ncustom,s1,1\ncustom,s2,2\n',
+    ],
+    [
+      'timetable_notes.txt',
+      'note_id,symbol,note\nnote,*,Retained timetable note\n',
+    ],
+    ['timetable_notes_references.txt', 'note_id,timetable_id\nnote,custom\n'],
+  ];
+  const unused = [
+    [
+      'directions.txt',
+      'route_id,direction_id,direction\nr,0,Outbound\nr,0,Duplicate\n',
+    ],
+    ['fare_attributes.txt', 'Invalid fares data\n'],
+    ['transfers.txt', 'Invalid transfers data\n'],
+    ['translations.txt', 'Invalid translations data\n'],
+    ['extra.csv', 'Unused agency data\n'],
+  ];
+  try {
+    const archive = join(dir, 'input.zip');
+    await writeFile(
+      archive,
+      zip([
+        ...fixtures.map(([name, data]) => [
+          name,
+          name === 'trips.txt'
+            ? 'route_id,service_id,trip_id,direction_id,shape_id\nr,svc,t,0,shape\n'
+            : data,
+        ]),
+        ...extensions,
+        ...unused,
+      ]),
+    );
+    const signal = new AbortController().signal;
+    const feed = await prepareGtfs(archive, join(dir, 'feed'), signal);
+    assert.deepEqual(
+      (await readdir(feed)).sort(),
+      [...fixtures, ...extensions].map(([name]) => name).sort(),
+    );
+    for (const outputFormat of ['html', 'csv']) {
+      const outputPath = join(dir, outputFormat);
+      const output = await generateInWorker(
+        {
+          agencies: [{ agencyKey: 'test', path: feed }],
+          outputPath,
+          outputFormat,
+          showMap: true,
+          showStopCity: true,
+        },
+        dir,
+        signal,
+      );
+      assert.ok((await stat(output)).size > 0);
+      const generatedFiles = await readdir(outputPath, { recursive: true });
+      if (outputFormat === 'html') {
+        const page = generatedFiles.find((file) =>
+          file.endsWith('/custom.html'),
+        );
+        assert.ok(page, await readFile(join(outputPath, 'log.txt'), 'utf8'));
+        const html = await readFile(join(outputPath, page), 'utf8');
+        assert.match(html, /Custom Timetable/);
+        assert.match(html, /Retained timetable note/);
+        assert.match(html, /Example City/);
+        assert.match(html, /LineString/);
+      } else {
+        const csvFile = generatedFiles.find((file) => file.endsWith('.csv'));
+        assert.ok(csvFile, await readFile(join(outputPath, 'log.txt'), 'utf8'));
+        const csv = await readFile(join(outputPath, csvFile), 'utf8');
+        assert.match(csv, /First/);
+        assert.match(csv, /Second/);
+      }
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('duplicate stops reach the client with the GTFS message, file and line', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'gtfs-duplicate-'));
   const logger = mock.method(console, 'error', () => {});
   try {
     const archive = join(dir, 'input.zip');
     await writeFile(
       archive,
-      zip([
-        ...fixtures,
-        [
-          'directions.txt',
-          'route_id,direction_id,direction\nr,0,Outbound\nr,1,Inbound\nr,0,Duplicate\n',
-        ],
-      ]),
+      zip(
+        fixtures.map(([name, data]) => [
+          name,
+          name === 'stops.txt' ? `${data}s1,Duplicate,45,-122\n` : data,
+        ]),
+      ),
     );
     const signal = new AbortController().signal;
     const feed = await prepareGtfs(archive, join(dir, 'feed'), signal);
@@ -143,8 +248,7 @@ test('duplicate directions reach the client with the GTFS message, file and line
     );
     const result = await readGenerationStream(new Response(stream), () => {});
     assert.deepEqual(result, {
-      error:
-        'directions.txt, line 3: UNIQUE constraint failed: directions.route_id, directions.direction_id',
+      error: 'stops.txt, line 3: UNIQUE constraint failed: stops.stop_id',
       code: 'GTFS_DB_OPERATION_FAILED',
       category: 'database',
     });

@@ -8,6 +8,28 @@ import { SecurityError } from './security-error.ts';
 export const MAX_EXPANDED_BYTES = 200_000_000;
 export const MAX_ZIP_ENTRIES = 100;
 
+// Files read by gtfs-to-html 2.13, including the attributes used by node-gtfs's
+// GeoJSON helpers. Recheck this list when upgrading the generator.
+const TIMETABLE_FILES = new Set([
+  'agency.txt',
+  'calendar.txt',
+  'calendar_dates.txt',
+  'feed_info.txt',
+  'frequencies.txt',
+  'routes.txt',
+  'shapes.txt',
+  'stop_times.txt',
+  'stops.txt',
+  'trips.txt',
+  'route_attributes.txt',
+  'stop_attributes.txt',
+  'timetable_notes.txt',
+  'timetable_notes_references.txt',
+  'timetable_pages.txt',
+  'timetable_stop_order.txt',
+  'timetables.txt',
+]);
+
 export const prepareGtfs = async (
   archive: string,
   destination: string,
@@ -63,6 +85,11 @@ export const prepareGtfs = async (
         throw new SecurityError('GTFS ZIP contains duplicate filenames.');
       }
       names.add(name);
+      // The importer only sees the prepared directory. Skip unused files
+      // before decompression so they cost neither scratch space nor DB work.
+      if (!TIMETABLE_FILES.has(name)) {
+        continue;
+      }
       const stream = await zip.stream(entry.name);
       await pipeline(
         stream,

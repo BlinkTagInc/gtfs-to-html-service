@@ -486,7 +486,7 @@ const UploadForm = () => {
       <div className="mt-4 [overflow-wrap:anywhere]">
         <div role="alert" aria-atomic="true">
           {errorMessage && (
-            <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-900">
+            <div className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-red-900">
               <p className="font-semibold mb-2">
                 Unable to generate timetables
               </p>

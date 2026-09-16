@@ -51,6 +51,16 @@ closed; cleanup failures are logged and retried by cron.
 
 Each Node.js process admits one active job, covering download, extraction, generation, and response streaming to limit temporary disk and memory usage. Overlapping requests to that process receive `GENERATION_BUSY` and can be retried (HTTP 503 for direct ZIP requests, an error event for streaming requests whose headers have already been sent). Separate Vercel instances can run jobs independently. Worker isolation does not increase the function's memory limit.
 
+Both file uploads and URL submissions extract and import only the files used by
+GTFS-to-HTML: `agency.txt`, `calendar.txt`, `calendar_dates.txt`, `feed_info.txt`,
+`frequencies.txt`, `routes.txt`, `shapes.txt`, `stop_times.txt`, `stops.txt`,
+`trips.txt`, `route_attributes.txt`, `stop_attributes.txt`, `timetable_notes.txt`,
+`timetable_notes_references.txt`, `timetable_pages.txt`, `timetable_stop_order.txt`,
+and `timetables.txt`. Other files, including `directions.txt`, fares, transfers,
+and translations, are skipped before decompression. Archive safety checks still
+apply to the whole ZIP. The allowlist in `src/lib/prepare-gtfs.ts` should be
+reviewed when upgrading GTFS-to-HTML or its GTFS dependency.
+
 The form requests `Accept: application/x-ndjson` to receive live generation messages, then archive metadata, base64 ZIP chunks, and a completion event on the same response. This avoids storing download state across function instances. Clients without that Accept header continue to receive a direct ZIP response. Public GTFS errors retain their messages and codes; unexpected infrastructure failures receive a generic message. Raw worker stderr and full exception objects remain server-side. The form retains the latest 200 messages and downloads only after receiving the completion event and checking the ZIP size. Interrupted streams do not produce a partial download.
 
 ## Contributing
