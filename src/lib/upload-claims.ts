@@ -15,9 +15,10 @@ export const claimUpload = async (
   try {
     // Blob's conditional create (If-None-Match) arbitrates concurrent callers
     // across instances. Never delete these markers while tickets are valid.
+    // Use an empty buffer because the SDK rejects an empty string as missing.
     await put(
       `${CLAIM_PREFIX}${pathname.slice('gtfs-uploads/'.length)}.${stage}`,
-      '',
+      Buffer.alloc(0),
       {
         access: 'private',
         addRandomSuffix: false,

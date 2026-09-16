@@ -8,6 +8,11 @@ mock.module('@vercel/blob', {
   namedExports: {
     BlobPreconditionFailedError,
     put: async (path, body, options) => {
+      // Match the SDK's body validation so empty strings cannot pass this mock.
+      if (!body) {
+        throw new Error('Vercel Blob: body is required');
+      }
+      assert.equal(body.byteLength, 0);
       assert.equal(options.allowOverwrite, false);
       assert.equal(options.addRandomSuffix, false);
       assert.equal(options.access, 'private');
