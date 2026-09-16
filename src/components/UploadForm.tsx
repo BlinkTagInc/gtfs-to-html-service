@@ -149,6 +149,7 @@ const UploadForm = () => {
   );
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showProcessingNotice, setShowProcessingNotice] = useState(false);
   const [preview, setPreview] = useState<TimetablePreview | undefined>();
   const [success, setSuccess] = useState(false);
   const [generatedFormat, setGeneratedFormat] =
@@ -163,6 +164,21 @@ const UploadForm = () => {
     truncated: false,
   });
   const logPanel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!loading) {
+      setShowProcessingNotice(false);
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      setShowProcessingNotice(true);
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [loading]);
+
   useEffect(() => {
     if (logPanel.current) {
       logPanel.current.scrollTop = logPanel.current.scrollHeight;
@@ -476,8 +492,8 @@ const UploadForm = () => {
               Showing the latest 200 messages.
             </div>
           )}
-          {loading && (
-            <div className="px-4 py-2">
+          {loading && showProcessingNotice && (
+            <div className="px-4 py-2 text-sm">
               Large feeds can take up to 15 minutes. Keep this tab open.
             </div>
           )}
