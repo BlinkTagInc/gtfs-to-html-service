@@ -380,82 +380,54 @@ const UploadForm = () => {
             Generate
           </button>
         </form>
-        {!loading && (
-          <>
-            <div className="flex items-center gap-4 my-4 text-sm font-medium text-gray-400">
-              <div className="h-px flex-1 bg-gray-200"></div>
-              OR
-              <div className="h-px flex-1 bg-gray-200"></div>
-            </div>
-            <div
-              className="flex items-center justify-center w-full"
-              {...getRootProps()}
-            >
-              <label
-                htmlFor="dropzone-file"
-                className="flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors"
+        <div className="flex items-center gap-4 my-4 text-sm font-medium text-gray-400">
+          <div className="h-px flex-1 bg-gray-200"></div>
+          OR
+          <div className="h-px flex-1 bg-gray-200"></div>
+        </div>
+        <div
+          className="flex items-center justify-center w-full"
+          {...getRootProps({ 'aria-disabled': loading })}
+        >
+          <label
+            htmlFor="dropzone-file"
+            className={`flex flex-col items-center justify-center w-full border-2 border-gray-300 border-dashed rounded-lg bg-gray-50 transition-colors ${loading ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:bg-gray-100'}`}
+          >
+            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+              <input {...getInputProps()} />
+              <svg
+                className="w-10 h-10 mb-3 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
               >
-                <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                  <input {...getInputProps()} />
-                  <svg
-                    className="w-10 h-10 mb-3 text-gray-400"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                    ></path>
-                  </svg>
-                  <div className="mb-2 text-sm text-gray-500">
-                    {isDragActive ? (
-                      <span className="font-semibold">
-                        Drag &apos;n&apos; drop a zipped GTFS file here
-                      </span>
-                    ) : (
-                      <span>
-                        <span className="font-semibold">
-                          Click to upload GTFS
-                        </span>{' '}
-                        or drag &apos;n&apos; drop
-                      </span>
-                    )}
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    Zipped GTFS only (MAX. 50 MB)
-                  </div>
-                </div>
-              </label>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                ></path>
+              </svg>
+              <div className="mb-2 text-sm text-gray-500">
+                {isDragActive ? (
+                  <span className="font-semibold">
+                    Drag &apos;n&apos; drop a zipped GTFS file here
+                  </span>
+                ) : (
+                  <span>
+                    <span className="font-semibold">Click to upload GTFS</span>{' '}
+                    or drag &apos;n&apos; drop
+                  </span>
+                )}
+              </div>
+              <div className="text-xs text-gray-500">
+                Zipped GTFS only (MAX. 50 MB)
+              </div>
             </div>
-          </>
-        )}
+          </label>
+        </div>
       </fieldset>
-      <div className="mt-4 [overflow-wrap:anywhere]">
-        <div role="alert" aria-atomic="true">
-          {errorMessage && (
-            <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-900">
-              <p className="font-semibold mb-2">
-                Unable to generate timetables
-              </p>
-              <p>{errorMessage}</p>
-            </div>
-          )}
-        </div>
-        <div role="status" aria-atomic="true">
-          {success && (
-            <SuccessMessage
-              agencies={agencies}
-              outputFormat={generatedFormat}
-              preview={preview}
-              clear={() => setSuccess(false)}
-            />
-          )}
-        </div>
-      </div>
       {(loading || (errorMessage && generationLogs.length > 0)) && (
         <section
           aria-label="Timetable generation"
@@ -481,6 +453,9 @@ const UploadForm = () => {
             tabIndex={0}
             className={`bg-slate-950 text-slate-200 max-h-80 overflow-y-auto pt-4 px-4 pb-2 font-mono text-xs leading-relaxed whitespace-pre-wrap [overflow-wrap:anywhere] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-sky-400 ${loading ? 'border-t border-slate-700' : ''}`}
           >
+            {loading && generationLogs.length === 0 && (
+              <div className="mb-2">Generating HTML timetables</div>
+            )}
             {generationLogs.map((log, index) => (
               <div
                 key={index}
@@ -508,6 +483,28 @@ const UploadForm = () => {
           )}
         </section>
       )}
+      <div className="mt-4 [overflow-wrap:anywhere]">
+        <div role="alert" aria-atomic="true">
+          {errorMessage && (
+            <div className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-900">
+              <p className="font-semibold mb-2">
+                Unable to generate timetables
+              </p>
+              <p>{errorMessage}</p>
+            </div>
+          )}
+        </div>
+        <div role="status" aria-atomic="true">
+          {success && (
+            <SuccessMessage
+              agencies={agencies}
+              outputFormat={generatedFormat}
+              preview={preview}
+              clear={() => setSuccess(false)}
+            />
+          )}
+        </div>
+      </div>
       <fieldset disabled={loading} className="min-w-0 mt-6">
         <h3 className="text-lg font-medium text-gray-900 mb-1">
           Configuration Options
