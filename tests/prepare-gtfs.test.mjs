@@ -1,4 +1,4 @@
-import { test } from 'node:test';
+import { test, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import { crc32, deflateRawSync } from 'node:zlib';
 import { mkdtemp, rm, readFile, writeFile, stat } from 'node:fs/promises';
@@ -6,6 +6,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { prepareGtfs } from '../src/lib/prepare-gtfs.ts';
 import { generateInWorker } from '../src/lib/generation-worker.ts';
+import { createGenerationEventStream } from '../src/lib/generation-event-stream.ts';
+import { readGenerationStream } from '../src/lib/read-generation-stream.ts';
 
 // Minimal ZIP fixture builder, including deliberately dishonest size metadata.
 const zip = (files) => {
@@ -107,6 +109,49 @@ test('real ZIP feed extracts one folder and generates HTML in the worker', async
       { code: 'PDF_DISABLED' },
     );
   } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('duplicate directions reach the client with the GTFS message, file and line', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'gtfs-duplicate-'));
+  const logger = mock.method(console, 'error', () => {});
+  try {
+    const archive = join(dir, 'input.zip');
+    await writeFile(
+      archive,
+      zip([
+        ...fixtures,
+        [
+          'directions.txt',
+          'route_id,direction_id,direction\nr,0,Outbound\nr,1,Inbound\nr,0,Duplicate\n',
+        ],
+      ]),
+    );
+    const signal = new AbortController().signal;
+    const feed = await prepareGtfs(archive, join(dir, 'feed'), signal);
+    const { stream, finished } = createGenerationEventStream(
+      {
+        agencies: [{ agencyKey: 'test', path: feed }],
+        outputPath: join(dir, 'output'),
+        showMap: false,
+      },
+      dir,
+      'output',
+      signal,
+      Date.now() + 30_000,
+    );
+    const result = await readGenerationStream(new Response(stream), () => {});
+    assert.deepEqual(result, {
+      error:
+        'directions.txt, line 3: UNIQUE constraint failed: directions.route_id, directions.direction_id',
+      code: 'GTFS_DB_OPERATION_FAILED',
+      category: 'database',
+    });
+    assert.equal((await finished).complete, false);
+    await assert.rejects(stat(dir), { code: 'ENOENT' });
+  } finally {
+    logger.mock.restore();
     await rm(dir, { recursive: true, force: true });
   }
 });

@@ -1,4 +1,5 @@
 import { SecurityError } from './security-error.ts';
+import { publicGenerationMessage } from './public-generation-message.ts';
 import { isGtfsToHtmlError, isGtfsError, type GtfsError } from 'gtfs-to-html';
 
 const DEFAULT_SERVER_ERROR_MESSAGE =
@@ -187,18 +188,11 @@ const getDownloadFailureResponse = (error: GtfsError): PublicErrorResponse => {
 const MAX_PUBLIC_MESSAGE_LENGTH = 400;
 
 /**
- * Categories that represent server/infrastructure issues rather than problems
- * with the user's GTFS input. Surfacing the underlying message to the user is
- * unhelpful for these, so we swap in a generic server error message.
- */
-const SERVER_ERROR_CATEGORIES = new Set(['database']);
-
-/**
- * Error codes that should always be surfaced as a generic server error.
- * These typically indicate a deployment/environment problem (e.g. missing
- * native bindings) that the user cannot resolve.
+ * Infrastructure failures retain a server status, but still expose the known
+ * GTFS error message. Database constraints can instead indicate invalid input.
  */
 const SERVER_ERROR_CODES = new Set([
+  'DB_OPEN_FAILED',
   'GTFS_TO_HTML_DATABASE_OPEN_FAILED',
   'GTFS_DATABASE_OPEN_FAILED',
 ]);
@@ -209,7 +203,8 @@ const SERVER_ERROR_CODES = new Set([
  * like trailing colons, file paths, and stack traces.
  */
 const sanitizePublicMessage = (message: string): string => {
-  const firstLine = message.split(/\r?\n/, 1)[0]?.trim() ?? '';
+  const firstLine =
+    publicGenerationMessage(message).split(/\r?\n/, 1)[0]?.trim() ?? '';
   const withoutTrailingColon = firstLine.replace(/[:\s]+$/, '');
 
   if (!withoutTrailingColon) {
@@ -288,22 +283,36 @@ export const getPublicGtfsErrorResponse = (
   }
 
   if (isGtfsToHtmlError(error) || isGtfsError(error)) {
-    if (
-      SERVER_ERROR_CODES.has(error.code) ||
-      SERVER_ERROR_CATEGORIES.has(error.category)
-    ) {
-      return getServerErrorResponse();
-    }
+    const file =
+      typeof error.details?.file === 'string'
+        ? error.details.file.split(/[\\/]/).at(-1)
+        : undefined;
+    const line = error.details?.line;
+    const location = [
+      file,
+      typeof line === 'number' && Number.isSafeInteger(line) && line > 0
+        ? `line ${line}`
+        : undefined,
+    ]
+      .filter(Boolean)
+      .join(', ');
+    const message = sanitizePublicMessage(
+      location ? `${location}: ${error.message}` : error.message,
+    );
 
     if (error.category === 'download') {
-      return getDownloadFailureResponse(error);
+      const downloadError = getDownloadFailureResponse(error);
+      return {
+        ...downloadError,
+        error: `${message} ${publicGenerationMessage(downloadError.error)}`,
+      };
     }
 
     return {
-      error: sanitizePublicMessage(error.message),
+      error: message,
       code: error.code,
       category: error.category,
-      statusCode: 400,
+      statusCode: SERVER_ERROR_CODES.has(error.code) ? 500 : 400,
     };
   }
 
