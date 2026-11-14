@@ -1,6 +1,11 @@
 import { SecurityError } from './security-error.ts';
 import { publicGenerationMessage } from './public-generation-message.ts';
-import { isGtfsToHtmlError, isGtfsError, type GtfsError } from 'gtfs-to-html';
+import {
+  isGtfsToHtmlError,
+  isGtfsError,
+  GtfsErrorCode,
+  type GtfsError,
+} from 'gtfs-to-html';
 
 const DEFAULT_SERVER_ERROR_MESSAGE =
   'An unexpected server error occurred. For help, email gtfs@blinktag.com with the GTFS you are trying to use.';
@@ -151,7 +156,7 @@ const getDownloadFailureResponse = (error: GtfsError): PublicErrorResponse => {
   const url = typeof details?.url === 'string' ? details.url : undefined;
   const urlSuffix = url ? ` URL tried: ${url}` : '';
 
-  if (error.code === 'GTFS_DOWNLOAD_HTTP') {
+  if (error.code === GtfsErrorCode.DOWNLOAD_HTTP_FAILED) {
     const status =
       typeof error.statusCode === 'number'
         ? error.statusCode

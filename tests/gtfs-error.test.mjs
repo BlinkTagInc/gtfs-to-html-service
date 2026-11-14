@@ -1,13 +1,29 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { GtfsError, GtfsToHtmlError } from 'gtfs-to-html';
+import { GtfsError, GtfsErrorCode, GtfsToHtmlError } from 'gtfs-to-html';
 import { getPublicGtfsErrorResponse } from '../src/lib/gtfs-error.ts';
 
 test('known GTFS errors retain their messages, codes and categories', () => {
-  for (const ErrorClass of [GtfsError, GtfsToHtmlError]) {
-    for (const category of ['database', 'parse', 'validation', 'internal']) {
+  for (const [ErrorClass, cases] of [
+    [
+      GtfsError,
+      [
+        ['GTFS_DATABASE_OPERATION_FAILED', 'database'],
+        ['GTFS_CSV_PARSE_FAILED', 'parse'],
+        ['GTFS_VALIDATION_FAILED', 'validation'],
+      ],
+    ],
+    [
+      GtfsToHtmlError,
+      [
+        ['GTFS_TO_HTML_QUERY_INVALID', 'query'],
+        ['GTFS_TO_HTML_TIMETABLE_GENERATION_FAILED', 'internal'],
+      ],
+    ],
+  ]) {
+    for (const [code, category] of cases) {
       const error = new ErrorClass('Specific GTFS failure', {
-        code: 'GTFS_TEST_FAILURE',
+        code,
         category,
       });
       // Workers reconstruct an Error with the library's custom fields.
@@ -15,7 +31,7 @@ test('known GTFS errors retain their messages, codes and categories', () => {
       for (const candidate of [error, reconstructed]) {
         assert.deepEqual(getPublicGtfsErrorResponse(candidate), {
           error: 'Specific GTFS failure',
-          code: 'GTFS_TEST_FAILURE',
+          code,
           category,
           statusCode: 400,
         });
@@ -25,13 +41,12 @@ test('known GTFS errors retain their messages, codes and categories', () => {
 });
 
 test('database startup errors retain their message and server status', () => {
-  for (const code of [
-    'DB_OPEN_FAILED',
-    'GTFS_DATABASE_OPEN_FAILED',
-    'GTFS_TO_HTML_DATABASE_OPEN_FAILED',
+  for (const [ErrorClass, code] of [
+    [GtfsError, 'GTFS_DATABASE_OPEN_FAILED'],
+    [GtfsToHtmlError, 'GTFS_TO_HTML_DATABASE_OPEN_FAILED'],
   ]) {
     const result = getPublicGtfsErrorResponse(
-      new GtfsError('Unable to open database', { code, category: 'database' }),
+      new ErrorClass('Unable to open database', { code, category: 'database' }),
     );
     assert.equal(result.error, 'Unable to open database');
     assert.equal(result.statusCode, 500);
@@ -77,6 +92,28 @@ test('download errors preserve the original message and helpful timeout context'
   assert.match(result.error, /Timed out while trying to download GTFS/);
   assert.match(result.error, /https:\/\/example.com\/feed.zip/);
   assert.equal(result.code, 'DOWNLOAD_TIMEOUT');
+});
+
+test('HTTP download failures preserve upstream status and map the response status', () => {
+  for (const status of [403, 404, 500, 503]) {
+    for (const statusFields of [{ statusCode: status }, {}]) {
+      const error = new GtfsError('Source download failed', {
+        code: GtfsErrorCode.DOWNLOAD_HTTP_FAILED,
+        category: 'download',
+        ...statusFields,
+        details: { url: 'https://example.com/feed.zip', status },
+      });
+      const reconstructed = Object.assign(new Error(error.message), error);
+      for (const candidate of [error, reconstructed]) {
+        const result = getPublicGtfsErrorResponse(candidate);
+        assert.equal(result.code, 'DOWNLOAD_HTTP_ERROR');
+        assert.equal(result.category, 'download');
+        assert.equal(result.statusCode, status >= 500 ? 502 : 400);
+        assert.match(result.error, new RegExp(`HTTP ${status}`));
+        assert.match(result.error, /https:\/\/example.com\/feed.zip/);
+      }
+    }
+  }
 });
 
 test('unknown errors still use the generic server response', () => {

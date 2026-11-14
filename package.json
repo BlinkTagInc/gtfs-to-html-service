@@ -12,17 +12,17 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@hookform/resolvers": "^5.9.2",
+    "@hookform/resolvers": "^7.0.6",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.9.0",
-    "gtfs-to-html": "^2.13.6",
+    "gtfs-to-html": "^2.14.0",
     "ipaddr.js": "^2.5.0",
     "next": "^16.4.6",
     "node-stream-zip": "^1.16.0",
     "react": "^19",
     "react-dom": "^19",
     "react-dropzone": "^20.2.0",
-    "react-hook-form": "^7.91.0",
+    "react-hook-form": "^7.92.0",
     "tempy": "^3.2.0",
     "zod": "^4.6.7"
   },
@@ -36,7 +36,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "postcss": "^8",
-    "prettier": "^3.9.10",
+    "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
     "typescript": "^7"
   },

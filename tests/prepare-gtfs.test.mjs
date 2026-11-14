@@ -248,8 +248,8 @@ test('duplicate stops reach the client with the GTFS message, file and line', as
     );
     const result = await readGenerationStream(new Response(stream), () => {});
     assert.deepEqual(result, {
-      error: 'stops.txt, line 3: UNIQUE constraint failed: stops.stop_id',
-      code: 'GTFS_DB_OPERATION_FAILED',
+      error: 'Could not store stops.txt CSV record 3 (ending at line 4)',
+      code: 'GTFS_DATABASE_OPERATION_FAILED',
       category: 'database',
     });
     assert.equal((await finished).complete, false);
