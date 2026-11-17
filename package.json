@@ -12,10 +12,10 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@hookform/resolvers": "^7.0.6",
+    "@hookform/resolvers": "^7.0.7",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^2.9.0",
-    "gtfs-to-html": "^2.14.0",
+    "gtfs-to-html": "^2.14.1",
     "ipaddr.js": "^2.5.0",
     "next": "^16.4.6",
     "node-stream-zip": "^1.16.0",
@@ -34,7 +34,7 @@
     "eslint": "^10",
     "eslint-config-next": "^16.4.6",
     "husky": "^9.1.7",
-    "lint-staged": "^17.6.0",
+    "lint-staged": "^17.6.1",
     "postcss": "^8",
     "prettier": "^3.10.1",
     "tailwindcss": "^4.3.5",
@@ -63,5 +63,5 @@
     "*.tsx": "prettier --write",
     "*.json": "prettier --write"
   },
-  "packageManager": "pnpm@12.19.0"
+  "packageManager": "pnpm@12.21.0"
 }
